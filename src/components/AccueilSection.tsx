@@ -47,7 +47,8 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
         {/* Image de fond théologique spectaculaire de cathédrale */}
         <div className="absolute inset-0 z-0">
           <img
-            src="../../img/Hero_pic.jpg"
+            // src="../../img/Hero_pic.jpg"
+            src={`${import.meta.env.BASE_URL}img/Hero_pic.jpg`}
             alt="Intérieur majestueux d'une cathédrale baignée de lumière spirituelle"
             className="w-full h-full object-cover object-center filter brightness-75 contrast-105"
             referrerPolicy="no-referrer"
