@@ -81,7 +81,7 @@ export const EVENEMENTS_DONNEES: Evenement[] = [
   },
   {
     identifiant: 'evenement-3',
-    titre: 'Banquet Solidaire pour les Démunis',
+    titre: 'Journée de charité pour les Démunis',
     description: 'Préparation et distribution d’un repas chaud aux personnes seules ou en situation précaire de notre quartier.',
     date: 'Samedi 06 Juin 2026',
     heure: '11h00',
@@ -101,8 +101,8 @@ export const EVENEMENTS_DONNEES: Evenement[] = [
   },
   {
     identifiant: 'evenement-5',
-    titre: 'Répétition de la Chorale Sainte-Cécile',
-    description: 'Nouvelles voix bienvenues pour préparer la liturgie des semaines à venir dans la joie musicale.',
+    titre: 'Répétition de la Chorale gabrielle',
+    description: 'Nouvelles voix bienvenues pour préparer le seminaire du 25 Décembre.',
     date: 'Jeudi 04 Juin 2026',
     heure: '18h30',
     lieu: 'Tribune des Orgues',
@@ -128,16 +128,16 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
   },
   {
     identifiant: 'membre-3',
-    nom: 'Élisabeth',
-    role: 'Animatrice Pastorale & Catéchèse',
+    nom: 'Sarah Élise',
+    role: 'Animatrice',
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'SE'
   },
   {
     identifiant: 'membre-4',
     nom: 'Marie Muzanga',
-    role: 'Chef de Chœur',
-    biographie: 'Musicienne passionnée, Marie-Louise anime la chorale d’adultes et d’enfants pour élever nos célébrations vers de magnifiques moments lyriques.',
-    initiales: 'ML'
+    role: 'Dirigeante de la chorale',
+    biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
+    initiales: 'MM'
   }
 ];

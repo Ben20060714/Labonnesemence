@@ -40,23 +40,14 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
     <div id="section-accueil-complete" className="space-y-20 pb-20">
       
       {/* 1. Hero Banner avec animations raffinées */}
-      <section
-        id="banniere-accueil-hero"
-        className="relative min-h-[78vh] flex items-center justify-center overflow-hidden bg-slate-950 text-white px-4 py-24"
-      >
-        {/* Image de fond théologique spectaculaire de cathédrale */}
+      <section id="banniere-accueil-hero" className="relative min-h-[78vh] flex items-center justify-center overflow-hidden bg-slate-950 text-white px-4 py-24">
+        {/* Image de fond*/}
         <div className="absolute inset-0 z-0">
-          <img
-            // src="../../img/Hero_pic.jpg"
-            src={`${import.meta.env.BASE_URL}img/Hero_pic.jpg`}
-            alt="Intérieur majestueux d'une cathédrale baignée de lumière spirituelle"
-            className="w-full h-full object-cover object-center filter brightness-75 contrast-105"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/70 to-slate-950/95" />
+          <img src="../../img/Hero_pic.jpg" alt="Intérieur" className="w-full h-full object-cover object-center filter brightness-75 contrast-105" referrerPolicy="no-referrer"/>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/70 to-slate-950/95"/>
         </div>
 
-        {/* Motif d'Arches de Cathédrale en SVG en arrière-plan */}
+        {/* Motif SVG en arrière-plan */}
         <div className="absolute inset-0 opacity-15 pointer-events-none mix-blend-overlay z-0">
           <svg className="w-full h-full text-[#c29f63]" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M 100 1000 Q 100 200 500 200 Q 900 200 900 1000" stroke="currentColor" strokeWidth="6" />
@@ -66,33 +57,23 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </svg>
         </div>
 
-        {/* Halo lumineux */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none z-0" />
+        {/* Halo lumineux*/}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none z-0"/>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-3"
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="space-y-3">
             <span className="font-mono text-xs uppercase tracking-widest text-[#c29f63] inline-block bg-[#c29f63]/10 px-3.5 py-1.5 rounded-full">
               Bienvenue dans votre communauté
             </span>
             <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
-              La bonne semence <br />
+              La bonne semence <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e7d4b0] via-[#c29f63] to-[#e7d4b0] bg-300% animate-pulse">
                 Unie par lorem ipsum dolor sit
               </span>
             </h1>
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base sm:text-lg text-slate-300 font-light max-w-2xl mx-auto leading-relaxed"
-          >
+          <motion.p initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-base sm:text-lg text-slate-300 font-light max-w-2xl mx-auto leading-relaxed">
             Retrouvez tous vos enseignements, vos programmes, les dévotions, vos divertissements ici.
           </motion.p>
 
@@ -289,7 +270,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             {
               titre: 'Chorales & Chants',
               image: '../../img/MM_3.jpg',
-              descr: 'Les Nyimbo za Wokovu & ?yimbo za Mungu avec le Frère Patrick.'
+              descr: 'Les Nyimbo za Wokovu & Nyimbo za Mungu avec le Frère Patrick.'
             },
             {
               titre: 'Mouvement de charité',

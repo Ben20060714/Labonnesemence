@@ -6,3 +6,7 @@ https://images.unsplash.com/photo-1507434965515-61970f2bd7c6?auto=format&fit=cro
 https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600
 https://images.unsplash.com/photo-1461530751191-68beaca85077?auto=format&fit=crop&q=80&w=600
 https://images.unsplash.com/photo-1501743411739-df52df7ef7a3?auto=format&fit=crop&q=80&w=800
+
+# TOOLS
+
+src={`${import.meta.env.BASE_URL}img/Hero_pic.jpg`}
