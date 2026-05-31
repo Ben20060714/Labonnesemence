@@ -12,9 +12,10 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Pst. Djoe Baruani',
     date: '24 Mai 2026',
     passageBiblique: 'Matthieu 18:21-22',
-    duree: '24:15',
     categorie: 'Dimanche',
-    resume: 'Comment libérer nos cœurs des fardeaux de l’amertume et restaurer des relations brisées grâce à la grâce divine au quotidien.'
+    resume: 'Comment libérer nos cœurs des fardeaux de l’amertume et restaurer des relations brisées grâce à la grâce divine au quotidien.',
+    // urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    urlAudio: '../../audio/Killorbeezbeatz - Ameni Ameni - Killorbeezbeatz.mp3'
   },
   {
     identifiant: 'sermon-2',
@@ -22,9 +23,10 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Diacre Michel Mwamba',
     date: '17 Mai 2026',
     passageBiblique: 'Marc 4:35-41',
-    duree: '18:40',
     categorie: 'Enseignement',
-    resume: 'Une réflexion profonde sur la foi éprouvée dans les moments d’incertitude et la paix intérieure qui découle de la présence du Christ.'
+    resume: 'Une réflexion profonde sur la foi éprouvée dans les moments d’incertitude et la paix intérieure qui découle de la présence du Christ.',
+    // urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+    urlAudio: '../../audio/Killorbeezbeatz - Ameni Ameni - Killorbeezbeatz.mp3'
   },
   {
     identifiant: 'sermon-3',
@@ -32,9 +34,10 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Pst. Jean-Marc Kalambay',
     date: '10 Mai 2026',
     passageBiblique: 'Luc 10:25-37',
-    duree: '22:10',
     categorie: 'Dimanche',
-    resume: 'Exploration de la parabole du Bon Samaritain et des applications concrètes pour notre engagement bénévole et solidaire actuel.'
+    resume: 'Exploration de la parabole du Bon Samaritain et des applications concrètes pour notre engagement bénévole et solidaire actuel.',
+    // urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+    urlAudio: '../../audio/Killorbeezbeatz - Ameni Ameni - Killorbeezbeatz.mp3'
   },
   {
     identifiant: 'sermon-4',
@@ -42,9 +45,9 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Sœur Élise',
     date: '03 Mai 2026',
     passageBiblique: 'Philippiens 4:4-7',
-    duree: '15:15',
     categorie: 'Enseignement',
-    resume: 'Donner de la vie à votre marige.'
+    resume: 'Donner de la vie à votre marige.',
+    urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
   },
   {
     identifiant: 'sermon-5',
@@ -52,9 +55,9 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Père Jean-Marc Kalambay',
     date: '26 Avril 2026',
     passageBiblique: '1 Corinthiens 12:12-27',
-    duree: '26:50',
     categorie: 'Fête',
-    resume: 'Célébration de la diversité de commités et présentation des moniteurs de l’école de Dimanche (ECODIM).'
+    resume: 'Célébration de la diversité de commités et présentation des moniteurs de l’école de Dimanche (ECODIM).',
+    urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
   }
 ];
 

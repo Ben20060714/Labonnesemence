@@ -3,22 +3,95 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, Play, Pause, Headphones, Calendar, Compass, Volume2, VolumeX, Square, Book } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES } from '../data';
 import { Sermon } from '../types';
 
+// Composant pour extraire et afficher la durée d'un fichier audio dynamiquement
+function AffichageDureeDynamique({ url }: { url: string }) {
+  const [duree, definirDuree] = useState<string>('--:--');
+
+  useEffect(() => {
+    const audioTemp = new Audio(url);
+    const chargerMeta = () => {
+      const minutes = Math.floor(audioTemp.duration / 60);
+      const secondes = Math.floor(audioTemp.duration % 60);
+      definirDuree(`${minutes.toString().padStart(2, '0')}:${secondes.toString().padStart(2, '0')}`);
+    };
+    audioTemp.addEventListener('loadedmetadata', chargerMeta);
+    return () => audioTemp.removeEventListener('loadedmetadata', chargerMeta);
+  }, [url]);
+
+  return <span>{duree}</span>;
+}
+
 export default function SermonsSection() {
-  const [listeSermons, definirListeSermons] = useState<Sermon[]>(SERMONS_DONNEES);
+  const [listeSermons] = useState<Sermon[]>(SERMONS_DONNEES);
   const [recherche, definirRecherche] = useState<string>('');
   const [categorieFiltree, definirCategorieFiltree] = useState<string>('Tous');
   
   // États de lecture Audio
   const [idSermonEnCours, definirIdSermonEnCours] = useState<string | null>(null);
   const [lectureEnCours, definirLectureEnCours] = useState<boolean>(false);
-  const [progressionLecture, definirProgressionLecture] = useState<number>(30); // pourcentage simulé
+  const [tempsActuel, definirTempsActuel] = useState<number>(0);
+  const [dureeTotale, definirDureeTotale] = useState<number>(0);
   const [audioSuivantSourdine, definirAudioSuivantSourdine] = useState<boolean>(false);
+
+  // Référence à l'élément audio HTML5
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialiser l'audio au montage
+  useEffect(() => {
+    audioRef.current = new Audio();
+    
+    const audio = audioRef.current;
+
+    const mettreAJourProgression = () => {
+      definirTempsActuel(audio.currentTime);
+    };
+
+    const chargerMetadonnees = () => {
+      definirDureeTotale(audio.duration);
+    };
+
+    const gererFinLecture = () => {
+      definirLectureEnCours(false);
+      definirTempsActuel(0);
+    };
+
+    audio.addEventListener('timeupdate', mettreAJourProgression);
+    audio.addEventListener('loadedmetadata', chargerMetadonnees);
+    audio.addEventListener('ended', gererFinLecture);
+
+    return () => {
+      audio.pause();
+      audio.removeEventListener('timeupdate', mettreAJourProgression);
+      audio.removeEventListener('loadedmetadata', chargerMetadonnees);
+      audio.removeEventListener('ended', gererFinLecture);
+    };
+  }, []);
+
+  // Synchroniser l'état de lecture et sourdine avec l'élément audio
+  useEffect(() => {
+    if (!audioRef.current) return;
+    
+    if (lectureEnCours) {
+      audioRef.current.play().catch(err => console.error("Erreur lecture:", err));
+    } else {
+      audioRef.current.pause();
+    }
+    audioRef.current.muted = audioSuivantSourdine;
+  }, [lectureEnCours, audioSuivantSourdine, idSermonEnCours]);
+
+  // Utilitaire pour formater les secondes en MM:SS
+  const formaterTemps = (secondes: number) => {
+    if (isNaN(secondes)) return "00:00";
+    const minutes = Math.floor(secondes / 60);
+    const restesSecondes = Math.floor(secondes % 60);
+    return `${minutes.toString().padStart(2, '0')}:${restesSecondes.toString().padStart(2, '0')}`;
+  };
 
   const obtenirImageSermon = (identifiant: string) => {
     switch (identifiant) {
@@ -51,32 +124,28 @@ export default function SermonsSection() {
   });
 
   const declencherLectureAudio = (idSermon: string) => {
+    const sermon = listeSermons.find(s => s.identifiant === idSermon);
+    if (!sermon || !audioRef.current) return;
+
     if (idSermonEnCours === idSermon) {
-      // Toggle play/pause
       definirLectureEnCours(!lectureEnCours);
     } else {
+      // Changer de morceau
+      audioRef.current.src = (sermon as any).urlAudio;
       definirIdSermonEnCours(idSermon);
       definirLectureEnCours(true);
-      definirProgressionLecture(0); // recommencer
-      
-      // Simuler l'avancement automatique
-      const intervalleSimulation = setInterval(() => {
-        definirProgressionLecture((prev) => {
-          if (prev >= 100) {
-            clearInterval(intervalleSimulation);
-            definirLectureEnCours(false);
-            return 100;
-          }
-          return prev + 1;
-        });
-      }, 1000);
+      definirTempsActuel(0);
     }
   };
 
   const arreterLectureAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
     definirIdSermonEnCours(null);
     definirLectureEnCours(false);
-    definirProgressionLecture(0);
+    definirTempsActuel(0);
   };
 
   const sermonSelectionne = listeSermons.find((s) => s.identifiant === idSermonEnCours);
@@ -221,7 +290,7 @@ export default function SermonsSection() {
                         </>
                       ) : (
                         <>
-                          <Play className="w-3.5 h-3.5" /> Écouter ({sermon.duree})
+                        <Play className="w-3.5 h-3.5" /> Écouter • <AffichageDureeDynamique url={(sermon as any).urlAudio} />
                         </>
                       )}
                     </button>
@@ -313,14 +382,14 @@ export default function SermonsSection() {
 
               {/* Barre de timeline temporelle */}
               <div className="w-full flex items-center gap-3 text-[10px] font-mono text-slate-400">
-                <span>00:30</span>
+                <span>{formaterTemps(tempsActuel)}</span>
                 <div className="relative flex-1 h-1 bg-slate-700 rounded-full overflow-hidden cursor-pointer group">
                   <div
                     className="absolute left-0 top-0 bottom-0 bg-[#c29f63] transition-all"
-                    style={{ width: `${progressionLecture}%` }}
+                    style={{ width: `${(tempsActuel / (dureeTotale || 1)) * 100}%` }}
                   />
                 </div>
-                <span>{sermonSelectionne.duree}</span>
+                <span>{formaterTemps(dureeTotale)}</span>
               </div>
             </div>
 

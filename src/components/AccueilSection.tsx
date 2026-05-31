@@ -3,9 +3,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BookOpen, Calendar, Gift, Heart, MapPin, Play, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BookOpen, Calendar, Gift, Heart, MapPin, Play, Users, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SERMONS_DONNEES, EVENEMENTS_DONNEES } from '../data';
+
+// Helper pour la durée automatique
+function DureeAudioAuto({ url }: { url: string }) {
+  const [duree, definirDuree] = useState<string>('Chargement...');
+
+  useEffect(() => {
+    const audio = new Audio(url);
+    const handleMeta = () => {
+      const mins = Math.floor(audio.duration / 60);
+      const secs = Math.floor(audio.duration % 60);
+      definirDuree(`${mins}:${secs.toString().padStart(2, '0')}`);
+    };
+    audio.addEventListener('loadedmetadata', handleMeta);
+    return () => audio.removeEventListener('loadedmetadata', handleMeta);
+  }, [url]);
+
+  return <span>{duree}</span>;
+}
 
 interface AccueilSectionProps {
   redirigerVersPage: (page: string) => void;
@@ -216,7 +235,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span className="font-semibold text-slate-200">{dernierSermon.orateur}</span>
                 <span>•</span>
-                <span className="font-mono">{dernierSermon.duree} min</span>
+                <span className="font-mono flex items-center gap-1"><Clock className="w-3 h-3"/> <DureeAudioAuto url={(dernierSermon as any).urlAudio} /></span>
               </div>
             </div>
 

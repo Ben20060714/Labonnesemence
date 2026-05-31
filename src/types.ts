@@ -9,7 +9,6 @@ export interface Sermon {
   orateur: string;
   date: string;
   passageBiblique: string;
-  duree: string;
   categorie: 'Dimanche' | 'Enseignement' | 'Fête';
   resume: string;
   audioEstJoue?: boolean;

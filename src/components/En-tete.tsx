@@ -24,8 +24,8 @@ export default function EnTete({
 
   const ongletsNavigation = [
     { cle: 'accueil', libelle: 'Accueil' },
-    { cle: 'sermons', libelle: 'Sermons & Enseignements' },
-    { cle: 'evenements', libelle: 'Calendrier Paroissial' },
+    { cle: 'sermons', libelle: 'Enseignements' },
+    { cle: 'evenements', libelle: 'Calendrier' },
     { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
     { cle: 'contact-dons', libelle: 'Contact & Dons' },
   ];
