@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Sermon, Evenement, MembreEquipe } from './types';
+import { Sermon, Evenement, MembreEquipe, DevEquipe } from './types';
 
 export const SERMONS_DONNEES: Sermon[] = [
   {
@@ -42,7 +42,7 @@ export const SERMONS_DONNEES: Sermon[] = [
   {
     identifiant: 'sermon-4',
     titre: 'Cultiver la Joie Intérieure au Quotidien',
-    orateur: 'Sœur Élise',
+    orateur: 'Sr. Élise',
     date: '03 Mai 2026',
     passageBiblique: 'Philippiens 4:4-7',
     categorie: 'Enseignement',
@@ -51,8 +51,8 @@ export const SERMONS_DONNEES: Sermon[] = [
   },
   {
     identifiant: 'sermon-5',
-    titre: 'L’Unité Fraternelle : Un Seul Corps, Plusieurs Membres',
-    orateur: 'Père Jean-Marc Kalambay',
+    titre: 'L’Unité : Un Seul Corps, Plusieurs Membres',
+    orateur: 'Pst. Jean-Marc Kalambay',
     date: '26 Avril 2026',
     passageBiblique: '1 Corinthiens 12:12-27',
     categorie: 'Fête',
@@ -65,7 +65,7 @@ export const EVENEMENTS_DONNEES: Evenement[] = [
   {
     identifiant: 'evenement-1',
     titre: 'Culte de la Pentecôte',
-    description: 'Louanges et adoration suivies d’un apéritif convivial.',
+    description: 'Louanges et adoration suivies d’une détente.',
     date: 'Dimanche 31 Mai 2026',
     heure: '10h30',
     lieu: 'La bonne semence',
@@ -113,7 +113,24 @@ export const EVENEMENTS_DONNEES: Evenement[] = [
     placesDisponibles: 25
   }
 ];
-
+export const DEVELOPPEUR: DevEquipe[] = [
+  {
+    identifiant : 'Dev-1',
+    nom : 'Benjamin Mwaku',
+    role : 'Developpeur',
+    telephone : '+243 82 043 3981',
+    email : 'Benkailazad8@gmail.com',
+    description : 'Je suis dévéloppeur web FrontEnd aussi passioné par la sécurité informatique. je suis toujours prêt à apprendre des nouvelles technologies surtout que je m’y adapte facilement, j’utilise des FrameWork comme "Tailwindcss", "TypeScript", "React", des langages comme "HTML", "CSS", "Python".'
+  },
+  {
+    identifiant : 'Dev-2',
+    nom : 'Djeef Bulabula',
+    role : 'Developpeur',
+    telephone : '+243 83 888 983',
+    email : 'Djeefjason@gmail.com',
+    description : 'Je suis disponible pour apprendre avec vous !.'
+  }
+]
 export const EQUIPE_DONNEES: MembreEquipe[] = [
   {
     identifiant: 'membre-1',

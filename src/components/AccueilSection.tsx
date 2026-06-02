@@ -235,7 +235,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span className="font-semibold text-slate-200">{dernierSermon.orateur}</span>
                 <span>•</span>
-                <span className="font-mono flex items-center gap-1"><Clock className="w-3 h-3"/> <DureeAudioAuto url={(dernierSermon as any).urlAudio} /></span>
+                <span className="font-mono flex items-center gap-1"><Clock className="w-3 h-3"/> <DureeAudioAuto url={dernierSermon.urlAudio} /></span>
               </div>
             </div>
 
@@ -272,6 +272,13 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           <p className="text-sm text-slate-500 font-light dark:text-slate-400">
             Lorem ipsum dolor sit amet adipiscing consectetur elit quam.
           </p>
+          <button
+            id="bouton-voir-toute-galerie"
+            onClick={() => redirigerVersPage('galerie')}
+            className="inline-block mt-4 px-6 py-2 rounded-full border border-[#af894d] text-[#af894d] hover:bg-[#af894d] hover:text-white transition-all text-xs font-bold uppercase tracking-widest cursor-pointer"
+          >
+            Voir toute la galerie
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -340,7 +347,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               onClick={() => redirigerVersPage('contact-dons')}
               className="px-8 py-3 rounded-md text-xs font-bold uppercase tracking-widest text-white bg-[#af894d] hover:bg-[#936f3c] transition-all cursor-pointer shadow-md hover:shadow-lg"
             >
-              Faire un offrande / Soutenir
+              Faire un don / Soutenir
             </button>
           </div>
         </div>

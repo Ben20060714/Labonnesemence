@@ -12,6 +12,7 @@ import SermonsSection from './components/SermonsSection';
 import EvenementsSection from './components/EvenementsSection';
 import AProposSection from './components/AProposSection';
 import ContactDonsSection from './components/ContactDonsSection';
+import GalerieSection from './components/GalerieSection';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
@@ -51,6 +52,8 @@ export default function App() {
         return <EvenementsSection />;
       case 'communaute':
         return <AProposSection />;
+      case 'galerie':
+        return <GalerieSection />;
       case 'contact-dons':
         return <ContactDonsSection />;
       default:

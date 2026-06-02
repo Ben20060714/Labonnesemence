@@ -1,6 +1,6 @@
 {
-  "name": "Paroisse de l'Alliance",
-  "description": "Site officiel de la Paroisse de l'Alliance. Un espace d'accueil, d'homélies, d'événements et de communion fraternelle.",
+  "name": "Eglise la bonne semence",
+  "description": "Site officiel de l'église la bonne semence.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

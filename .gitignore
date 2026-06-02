@@ -5,6 +5,7 @@ coverage/
 .DS_Store
 *.log
 .env*
-!.env.example
+.env.example
 *.mp3
 *.m4a
+tmp

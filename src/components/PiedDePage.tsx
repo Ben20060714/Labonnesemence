@@ -28,10 +28,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
   };
 
   return (
-    <footer
-      id="pied-de-page-principal"
-      className="bg-slate-900 text-slate-300 border-t border-slate-800 transition-colors duration-300 dark:bg-slate-950"
-    >
+    <footer id="pied-de-page-principal" className="bg-slate-900 text-slate-300 border-t border-slate-800 transition-colors duration-300 dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Bloc Église / Présentation */}
@@ -71,7 +68,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                 <span className="font-mono text-slate-300">16h00 - 18h00</span>
               </li>
               <li className="flex justify-between">
-                <span>Vendredi (Jeûne et prière) :</span>
+                <span>Vendredi :</span>
                 <span className="font-mono text-slate-300">14h00 - 18h00</span>
               </li>
             </ul>
@@ -89,7 +86,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-[#c29f63]" />
-                <span className="font-mono">+243 999 999 999</span>
+                <span className="font-mono">+243 822 342 445</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-[#c29f63]" />

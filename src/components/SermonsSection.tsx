@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES } from '../data';
 import { Sermon } from '../types';
 
-// Composant pour extraire et afficher la durée d'un fichier audio dynamiquement
+// Composant pour extraire et afficher la durée d'un fichier audio
 function AffichageDureeDynamique({ url }: { url: string }) {
   const [duree, definirDuree] = useState<string>('--:--');
 
@@ -156,13 +156,13 @@ export default function SermonsSection() {
       {/* Titre et introduction */}
       <div className="space-y-4 max-w-3xl">
         <span className="font-mono text-xs uppercase tracking-widest text-[#af894d] dark:text-[#c29f63] block">
-          Ressources Spirituelles
+          Ressources
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-slate-900 leading-tight dark:text-slate-100">
-          Prêches & Enseignements Vocaux
+          Revue des Enseignements
         </h1>
         <p className="text-base text-slate-600 font-light dark:text-slate-400">
-          Retrouvez les homélies dominicales et les sessions de cours théologiques partagées par nos ecclésiastiques. Filtrez par thématique ou recherchez un verset biblique spécifique.
+          Retrouvez tous vos enseignements et messages. Filtrez par thématique ou recherchez un verset biblique spécifique.
         </p>
       </div>
 
@@ -266,8 +266,8 @@ export default function SermonsSection() {
 
                   {/* Pied de la carte avec bouton de lecture */}
                   <div className="pt-5 border-t border-slate-50 flex items-center justify-between dark:border-slate-850">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                    <div className="flex flex-col min-w-0 pr-2">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                         {sermon.orateur}
                       </span>
                       <span className="text-[10px] uppercase font-mono tracking-widest text-[#c29f63]">
@@ -278,7 +278,7 @@ export default function SermonsSection() {
                     <button
                       id={`bouton-ecoute-${sermon.identifiant}`}
                       onClick={() => declencherLectureAudio(sermon.identifiant)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                      className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
                         estEnTrainDeJouer
                           ? 'bg-[#c29f63] text-slate-950'
                           : 'bg-slate-900 text-white hover:bg-[#af894d] dark:bg-slate-800 dark:hover:bg-[#af894d]'
@@ -286,11 +286,11 @@ export default function SermonsSection() {
                     >
                       {estEnTrainDeJouer ? (
                         <>
-                          <Pause className="w-3.5 h-3.5" /> En cours
+                          <Pause className="w-3.5 h-3.5" /> <span className="hidden xs:inline">En cours</span><span className="xs:hidden">Lecture</span>
                         </>
                       ) : (
                         <>
-                        <Play className="w-3.5 h-3.5" /> Écouter • <AffichageDureeDynamique url={(sermon as any).urlAudio} />
+                        <Play className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Écouter • </span> <AffichageDureeDynamique url={sermon.urlAudio} />
                         </>
                       )}
                     </button>

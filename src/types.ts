@@ -9,9 +9,10 @@ export interface Sermon {
   orateur: string;
   date: string;
   passageBiblique: string;
-  categorie: 'Dimanche' | 'Enseignement' | 'Fête';
+  categorie: 'Dimanche' | 'Enseignement' | 'Fête' | 'Dévotion';
   resume: string;
   audioEstJoue?: boolean;
+  urlAudio: string;
 }
 
 export interface Evenement {
@@ -31,6 +32,15 @@ export interface MembreEquipe {
   role: string;
   biographie: string;
   initiales: string;
+}
+
+export interface DevEquipe {
+  identifiant : string;
+  nom : string;
+  role : string;
+  telephone : string;
+  email : string;
+  description : string;
 }
 
 export interface MessageContact {
