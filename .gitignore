@@ -8,3 +8,5 @@ coverage/
 *.mp3
 *.m4a
 tmp
+node.js.yml
+deploy.yml
