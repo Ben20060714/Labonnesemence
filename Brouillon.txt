@@ -1,3 +1,24 @@
+# TODO
+
+0. Lire cette TODO list et la réorganiser selon les étapes
+1. Ajouter la fonctionnalité de gestion de niveau dans la lecture des enseignements audio
+2. Ajouter une page Admin.tsx (Fonctionnalités : un calendrier interactif qui pourra aider à ajouter facilement les dates des évènements (Jour - mois - année, Heure, lieu), un système d'organisation d'évènements, d'ajout d'enseignements audio et d'ajout de photos, fonctionnalité de gestion du trombinoscope des mebres clés de l'église (ajout/suppression (se referer à data.tsx)))(Le tout en se referant au site web)
+3. Transformer la partie membres en trombinoscope avec la page admin liée à ça
+4. Verifier la page GalerieSection.tsx pour decouvrir ce qui le fait laguer au chargement ou après le chargement complet de la page
+5. Remplacer le faux latin par le vrai texte provenant de l'église
+6. Remplacer les images
+7. Ajouter la fonctionnalité qui affiche d'abord les enseignements et photos récentes puis les anciens : le tri du plus récent d'abord jusqu'au plus ancien
+8. Finir le formulaire de contact
+9. Integrer les API de paiement : Mobile Money et Carte/Virement bancaire
+10. Ajouter la fonctionnalité 'MailTo', l'API Whatsapp de contact et de communication par téléphone depuis les informations des membres et developpeurs
+11. Reparer le site de façon à ce que quand je navigue a prtir de liens du site, que ça me ramène soit au debut (en haut) de la page soit là où il y a une sorte de href=""
+12. Ajouter une bible (Sans la lier directement au site : c'est une fonctionnalité provisoire)
+13. Faire en sorte que le site soit installable comme extension web
+14. Checker le site pour voir en combien de temps il peut se charger complètement
+15. Créer un agent
+16. La fonctionnalité 
+
+
 # IMAGES
 
 https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&q=80&w=1600

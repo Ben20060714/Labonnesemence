@@ -183,13 +183,7 @@ export default function AProposSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {EQUIPE_DONNEES.map((membre) => (
-            <motion.div
-              key={membre.identifiant}
-              id={`carte-paroisse-membre-${membre.identifiant}`}
-              layoutId={`contenant-membre-${membre.identifiant}`}
-              onClick={() => definirMembreSelectionne(membre)}
-              className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800"
-            >
+            <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm">
                 {membre.initiales}
               </div>
@@ -215,7 +209,7 @@ export default function AProposSection() {
       {/* Modale de description du membre (Pastoral Detail sheet) */}
       <AnimatePresence>
         {membreSelectionne && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center h-screen justify-center p-4">
             {/* Overlay transparent de fermeture */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-950 cursor-pointer" onClick={() => definirMembreSelectionne(null)} />
 
@@ -265,7 +259,8 @@ export default function AProposSection() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>+243 999 999 999 {membreSelectionne.identifiant === 'membre-1' ? '21' : '30'}</span>
+                  {/* <span>+243 999 999 999 {membreSelectionne.identifiant === 'membre-1' ? '21' : '30'}</span> */}
+                  <span>+243 999 999 999</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="w-3.5 h-3.5 text-[#af894d]" />
@@ -294,13 +289,7 @@ export default function AProposSection() {
 
         <div className="flex flex-wrap justify-center gap-6">
           {DEVELOPPEUR.map((dev) => (
-            <motion.div
-              key={dev.identifiant}
-              id={`carte-dev-${dev.identifiant}`}
-              layoutId={`contenant-dev-${dev.identifiant}`}
-              onClick={() => definirDevSelectionne(dev)}
-              className="w-full sm:w-72 bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800"
-            >
+            <motion.div key={dev.identifiant} id={`carte-dev-${dev.identifiant}`} layoutId={`contenant-dev-${dev.identifiant}`} onClick={() => definirDevSelectionne(dev)} className="w-full sm:w-72 bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm">
                 {dev.initiales}
               </div>
@@ -323,7 +312,7 @@ export default function AProposSection() {
         </div>
       </div>
 
-      {/* Modale de description du membre (Pastoral Detail sheet) */}
+      {/* Modale de description du developpeur */}
       <AnimatePresence>
         {devSelectionne && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -353,10 +342,11 @@ export default function AProposSection() {
 
               {/* Biographie complète */}
               <div className="space-y-4 border-t border-slate-50 pt-5 text-sm font-light text-slate-600 leading-relaxed dark:text-slate-400 dark:border-slate-850">
-                <p>{devSelectionne.description}</p>
+                {/* <p>{devSelectionne.description}</p> */}
 
-                <p className="text-xs italic bg-[#fcfaf4] p-3 border border-[#f4ebd9]/60 rounded dark:bg-slate-800/50 dark:border-slate-800">
-                  « Développer des outils pour la communauté est une mission qui me tient à cœur. »
+                <p className=" italic bg-[#fcfaf4] p-3 border border-[#f4ebd9]/60 rounded dark:bg-slate-800/50 dark:border-slate-800">
+                  {/* « Développer des outils pour la communauté est une mission qui me tient à cœur. » */}
+                  {devSelectionne.description.toLowerCase()}
                 </p>
               </div>
 
@@ -368,11 +358,11 @@ export default function AProposSection() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>+243 999 999 999 {devSelectionne.identifiant === 'Dev-1' ? '21' : '30'}</span>
+                  <span>{devSelectionne.telephone.toLowerCase()}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>Membre de la bonne semence depuis 2020</span>
+                  <span>{devSelectionne.accomplissement}</span>
                 </div>
               </div>
 

@@ -336,7 +336,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             <Gift className="w-8 h-8" />
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">
-            Soutenir les commités de l’église
+            Soutenir les comités de l’église
           </h2>
           <p className="text-sm sm:text-base text-slate-600 font-light max-w-2xl mx-auto leading-relaxed dark:text-slate-400">
             Grâce à votre générosité matérielle, nous pouvons maintenir notre église ouverte en journée, secourir les plus pauvres via nos journée de charité. Merci pour votre don et votre présence constante.

@@ -38,7 +38,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                 <Church className="w-5 h-5" />
               </div>
               <span className="font-serif text-xl tracking-wider font-semibold text-[#c29f63]">
-                La Bonne semence
+                CABCS
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed font-light">

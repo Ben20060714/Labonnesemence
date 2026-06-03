@@ -32,7 +32,7 @@ export default function ContactDonsSection() {
     } else if (somme <= 75) {
       return 'Peut financer les vivres distribués lors de nos visites aux démunis mais aussi booster la structure de l’église.';
     } else if (somme <= 250) {
-      return 'Peut soutenir activement les commités de l’église et le financement des sorties culturelles ou de détente.';
+      return 'Peut soutenir activement les comités de l’église et le financement des sorties culturelles ou de détente.';
     } else {
       return 'Contribue directement aux réparations de notre église et à l’entretien technique des autres secteurs défectueux.';
     }

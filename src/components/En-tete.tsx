@@ -49,7 +49,7 @@ export default function EnTete({
             </div>
             <div className="flex flex-col">
               <span className="font-serif text-lg tracking-wider font-semibold text-[#af894d] dark:text-[#c29f63]">
-                La bonne semence
+                CABCS
               </span>
               <span className="text-[10px] uppercase font-mono tracking-widest text-slate-400 dark:text-slate-500">
                 30ème C.P.CO

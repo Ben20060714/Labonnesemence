@@ -56,7 +56,7 @@ export const SERMONS_DONNEES: Sermon[] = [
     date: '26 Avril 2026',
     passageBiblique: '1 Corinthiens 12:12-27',
     categorie: 'Fête',
-    resume: 'Célébration de la diversité de commités et présentation des moniteurs de l’école de Dimanche (ECODIM).',
+    resume: 'Célébration de la diversité de comités et présentation des moniteurs de l’école de Dimanche (ECODIM).',
     urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
   }
 ];
@@ -116,19 +116,23 @@ export const EVENEMENTS_DONNEES: Evenement[] = [
 export const DEVELOPPEUR: DevEquipe[] = [
   {
     identifiant : 'Dev-1',
+    initiales : 'BM',
     nom : 'Benjamin Mwaku',
     role : 'Developpeur',
     telephone : '+243 82 043 3981',
     email : 'Benkailazad8@gmail.com',
-    description : 'Je suis dévéloppeur web FrontEnd aussi passioné par la sécurité informatique. je suis toujours prêt à apprendre des nouvelles technologies surtout que je m’y adapte facilement, j’utilise des FrameWork comme "Tailwindcss", "TypeScript", "React", des langages comme "HTML", "CSS", "Python".'
+    description : 'Je suis dévéloppeur web FrontEnd aussi passioné par la sécurité informatique. je suis toujours prêt à apprendre des nouvelles technologies surtout que je m’y adapte facilement, j’utilise des FrameWork comme "Tailwindcss", "TypeScript", "React", des langages comme "HTML", "CSS", "Python".',
+    accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
   },
   {
     identifiant : 'Dev-2',
+    initiales : 'DB',
     nom : 'Djeef Bulabula',
     role : 'Developpeur',
     telephone : '+243 83 888 983',
     email : 'Djeefjason@gmail.com',
-    description : 'Je suis disponible pour apprendre avec vous !.'
+    description : 'Je suis disponible pour apprendre avec vous !',
+    accomplissement : 'En cours'
   }
 ]
 export const EQUIPE_DONNEES: MembreEquipe[] = [
@@ -136,6 +140,7 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-1',
     nom: 'Djoe Baruani',
     role: 'Pasteur de l\'église',
+    // email: 'Jl@gmail.com'
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'DB'
   },
@@ -143,6 +148,7 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-2',
     nom: 'Jean lukanga',
     role: 'Diacre',
+    // email: 'Jl@gmail.com'
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'JL'
   },
@@ -150,6 +156,7 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-3',
     nom: 'Sarah Élise',
     role: 'Animatrice',
+    // email: 'Jl@gmail.com'
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'SE'
   },
@@ -157,6 +164,7 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-4',
     nom: 'Marie Muzanga',
     role: 'Dirigeante de la chorale',
+    // email: 'Jl@gmail.com'
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'MM'
   }
