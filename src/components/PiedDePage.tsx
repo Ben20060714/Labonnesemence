@@ -45,7 +45,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
               Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ab similique voluptatum nobis. Consectetur eaque, autem assumenda illo doloremque fuga distinctio tenetur eius ipsam eum debitis deserunt omnis velit. Autem, et?.
             </p>
             <div className="text-xs text-slate-500 font-mono">
-              © {new Date().getFullYear()} La bonne semence.
+              © {new Date().getFullYear()} CABCS.
             </div>
           </div>
 
