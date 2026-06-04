@@ -10,7 +10,7 @@
 7. Ajouter la fonctionnalité qui affiche d'abord les enseignements et photos récentes puis les anciens : le tri du plus récent d'abord jusqu'au plus ancien
 8. Finir le formulaire de contact
 9. Integrer les API de paiement : Mobile Money et Carte/Virement bancaire
-10. Ajouter la fonctionnalité 'MailTo', l'API Whatsapp de contact et de communication par téléphone depuis les informations des membres et developpeurs
+10. # Ajouter la fonctionnalité 'MailTo', l'API Whatsapp de contact et de communication par téléphone depuis les informations des membres et developpeurs
 11. Reparer le site de façon à ce que quand je navigue a prtir de liens du site, que ça me ramène soit au debut (en haut) de la page soit là où il y a une sorte de href=""
 12. Ajouter une bible (Sans la lier directement au site : c'est une fonctionnalité provisoire)
 13. Faire en sorte que le site soit installable comme extension web

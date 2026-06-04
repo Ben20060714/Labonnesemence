@@ -28,7 +28,7 @@ export default function EnTete({
     { cle: 'evenements', libelle: 'Calendrier' },
     { cle: 'galerie', libelle: 'Galerie' },
     { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
-    { cle: 'contact-dons', libelle: 'Contact & Dons' },
+    { cle: 'contact-dons', libelle: 'Contact & Dons' }
   ];
 
   const executerChangementPage = (clePage: string) => {

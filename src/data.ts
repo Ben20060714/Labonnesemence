@@ -140,7 +140,8 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-1',
     nom: 'Djoe Baruani',
     role: 'Pasteur de l\'église',
-    // email: 'Jl@gmail.com'
+    email: 'djoe.baruani@gmail.com',
+    telephone: '+243 822 342 445',
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'DB'
   },
@@ -148,7 +149,8 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-2',
     nom: 'Jean lukanga',
     role: 'Diacre',
-    // email: 'Jl@gmail.com'
+    email: 'j.lukanga@gmail.com',
+    telephone: '+243 999 000 001',
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'JL'
   },
@@ -156,7 +158,8 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-3',
     nom: 'Sarah Élise',
     role: 'Animatrice',
-    // email: 'Jl@gmail.com'
+    email: 's.elise@gmail.com',
+    telephone: '+243 999 000 002',
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'SE'
   },
@@ -164,7 +167,8 @@ export const EQUIPE_DONNEES: MembreEquipe[] = [
     identifiant: 'membre-4',
     nom: 'Marie Muzanga',
     role: 'Dirigeante de la chorale',
-    // email: 'Jl@gmail.com'
+    email: 'm.muzanga@gmail.com',
+    telephone: '+243 999 000 003',
     biographie: 'Lorem ipsum dolor sit amet adipiscing elit quam commodo lak um guit : era tresa endei neti wallit.',
     initiales: 'MM'
   }

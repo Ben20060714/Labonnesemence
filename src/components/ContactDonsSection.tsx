@@ -8,11 +8,13 @@ import { Mail, MessageSquare, ShieldCheck, Heart, User, Check, Send, Award, Comp
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ContactDonsSection() {
-  // États Formulaire Contact
-  const [nomContact, definirNomContact] = useState<string>('');
-  const [emailContact, definirEmailContact] = useState<string>('');
-  const [sujetContact, definirSujetContact] = useState<string>('');
-  const [contenuContact, definirContenuContact] = useState<string>('');
+  // Regroupement des états du formulaire pour une gestion plus fluide
+  const [formulaireContact, definirFormulaireContact] = useState({
+    nom: '',
+    email: '',
+    sujet: '',
+    contenu: ''
+  });
   const [notificationContactEnvoye, definirNotificationContactEnvoye] = useState<boolean>(false);
 
   // États Section Dons
@@ -24,31 +26,37 @@ export default function ContactDonsSection() {
 
   const montantsPredefinis = [15, 30, 50, 100, 250, 500];
 
+  // Extraction de la logique d'impact
   const determinerImpactDon = (somme: number): string => {
-    if (somme <= 20) {
-      return 'Peut contribuer à l’achat d’ornements de l’église et des besoins de l’école de dimanche.';
-    } else if (somme <= 40) {
-      return 'Peut financer du matériel créatif pour les enfants de l’école de dimanche.';
-    } else if (somme <= 75) {
-      return 'Peut financer les vivres distribués lors de nos visites aux démunis mais aussi booster la structure de l’église.';
-    } else if (somme <= 250) {
-      return 'Peut soutenir activement les comités de l’église et le financement des sorties culturelles ou de détente.';
-    } else {
-      return 'Contribue directement aux réparations de notre église et à l’entretien technique des autres secteurs défectueux.';
+    if (somme <= 20) return 'Peut contribuer à l’achat d’ornements de l’église et des besoins de l’école de dimanche.';
+    if (somme <= 40) return 'Peut financer du matériel créatif pour les enfants de l’école de dimanche.';
+    if (somme <= 75) return 'Peut financer les vivres distribués lors de nos visites aux démunis mais aussi booster la structure de l’église.';
+    if (somme <= 250) return 'Peut soutenir activement les comités de l’église et le financement des sorties culturelles ou de détente.';
+    return 'Contribue directement aux réparations de notre église et à l’entretien technique des autres secteurs défectueux.';
+  };
+
+  // Gestionnaire de changement unique
+  const gererChangementChamp = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    const correspondance: Record<string, string> = {
+      'nom-expediteur': 'nom',
+      'courriel-expediteur': 'email',
+      'objet-expediteur': 'sujet',
+      'corps-message': 'contenu'
+    };
+    if (correspondance[id]) {
+      definirFormulaireContact(prev => ({ ...prev, [correspondance[id]]: value }));
     }
   };
 
   const gererSoumissionContact = (evenement: SyntheticEvent) => {
     evenement.preventDefault();
-    if (!nomContact.trim() || !emailContact.trim() || !sujetContact.trim() || !contenuContact.trim()) return;
+    const { nom, email, sujet, contenu } = formulaireContact;
+    if (!nom.trim() || !email.trim() || !sujet.trim() || !contenu.trim()) return;
 
-    // Simulation d'envoi : # A MODIFIER
     definirNotificationContactEnvoye(true);
     setTimeout(() => {
-      definirNomContact('');
-      definirEmailContact('');
-      definirSujetContact('');
-      definirContenuContact('');
+      definirFormulaireContact({ nom: '', email: '', sujet: '', contenu: '' });
       definirNotificationContactEnvoye(false);
     }, 4000);
   };
@@ -115,8 +123,8 @@ export default function ContactDonsSection() {
                     id="nom-expediteur"
                     required
                     placeholder="Ex : Jean Ilunga"
-                    value={nomContact}
-                    onChange={(e) => definirNomContact(e.target.value)}
+                    value={formulaireContact.nom}
+                    onChange={gererChangementChamp}
                     className="w-full pl-9 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
                   />
                 </div>
@@ -133,8 +141,8 @@ export default function ContactDonsSection() {
                     id="courriel-expediteur"
                     required
                     placeholder="Ex : jeanilunga@gmail.com"
-                    value={emailContact}
-                    onChange={(e) => definirEmailContact(e.target.value)}
+                    value={formulaireContact.email}
+                    onChange={gererChangementChamp}
                     className="w-full pl-9 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
                   />
                 </div>
@@ -150,8 +158,8 @@ export default function ContactDonsSection() {
                 id="objet-expediteur"
                 required
                 placeholder="Ex : Communication nécrologique"
-                value={sujetContact}
-                onChange={(e) => definirSujetContact(e.target.value)}
+                value={formulaireContact.sujet}
+                onChange={gererChangementChamp}
                 className="w-full px-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
               />
             </div>
@@ -165,8 +173,8 @@ export default function ContactDonsSection() {
                 required
                 rows={5}
                 placeholder="Explicitez votre requête ici..."
-                value={contenuContact}
-                onChange={(e) => definirContenuContact(e.target.value)}
+                value={formulaireContact.contenu}
+                onChange={gererChangementChamp}
                 className="w-full px-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
               />
             </div>
@@ -190,7 +198,7 @@ export default function ContactDonsSection() {
         </div>
 
 
-        {/* ================= SECTION B : INTERACTION DONS / SOUVENIRS ================= */}
+        {/* ================= SECTION B : INTERACTION DONS ================= */}
         <div className="bg-slate-50 border border-[#f4ebd9] rounded-xl p-6 sm:p-8 space-y-6 flex flex-col justify-between dark:bg-slate-900/40 dark:border-slate-800">
           
           <div className="space-y-5">

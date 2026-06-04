@@ -96,24 +96,11 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             Retrouvez tous vos enseignements, vos programmes, les dévotions, vos divertissements ici.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-          >
-            <button
-              id="bouton-vers-evenements-hero"
-              onClick={() => redirigerVersPage('evenements')}
-              className="w-full sm:w-auto px-8 py-4 rounded-md bg-[#af894d] hover:bg-[#c29f63] text-sm tracking-wider font-semibold uppercase shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all cursor-pointer"
-            >
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <button id="bouton-vers-evenements-hero" onClick={() => redirigerVersPage('evenements')} className="w-full sm:w-auto px-8 py-4 rounded-md bg-[#af894d] hover:bg-[#c29f63] text-sm tracking-wider font-semibold uppercase shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all cursor-pointer">
               Reviser les programmes
             </button>
-            <button
-              id="bouton-vers-communaute-hero"
-              onClick={() => redirigerVersPage('communaute')}
-              className="w-full sm:w-auto px-8 py-4 rounded-md border border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-sm tracking-wider font-semibold uppercase transition-all cursor-pointer"
-            >
+            <button id="bouton-vers-communaute-hero" onClick={() => redirigerVersPage('communaute')} className="w-full sm:w-auto px-8 py-4 rounded-md border border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-sm tracking-wider font-semibold uppercase transition-all cursor-pointer">
               La communauté
             </button>
           </motion.div>
@@ -135,11 +122,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               Venez participer à notre activité hebdomadaire d'enseignement biblique.
             </p>
             <div>
-              <button
-                id="bouton-voir-tous-evenements"
-                onClick={() => redirigerVersPage('evenements')}
-                className="text-xs font-bold uppercase tracking-wider text-[#af894d] hover:text-[#936f3c] flex items-center gap-1 cursor-pointer dark:text-[#c29f63]"
-              >
+              <button id="bouton-voir-tous-evenements" onClick={() => redirigerVersPage('evenements')} className="text-xs font-bold uppercase tracking-wider text-[#af894d] hover:text-[#936f3c] flex items-center gap-1 cursor-pointer dark:text-[#c29f63]">
                 Calendrier →
               </button>
             </div>
@@ -166,11 +149,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               </div>
             </div>
 
-            <button
-              id="bouton-sinscrire-evenement-rapide"
-              onClick={() => redirigerVersPage('evenements')}
-              className="px-6 py-3 rounded text-xs font-bold uppercase tracking-wider bg-slate-900 text-white hover:bg-[#af894d] transition-all cursor-pointer dark:bg-slate-800 dark:hover:bg-[#af894d]"
-            >
+            <button id="bouton-sinscrire-evenement-rapide" onClick={() => redirigerVersPage('evenements')} className="px-6 py-3 rounded text-xs font-bold uppercase tracking-wider bg-slate-900 text-white hover:bg-[#af894d] transition-all cursor-pointer dark:bg-slate-800 dark:hover:bg-[#af894d]">
               En savoir plus
             </button>
           </div>

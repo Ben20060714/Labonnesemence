@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { ShieldCheck, History, X, Mail, Phone, Award } from 'lucide-react';
+import { ShieldCheck, History, X, Mail, Phone, Award, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DEVELOPPEUR, EQUIPE_DONNEES } from '../data';
 import { MembreEquipe, DevEquipe } from '../types';
@@ -49,7 +49,7 @@ export default function AProposSection() {
 
           <div className="flex flex-col space-y-4 text-sm sm:text-base text-slate-600 font-light leading-relaxed dark:text-slate-400">
             <div>
-              <h2 class="text-2xl font-bold">INTRODUCTION</h2>
+              <h2 className="text-2xl font-bold">INTRODUCTION</h2>
               <p>
                 La bonne semence est cette église qui a vu le jour en 1992 avec son grand visionnaire, <strong>le patriarche Jean Médard Kalonda Bin Baruani</strong>.
               </p>
@@ -66,7 +66,7 @@ export default function AProposSection() {
               </p>
             </div>
             <div>
-              <h2 class="text-2xl font-bold">LE PATRIARCHE JEAN MEDARD</h2>
+              <h2 className="text-2xl font-bold">LE PATRIARCHE JEAN MEDARD</h2>
               <p>Le patriarche Jean Médard Bin Baruani est un ancien musulman.<br />
                 Après avoir renoncé à l'islam en 1980, il crut à l'évangile du pasteur Jean Momu. Sous la conduite de ce dernier, le patriarche devient un grand sauveur d'âmes ainsi que le président du département de l'évangelisation à l'église viens et vois.
               </p>
@@ -78,7 +78,7 @@ export default function AProposSection() {
               </p>
             </div>
             <div>
-              <h2 class="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
+              <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
               <p>
                 Depuis la mort de son Bishop en Septembre 2020, la Bonne Semence est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
               </p>
@@ -251,17 +251,31 @@ export default function AProposSection() {
                 </p>
               </div>
 
-              {/* Contacts de service simulés */}
-              <div className="space-y-2 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>{membreSelectionne.initiales.toLowerCase()}@paroisse-alliance.fr</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#af894d]" />
-                  {/* <span>+243 999 999 999 {membreSelectionne.identifiant === 'membre-1' ? '21' : '30'}</span> */}
-                  <span>+243 999 999 999</span>
-                </div>
+              {/* Contacts de service */}
+              <div className="space-y-3 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
+                {membreSelectionne.email && (
+                  <a href={`mailto:${membreSelectionne.email}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-[#af894d]" />
+                    <span>{membreSelectionne.email.toLowerCase()}</span>
+                  </a>
+                )}
+                {membreSelectionne.telephone && (
+                  <div className="flex flex-wrap gap-x-4 gap-y-2">
+                    <a href={`tel:${membreSelectionne.telephone}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
+                      <Phone className="w-3.5 h-3.5 text-[#af894d]" />
+                      <span>{membreSelectionne.telephone}</span>
+                    </a>
+                    <a 
+                      href={`https://wa.me/${membreSelectionne.telephone.replace(/\D/g, '')}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Award className="w-3.5 h-3.5 text-[#af894d]" />
                   <span>Membre de la bonne semence depuis 2020</span>
@@ -351,14 +365,25 @@ export default function AProposSection() {
               </div>
 
               {/* Contacts de service */}
-              <div className="space-y-2 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
-                <div className="flex items-center gap-2">
+              <div className="space-y-3 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
+                <a href={`mailto:${devSelectionne.email}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
                   <Mail className="w-3.5 h-3.5 text-[#af894d]" />
                   <span>{devSelectionne.email.toLowerCase()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>{devSelectionne.telephone.toLowerCase()}</span>
+                </a>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  <a href={`tel:${devSelectionne.telephone}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
+                    <Phone className="w-3.5 h-3.5 text-[#af894d]" />
+                    <span>{devSelectionne.telephone}</span>
+                  </a>
+                  <a 
+                    href={`https://wa.me/${devSelectionne.telephone.replace(/\D/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>WhatsApp</span>
+                  </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="w-3.5 h-3.5 text-[#af894d]" />
