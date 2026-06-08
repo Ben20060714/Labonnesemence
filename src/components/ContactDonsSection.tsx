@@ -2,9 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import { useState, SyntheticEvent } from 'react';
-import { Mail, MessageSquare, ShieldCheck, Heart, User, Check, Send, Award, Compass, CreditCard, X } from 'lucide-react';
+import { useState, SyntheticEvent, useEffect } from 'react';
+import { Mail, MessageSquare, ShieldCheck, Heart, User, Check, Send, Award, Compass, CreditCard, X, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ContactDonsSection() {
@@ -23,8 +22,42 @@ export default function ContactDonsSection() {
   const [donateurNom, definirDonateurNom] = useState<string>('');
   const [donateurEmail, definirDonateurEmail] = useState<string>('');
   const [donNumeroCarte, definirDonNumeroCarte] = useState<string>('');
+  const [donateurTelephone, definirDonateurTelephone] = useState<string>('+243850000'); // Numéro provisoire
 
   const montantsPredefinis = [15, 30, 50, 100, 250, 500];
+
+  // Monetbil Service Keys (provided by user)
+  const MONETBIL_SERVICE_KEY = 'Tr36XiIBha8vBJcx2pEZEzx2RINEZIcR';
+  const MONETBIL_SERVICE_SECRET = 'Dvsun1LkWKbxJ9qZ7JwTqGzflTlduE4Bocrq1LmAK90bxKaG2DF60qKvQ1L0JrSU';
+
+  // Dynamically load Monetbil script
+  useEffect(() => {
+    const scriptId = 'monetbil-widget-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'text/javascript';
+      script.src = 'https://fr.monetbil.com/widget/v2/monetbil.min.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    // Écouteur pour les événements du widget Monetbil v2
+    const gererMessageMonetbil = (event: MessageEvent) => {
+      // Le widget Monetbil v2 envoie des objets via postMessage
+      if (event.data && event.data.name) {
+        if (event.data.name === 'monetbil.payment.success') {
+          // Paiement réussi : on ferme le formulaire et on affiche le remerciement
+          definirEtapeDonation(2);
+        } else if (event.data.name === 'monetbil.payment.error') {
+          console.error("Erreur de transaction Monetbil :", event.data);
+        }
+      }
+    };
+
+    window.addEventListener('message', gererMessageMonetbil);
+    return () => window.removeEventListener('message', gererMessageMonetbil);
+  }, []);
 
   // Extraction de la logique d'impact
   const determinerImpactDon = (somme: number): string => {
@@ -61,12 +94,11 @@ export default function ContactDonsSection() {
     }, 4000);
   };
 
-  const executerTransactionDon = (evenement: SyntheticEvent) => {
+  // This function will now handle the Monetbil payment initiation
+  const executerTransactionMonetbil = (evenement: SyntheticEvent) => {
     evenement.preventDefault();
-    if (!donateurNom.trim() || !donateurEmail.trim() || !donNumeroCarte.trim()) return;
-
-    // Simulation de validation paiement
-    definirEtapeDonation(2); // étape merci
+    if (!donateurNom.trim() || !donateurEmail.trim() || !donateurTelephone.trim()) return;
+    // Le script monetbil.min.js intercepte la soumission car data-monetbil="form" est présent
   };
 
   const reinitialiserEspaceDon = () => {
@@ -74,7 +106,7 @@ export default function ContactDonsSection() {
     definirEtapeDonation(0);
     definirDonateurNom('');
     definirDonateurEmail('');
-    definirDonNumeroCarte('');
+    definirDonateurTelephone(''); // Reset phone number
   };
 
   return (
@@ -118,15 +150,7 @@ export default function ContactDonsSection() {
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    id="nom-expediteur"
-                    required
-                    placeholder="Ex : Jean Ilunga"
-                    value={formulaireContact.nom}
-                    onChange={gererChangementChamp}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
-                  />
+                  <input type="text" id="nom-expediteur" required placeholder="Ex : Jean Ilunga" value={formulaireContact.nom} onChange={gererChangementChamp} className="w-full pl-9 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"/>
                 </div>
               </div>
 
@@ -316,8 +340,23 @@ export default function ContactDonsSection() {
                 <X className="w-5 h-5" />
               </button>
 
+              {/* Monetbil Payment Form */}
               {etapeDonation === 1 && (
-                <form id="formulaire-offrande-paiement" onSubmit={executerTransactionDon} className="space-y-5">
+                <form
+                  id="formulaire-offrande-paiement-monetbil"
+                  onSubmit={executerTransactionMonetbil}
+                  className="space-y-5"
+                  data-monetbil="form"
+                  data-monetbil-service-key={MONETBIL_SERVICE_KEY}
+                  data-monetbil-service-secret={MONETBIL_SERVICE_SECRET}
+                  data-monetbil-amount={montantDon}
+                  data-monetbil-designation="Don CABCS"
+                  data-monetbil-item-name="Don solidaire"
+                  data-monetbil-item-type="SOCIAL"
+                  data-monetbil-description={determinerImpactDon(montantDon)}
+                  data-monetbil-phone={donateurTelephone}
+                  // You might want to set return_url, cancel_url, notify_url for production
+                >
                   <div className="space-y-1.5 text-center">
                     <span className="text-[10px] uppercase font-mono tracking-widest text-[#c29f63] font-bold">
                       Étape 2 / 2 — Transaction & informations
@@ -325,7 +364,7 @@ export default function ContactDonsSection() {
                     <h3 className="font-serif text-2xl font-bold tracking-tight">
                       Soutenir à hauteur de {montantDon} $
                     </h3>
-                    <p className="text-xs text-slate-500 font-light dark:text-slate-400 max-w-xs mx-auto">
+                    <p className="text-xs text-slate-500 font-light dark:text-slate-400 max-w-xs mx-auto"> 
                       Entrez vos informations pour finaliser la transaction.
                     </p>
                   </div>
@@ -341,6 +380,7 @@ export default function ContactDonsSection() {
                         required
                         placeholder="Ex : Thérèse Mwadi"
                         value={donateurNom}
+                        data-monetbil-customer-name={donateurNom}
                         onChange={(e) => definirDonateurNom(e.target.value)}
                         className="w-full px-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
                       />
@@ -356,24 +396,25 @@ export default function ContactDonsSection() {
                         required
                         placeholder="theresemwadi@gmail.com"
                         value={donateurEmail}
+                        data-monetbil-customer-email={donateurEmail}
                         onChange={(e) => definirDonateurEmail(e.target.value)}
                         className="w-full px-4 py-2.5 text-sm rounded bg-slate-50 border border-[#e7d4b0] outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
                       />
                     </div>
 
                     <div className="space-y-1.1 text-left">
-                      <label htmlFor="numero-carte" className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">
-                        Détails de la carte de crédit
+                      <label htmlFor="donateur-telephone" className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">
+                        Numéro de téléphone (Mobile Money)
                       </label>
                       <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                         <input
-                          type="text"
-                          id="numero-carte"
+                          type="tel"
+                          id="donateur-telephone"
                           required
-                          placeholder="4970 •••• •••• ••••"
-                          value={donNumeroCarte}
-                          onChange={(e) => definirDonNumeroCarte(e.target.value)}
+                          placeholder="+243 ..."
+                          value={donateurTelephone}
+                          onChange={(e) => definirDonateurTelephone(e.target.value)}
                           className="w-full pl-10 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"
                         />
                       </div>
@@ -384,7 +425,7 @@ export default function ContactDonsSection() {
                     <button
                       type="submit"
                       id="bouton-soumettre-paiement-final"
-                      className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2" // Changed button text and icon
                     >
                       <ShieldCheck className="w-4 h-4" /> Finaliser la transaction
                     </button>
@@ -418,6 +459,7 @@ export default function ContactDonsSection() {
                   <div className="bg-slate-50 p-4 border border-[#f4ebd9]/80 rounded text-[11px] font-mono text-slate-500 space-y-1 text-left dark:bg-slate-850 dark:border-slate-800 dark:text-slate-400">
                     <div><strong>Donateur :</strong> {donateurNom}</div>
                     <div><strong>Accusé de réception :</strong> Envoyé à {donateurEmail}</div>
+                    <div><strong>Téléphone :</strong> {donateurTelephone}</div>
                     <div><strong>Destinations :</strong> {determinerImpactDon(montantDon)}</div>
                   </div>
 
