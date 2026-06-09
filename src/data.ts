@@ -118,7 +118,7 @@ export const DEVELOPPEUR: DevEquipe[] = [
     identifiant : 'Dev-1',
     initiales : 'BM',
     nom : 'Benjamin Mwaku',
-    role : 'Developpeur',
+    role : 'Developpeur Front-End',
     telephone : '+243 82 043 3981',
     email : 'Benkailazad8@gmail.com',
     description : 'Je suis dévéloppeur web FrontEnd aussi passioné par la sécurité informatique. je suis toujours prêt à apprendre des nouvelles technologies surtout que je m’y adapte facilement, j’utilise des FrameWork comme "Tailwindcss", "TypeScript", "React", des langages comme "HTML", "CSS", "Python".',
@@ -133,6 +133,16 @@ export const DEVELOPPEUR: DevEquipe[] = [
     email : 'Djeefjason@gmail.com',
     description : 'Je suis disponible pour apprendre avec vous !',
     accomplissement : 'En cours'
+  },
+  {
+    identifiant : 'Dev-3',
+    initiales : 'AK',
+    nom : 'Aurelio Kitenge',
+    role : 'Developpeur Back-End',
+    telephone : '+243 0000000',
+    email : 'Email@gmail.com',
+    description : 'Lorem ipsum dolor sit amet adipiscing !',
+    accomplissement : '---, ***'
   }
 ]
 export const EQUIPE_DONNEES: MembreEquipe[] = [
