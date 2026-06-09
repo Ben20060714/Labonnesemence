@@ -5,14 +5,14 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import EnTete from '../components/En-tete.tsx';
-import PiedDePage from '../components/PiedDePage.tsx';
-import AccueilSection from '../components/AccueilSection.tsx';
-import SermonsSection from '../components/SermonsSection.tsx';
-import EvenementsSection from '../components/EvenementsSection.tsx';
-import AProposSection from '../components/AProposSection.tsx';
-import ContactDonsSection from '../components/ContactDonsSection.tsx';
-import GalerieSection from '../components/GalerieSection.tsx';
+import EnTete from './components/En-tete.tsx';
+import PiedDePage from './components/PiedDePage.tsx';
+import AccueilSection from './components/AccueilSection.tsx';
+import SermonsSection from './components/SermonsSection.tsx';
+import EvenementsSection from './components/EvenementsSection.tsx';
+import AProposSection from './components/AProposSection.tsx';
+import ContactDonsSection from './components/ContactDonsSection.tsx';
+import GalerieSection from './components/GalerieSection.tsx';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
