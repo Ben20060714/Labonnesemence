@@ -30,6 +30,9 @@ import { SERMONS_DONNEES, EVENEMENTS_DONNEES, EQUIPE_DONNEES } from '../data';
 import { Sermon, Evenement, MembreEquipe } from '../types';
 
 type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie';
+type FormulaireEvenement = Omit<Evenement, 'identifiant' | 'date'>;
+type FormulaireSermon = Omit<Sermon, 'identifiant'>;
+type FormulaireMembre = Omit<MembreEquipe, 'identifiant'>;
 
 const NOMS_MOIS = ["Janvier", "Février", "Mars", "Avril", "Mai", " Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const JOURS_SEMAINE = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
@@ -44,9 +47,9 @@ export default function AdminSection() {
   const [notif, definirNotif] = useState<string | null>(null);
 
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
-  const [nouveauEvt, definirNouveauEvt] = useState({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte' });
-  const [nouveauSermon, definirNouveauSermon] = useState({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
-  const [nouveauMembre, definirNouveauMembre] = useState({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
+  const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
+  const [nouveauSermon, definirNouveauSermon] = useState<FormulaireSermon>({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
+  const [nouveauMembre, definirNouveauMembre] = useState<FormulaireMembre>({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
 
   // --- Logique du Calendrier Interactif ---
   const [vueCalendrier, definirVueCalendrier] = useState(new Date());
@@ -270,7 +273,7 @@ export default function AdminSection() {
                         <Users className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
                         <input type="number" placeholder="Places disponibles" value={nouveauEvt.placesDisponibles} onChange={e => definirNouveauEvt({ ...nouveauEvt, placesDisponibles: Number(e.target.value) })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
                       </div>
-                      <select value={nouveauEvt.categorie} onChange={e => definirNouveauEvt({ ...nouveauEvt, categorie: e.target.value })} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
+                      <select value={nouveauEvt.categorie} onChange={e => definirNouveauEvt({ ...nouveauEvt, categorie: e.target.value as Evenement['categorie'] })} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
                         <option value="Culte">Culte</option>
                         <option value="Jeunesse">Jeunesse</option>
                         <option value="Prière">Prière</option>
@@ -367,7 +370,7 @@ export default function AdminSection() {
                       onChange={e => definirNouveauSermon({ ...nouveauSermon, date: e.target.value })}
                       className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                     />
-                    <select value={nouveauSermon.categorie} onChange={e => definirNouveauSermon({ ...nouveauSermon, categorie: e.target.value })} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
+                    <select value={nouveauSermon.categorie} onChange={e => definirNouveauSermon({ ...nouveauSermon, categorie: e.target.value as Sermon['categorie'] })} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
                       <option value="Dimanche">Dimanche</option><option value="Enseignement">Enseignement</option><option value="Fête">Fête</option></select>
                     <textarea
                       placeholder="Résumé de l'enseignement..."

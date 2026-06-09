@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "server": "tsx --watch src/Backend/index.ts",
-    "client": "npm start --prefix src/Frontend",
+    "client": "vite --port=3001 --host=0.0.0.0",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "start": "node dist/index.js"
+    "start": "tsx src/Backend/index.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

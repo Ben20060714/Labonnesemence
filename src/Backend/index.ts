@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import http from 'http';
 
 import { initializeDatabase } from './models/database.ts';
 import { cleanExpiredRefreshTokens } from './utils/jwt.ts';
@@ -16,19 +17,36 @@ const dir = import.meta.dirname;
 const app = express();
 const PORT = process.env.PORT || 5000;
 const projectRoot = path.resolve(dir, '..', '..');
-const VITE_PORT = process.env.VITE_PORT || 3000;
+const VITE_PORT = process.env.VITE_PORT || 3001;
 const viteUrl = process.env.VITE_DEV_SERVER_URL || `http://localhost:${VITE_PORT}`;
 let viteProcess = null;
 
+const isViteServerReachable = () => new Promise<boolean>((resolve) => {
+  const request = http.get(viteUrl, (response) => {
+    response.resume();
+    resolve(true);
+  });
+
+  request.on('error', () => resolve(false));
+  request.setTimeout(1000, () => {
+    request.destroy();
+    resolve(false);
+  });
+});
+
 // ---- fonction start viteServer pour démarrer le serveur Vite ----
-const startViteServer = () => {
+const startViteServer = async () => {
+  if (await isViteServerReachable()) {
+    return false;
+  }
+
   if (viteProcess && !viteProcess.killed) {
     return false;
   }
 
   const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
-  viteProcess = spawn(npmCommand, ['run', 'dev', '--', '--port', String(VITE_PORT)], {
+  viteProcess = spawn(npmCommand, ['run', 'client', '--', '--port', String(VITE_PORT)], {
     cwd: projectRoot,
     stdio: 'ignore',
     detached: true,
@@ -75,13 +93,16 @@ app.get('/health', (_req: any, res: any) => {
 });
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
-app.get('/', (req: any, res: any) => {
-  startViteServer();
+const redirectToFrontend = async (_req: any, res: any) => {
+  await startViteServer();
   res.redirect(viteUrl);
-});
+};
 
-app.get('/start-vite', (req: any, res: any) => {
-  const started = startViteServer();
+app.get('/', redirectToFrontend);
+app.get('/page', redirectToFrontend);
+
+app.get('/start-vite', async (req: any, res: any) => {
+  const started = await startViteServer();
 
   res.status(202).json({
     message: started ? 'Vite server started.' : 'Vite server is already running.',

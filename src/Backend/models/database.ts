@@ -69,7 +69,11 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
   `);
 
-  console.log('✅ Database initialized at:', DB_PATH);
+  console.log('# Database initialized at:', DB_PATH);
+}
+
+export function getDb(): Database.Database {
+  return db;
 }
 
 export default db;

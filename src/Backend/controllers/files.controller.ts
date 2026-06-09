@@ -1,11 +1,11 @@
 import { Response } from 'express';
 import path from 'path';
 import fs from 'fs';
-import db from '../models/database';
+import db from '../models/database.ts';
 import { v4 as uuidv4 } from 'uuid';
-import { sendSuccess, sendError, parsePagination } from '../utils/helpers';
+import { sendSuccess, sendError, parsePagination } from '../utils/helpers.ts';
 import { AuthRequest, FileRecord, FileWithUploader, PaginatedResponse, PaginationQuery } from '../types';
-import { UPLOAD_PATH } from '../middlewares/upload.middleware';
+import { UPLOAD_PATH } from '../middlewares/upload.middleware.ts';
 
 export function uploadFile(req: AuthRequest, res: Response): void {
   if (!req.user) {

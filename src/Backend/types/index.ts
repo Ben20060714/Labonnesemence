@@ -18,7 +18,10 @@ export interface PublicUser {
   username: string;
   role: Role;
   created_at: string;
+  updated_at?: string;
 }
+
+export type UserPublic = PublicUser;
 
 export interface Post {
   id: string;

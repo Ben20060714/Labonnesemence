@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Url } from "url";
-
 export interface Sermon {
   identifiant: string;
   titre: string;
@@ -32,7 +30,8 @@ export interface MembreEquipe {
   identifiant: string;
   nom: string;
   role: string;
-  // email : string;
+  email?: string;
+  telephone?: string;
   biographie: string;
   initiales: string;
 }
