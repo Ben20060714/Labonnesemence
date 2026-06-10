@@ -359,7 +359,7 @@ export default function AdminSection() {
                       onChange={e => definirNouveauSermon({ ...nouveauSermon, urlAudio: e.target.value })}
                       className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 font-mono text-[11px]"
                     />
-                  </div> 
+                  </div>
                   <div className="space-y-3 flex flex-col">
                     <input
                       type="text"

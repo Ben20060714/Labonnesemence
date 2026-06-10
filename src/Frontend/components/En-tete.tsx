@@ -30,7 +30,7 @@ export default function EnTete({
     { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
     { cle: 'contact-dons', libelle: 'Contact & Dons' },
     { cle: 'administration', libelle: 'Administration' }, // Changed from 'Admin' for clarity
-    { cle: 'login', libelle: 'Connexion' } // Changed from 'S'enregistrer' to 'Connexion'
+    { cle: 'login', libelle: 'Connexion' } // Changé depuis \S'enregistrer' to 'Connexion'
   ];
 
   const executerChangementPage = (clePage: string) => {

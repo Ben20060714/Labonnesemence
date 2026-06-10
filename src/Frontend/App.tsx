@@ -15,6 +15,7 @@ import ContactDonsSection from './components/ContactDonsSection.tsx';
 import GalerieSection from './components/GalerieSection.tsx';
 import AdminSection from './components/AdminSection.tsx';
 import LoginSection from './components/LoginSection.tsx';
+import InscriptionSection from './components/InscriptionSection.tsx';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
@@ -43,6 +44,10 @@ export default function App() {
     definirModeSombre(!modeSombre);
   };
 
+  const utilisateurEstConnecte = () => {
+    return typeof window !== 'undefined' && Boolean(localStorage.getItem('auth-access-token'));
+  };
+
   // Sélecteur de rendu de page
   const renduSectionActive = () => {
     switch (pageActive) {
@@ -59,9 +64,14 @@ export default function App() {
       case 'contact-dons':
         return <ContactDonsSection />;
       case 'administration':
+        if (!utilisateurEstConnecte()) {
+          return <LoginSection redirigerVersPage={definirPageActive} />;
+        }
         return <AdminSection/>;
       case 'login':
-        return <LoginSection />;
+        return <LoginSection redirigerVersPage={definirPageActive} />;
+      case 'inscription':
+        return <InscriptionSection redirigerVersPage={definirPageActive} />;
       default:
         return <AccueilSection redirigerVersPage={definirPageActive} />;
     }
