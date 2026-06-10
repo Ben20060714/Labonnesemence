@@ -5,13 +5,14 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { Lock, Mail, UserPlus, UserRound } from 'lucide-react';
-import { enregistrerSessionAuth, inscrireUtilisateur } from '../services/auth';
+import { enregistrerSessionAuth, inscrireUtilisateur, UtilisateurAuthentifie } from '../services/auth';
 
 interface InscriptionSectionProps {
   redirigerVersPage: (page: string) => void;
+  definirUtilisateur: (utilisateur: UtilisateurAuthentifie | null) => void;
 }
 
-export default function InscriptionSection({ redirigerVersPage }: InscriptionSectionProps) {
+export default function InscriptionSection({ redirigerVersPage, definirUtilisateur }: InscriptionSectionProps) {
   const [nom, setNom] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -38,7 +39,8 @@ export default function InscriptionSection({ redirigerVersPage }: InscriptionSec
     try {
       const session = await inscrireUtilisateur(nom.trim(), email.trim(), password);
       enregistrerSessionAuth(session);
-      redirigerVersPage('administration');
+      definirUtilisateur(session.user);
+      redirigerVersPage(session.user.role === 'admin' ? 'administration' : 'mon-compte');
     } catch (erreur) {
       setError(erreur instanceof Error ? erreur.message : 'Inscription impossible.');
     } finally {

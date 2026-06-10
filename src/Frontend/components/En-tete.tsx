@@ -6,12 +6,14 @@
 import { useState } from 'react';
 import { Sun, Moon, Church, Menu, X } from 'lucide-react';
 import { motion } from 'motion/react';
+import { UtilisateurAuthentifie } from '../services/auth';
 
 interface EnTeteProps {
   pageActive: string;
   definirPageActive: (page: string) => void;
   modeSombre: boolean;
   alternerTheme: () => void;
+  utilisateur: UtilisateurAuthentifie | null;
 }
 
 export default function EnTete({
@@ -19,6 +21,7 @@ export default function EnTete({
   definirPageActive,
   modeSombre,
   alternerTheme,
+  utilisateur,
 }: EnTeteProps) {
   const [menuMobileOuvert, definirMenuMobileOuvert] = useState<boolean>(false);
 
@@ -29,8 +32,8 @@ export default function EnTete({
     { cle: 'galerie', libelle: 'Galerie' },
     { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
     { cle: 'contact-dons', libelle: 'Contact & Dons' },
-    { cle: 'administration', libelle: 'Administration' }, // Changed from 'Admin' for clarity
-    { cle: 'login', libelle: 'Connexion' } // Changé depuis \S'enregistrer' to 'Connexion'
+    ...(utilisateur?.role === 'admin' ? [{ cle: 'administration', libelle: 'Administration' }] : []),
+    { cle: utilisateur ? 'mon-compte' : 'login', libelle: utilisateur ? 'Mon compte' : 'Connexion' },
   ];
 
   const executerChangementPage = (clePage: string) => {
@@ -44,7 +47,6 @@ export default function EnTete({
       className="sticky top-0 z-50 w-full border-b backdrop-blur-md bg-white/90 border-[#f4ebd9] text-slate-800 transition-colors duration-300 dark:bg-slate-900/95 dark:border-slate-800 dark:text-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
           <div id="bloc-logo-paroisse" className="flex items-center gap-3 cursor-pointer select-none" onClick={() => executerChangementPage('accueil')}>
             <div className="p-2 duration-300 bg-[#c29f63]/10 text-[#c29f63] rounded-full hover:bg-[#c29f63]/20 dark:bg-[#c29f63]/20 dark:text-[#c29f63]">
               <Church className="w-6 h-6"/>
@@ -54,39 +56,33 @@ export default function EnTete({
                 CABCS
               </span>
               <span className="text-[10px] uppercase font-mono tracking-widest text-slate-400 dark:text-slate-500">
-                30ème C.P.CO
+                30eme C.P.CO
               </span>
             </div>
           </div>
 
-          {/* Navigation Desktop */}
           <nav id="navigation-grand-ecran" className="hidden md:flex items-center gap-1">
             {ongletsNavigation.map((onglet) => {
               const estActif = pageActive === onglet.cle;
               return (
                 <button key={onglet.cle} id={`onglet-desktop-${onglet.cle}`} onClick={() => executerChangementPage(onglet.cle)} className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ${estActif? 'text-[#af894d] dark:text-[#c3a064]': 'text-slate-600 hover:text-[#af894d] dark:text-slate-300 dark:hover:text-[#c3a064]'}`}>
                   {onglet.libelle}
-                  {estActif && (<motion.div layoutId="soulignement-navigation" className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#af894d] dark:bg-[#c3a064]" transition={{ type: 'spring', stiffness: 350, damping: 30 }}/>
-                  )}
+                  {estActif && (<motion.div layoutId="soulignement-navigation" className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#af894d] dark:bg-[#c3a064]" transition={{ type: 'spring', stiffness: 350, damping: 30 }}/>)}
                 </button>
               );
             })}
           </nav>
 
-          {/* Actions à Droite */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Bouton Theme */}
             <button id="bouton-alterner-theme-desktop" onClick={alternerTheme} className="p-2.5 rounded-full border border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 transition-all duration-200 cursor-pointer dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-amber-400" title={modeSombre ? 'Activer le mode clair' : 'Activer le mode sombre'}>
               {modeSombre ? <Sun className="w-4 h-4 transition-transform duration-300 hover:rotate-45" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Bouton Faire un Don */}
             <button id="bouton-don-rapide" onClick={() => executerChangementPage('contact-dons')} className="px-5 py-2.5 rounded-md text-xs font-semibold tracking-wider uppercase text-white bg-gradient-to-r from-[#af894d] to-[#c29f63] shadow-md hover:shadow-lg hover:from-[#936f3c] hover:to-[#af894d] active:scale-95 transition-all duration-150 cursor-pointer">
               Faire un Don
             </button>
           </div>
 
-          {/* Bouton Menu Mobile */}
           <div className="md:hidden flex items-center gap-3">
             <button id="bouton-theme-mobile" onClick={alternerTheme} className="p-2 rounded-full border border-slate-200 text-slate-500 cursor-pointer dark:border-slate-800 dark:text-slate-400">
               {modeSombre ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -98,7 +94,6 @@ export default function EnTete({
         </div>
       </div>
 
-      {/* Menu Mobile Déroulant */}
       {menuMobileOuvert && (
         <motion.div
           id="conteneur-menu-mobile"
@@ -118,7 +113,7 @@ export default function EnTete({
             })}
             <div className="pt-3 px-4 border-t border-[#f4ebd9]/60 dark:border-slate-800">
               <button id="bouton-faire-don-mobile" onClick={() => executerChangementPage('contact-dons')} className="w-full py-3 rounded-md text-xs font-bold uppercase tracking-wider text-center text-white bg-[#af894d] hover:bg-[#936f3c] cursor-pointer">
-                Soutenir l'église
+                Soutenir l'eglise
               </button>
             </div>
           </div>

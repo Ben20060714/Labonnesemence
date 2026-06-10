@@ -5,13 +5,14 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { User, Lock, LogIn } from 'lucide-react';
-import { connecterUtilisateur, enregistrerSessionAuth } from '../services/auth';
+import { connecterUtilisateur, enregistrerSessionAuth, UtilisateurAuthentifie } from '../services/auth';
 
 interface LoginSectionProps {
   redirigerVersPage: (page: string) => void;
+  definirUtilisateur: (utilisateur: UtilisateurAuthentifie | null) => void;
 }
 
-export default function LoginSection({ redirigerVersPage }: LoginSectionProps) {
+export default function LoginSection({ redirigerVersPage, definirUtilisateur }: LoginSectionProps) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +26,8 @@ export default function LoginSection({ redirigerVersPage }: LoginSectionProps) {
     try {
       const session = await connecterUtilisateur(email, password);
       enregistrerSessionAuth(session);
-      redirigerVersPage('administration');
+      definirUtilisateur(session.user);
+      redirigerVersPage(session.user.role === 'admin' ? 'administration' : 'mon-compte');
     } catch (erreur) {
       setError(erreur instanceof Error ? erreur.message : 'Connexion impossible.');
     } finally {

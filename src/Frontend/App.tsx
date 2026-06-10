@@ -16,9 +16,12 @@ import GalerieSection from './components/GalerieSection.tsx';
 import AdminSection from './components/AdminSection.tsx';
 import LoginSection from './components/LoginSection.tsx';
 import InscriptionSection from './components/InscriptionSection.tsx';
+import MonCompteSection from './components/MonCompteSection.tsx';
+import { obtenirUtilisateurCourant, UtilisateurAuthentifie } from './services/auth.ts';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
+  const [utilisateur, definirUtilisateur] = useState<UtilisateurAuthentifie | null>(null);
   const [modeSombre, definirModeSombre] = useState<boolean>(() => {
     // Restitution locale du theme
     if (typeof window !== 'undefined') {
@@ -40,12 +43,24 @@ export default function App() {
     }
   }, [modeSombre]);
 
+  useEffect(() => {
+    let composantActif = true;
+
+    obtenirUtilisateurCourant()
+      .then((utilisateurServeur) => {
+        if (composantActif) definirUtilisateur(utilisateurServeur);
+      })
+      .catch(() => {
+        if (composantActif) definirUtilisateur(null);
+      });
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
+
   const alternerTheme = () => {
     definirModeSombre(!modeSombre);
-  };
-
-  const utilisateurEstConnecte = () => {
-    return typeof window !== 'undefined' && Boolean(localStorage.getItem('auth-access-token'));
   };
 
   // Sélecteur de rendu de page
@@ -64,14 +79,19 @@ export default function App() {
       case 'contact-dons':
         return <ContactDonsSection />;
       case 'administration':
-        if (!utilisateurEstConnecte()) {
-          return <LoginSection redirigerVersPage={definirPageActive} />;
+        if (utilisateur?.role !== 'admin') {
+          return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} />;
         }
         return <AdminSection/>;
       case 'login':
-        return <LoginSection redirigerVersPage={definirPageActive} />;
+        if (utilisateur) {
+          return <MonCompteSection utilisateurInitial={utilisateur} definirUtilisateur={definirUtilisateur} redirigerVersPage={definirPageActive} />;
+        }
+        return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} />;
       case 'inscription':
-        return <InscriptionSection redirigerVersPage={definirPageActive} />;
+        return <InscriptionSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} />;
+      case 'mon-compte':
+        return <MonCompteSection utilisateurInitial={utilisateur} definirUtilisateur={definirUtilisateur} redirigerVersPage={definirPageActive} />;
       default:
         return <AccueilSection redirigerVersPage={definirPageActive} />;
     }
@@ -88,6 +108,7 @@ export default function App() {
         definirPageActive={definirPageActive}
         modeSombre={modeSombre}
         alternerTheme={alternerTheme}
+        utilisateur={utilisateur}
       />
 
       {/* Cadre de contenu dynamique avec animations de transition */}

@@ -64,3 +64,30 @@ export const enregistrerSessionAuth = (session: SessionAuthentification) => {
   localStorage.setItem('auth-refresh-token', session.refreshToken);
   localStorage.setItem('auth-user', JSON.stringify(session.user));
 };
+
+export const obtenirUtilisateurCourant = async () => {
+  const token = localStorage.getItem('auth-access-token');
+  if (!token) return null;
+
+  const reponse = await fetch(`${obtenirBaseAuth()}/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const payload = (await reponse.json().catch(() => null)) as ReponseApi<UtilisateurAuthentifie> | null;
+
+  if (!reponse.ok || !payload?.success || !payload.data) {
+    effacerSessionAuth();
+    return null;
+  }
+
+  localStorage.setItem('auth-user', JSON.stringify(payload.data));
+  return payload.data;
+};
+
+export const effacerSessionAuth = () => {
+  localStorage.removeItem('auth-access-token');
+  localStorage.removeItem('auth-refresh-token');
+  localStorage.removeItem('auth-user');
+};
