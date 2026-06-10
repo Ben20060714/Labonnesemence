@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import postsRoutes from './routes/posts.routes.js';
 import filesRoutes from './routes/files.routes.js';
+import sermonsRoutes from './routes/sermons.routes.js';
+import eventsRoutes from './routes/events.routes.js';
 import { spawn } from 'child_process';
 
 const dir = import.meta.dirname;
@@ -114,6 +116,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/files', filesRoutes);
+app.use('/api/sermons', sermonsRoutes);
+app.use('/api/events', eventsRoutes);
 
 // ─── Error handling ──────────────────────────────────────────────────────────
 app.use(notFoundHandler);
@@ -143,6 +147,14 @@ app.listen(PORT, () => {
   console.log(`  DELETE /api/posts/:id`);
   console.log(`  PATCH  /api/posts/:id/publish`);
   console.log(`  PATCH  /api/posts/:id/unpublish`);
+  console.log(`  GET    /api/sermons`);
+  console.log(`  POST   /api/sermons          (admin)`);
+  console.log(`  PUT    /api/sermons/:id      (admin)`);
+  console.log(`  DELETE /api/sermons/:id      (admin)`);
+  console.log(`  GET    /api/events`);
+  console.log(`  POST   /api/events           (admin)`);
+  console.log(`  PUT    /api/events/:id       (admin)`);
+  console.log(`  DELETE /api/events/:id       (admin)`);
   console.log(`  GET    /api/files`);
   console.log(`  POST   /api/files/upload`);
   console.log(`  POST   /api/files/upload-multiple`);
@@ -154,4 +166,3 @@ app.listen(PORT, () => {
 });
 
 export default app;
-
