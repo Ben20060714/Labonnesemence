@@ -8,5 +8,4 @@ coverage/
 audio/
 tmp
 decoded_files_js.txt
-database.sqlite-shm
-database.sqlite-wal
+data/
