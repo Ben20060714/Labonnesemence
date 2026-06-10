@@ -8,6 +8,7 @@ import { Search, Play, Pause, Headphones, Calendar, Compass, Volume2, VolumeX, S
 import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES } from '../data';
 import { Sermon } from '../types';
+import { api } from '../services/api';
 
 // Composant pour extraire et afficher la durée d'un fichier audio
 function AffichageDureeDynamique({ url }: { url: string }) {
@@ -28,7 +29,8 @@ function AffichageDureeDynamique({ url }: { url: string }) {
 }
 
 export default function SermonsSection() {
-  const [listeSermons] = useState<Sermon[]>(SERMONS_DONNEES);
+  const [listeSermons, definirListeSermons] = useState<Sermon[]>(SERMONS_DONNEES);
+  const [chargement, definirChargement] = useState<boolean>(true);
   const [recherche, definirRecherche] = useState<string>('');
   const [categorieFiltree, definirCategorieFiltree] = useState<string>('Tous');
   
@@ -41,6 +43,27 @@ export default function SermonsSection() {
 
   // Référence à l'élément audio HTML5
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    let composantActif = true;
+
+    api.listerSermons()
+      .then((sermonsApi) => {
+        if (composantActif && sermonsApi.length > 0) {
+          definirListeSermons(sermonsApi);
+        }
+      })
+      .catch((erreur) => {
+        console.error('Chargement des sermons depuis API impossible:', erreur);
+      })
+      .finally(() => {
+        if (composantActif) definirChargement(false);
+      });
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   // Initialiser l'audio au montage
   useEffect(() => {
@@ -164,6 +187,11 @@ export default function SermonsSection() {
         <p className="text-base text-slate-600 font-light dark:text-slate-400">
           Retrouvez tous vos enseignements et messages. Filtrez par thématique ou recherchez un verset biblique spécifique.
         </p>
+        {chargement && (
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
+            Chargement des enseignements...
+          </p>
+        )}
       </div>
 
       {/* Barre de Filtres et Recherche */}

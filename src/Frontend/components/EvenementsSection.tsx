@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, SyntheticEvent } from 'react';
+import { useEffect, useState, SyntheticEvent } from 'react';
 import { Calendar, MapPin, Clock, Users, Check, X, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EVENEMENTS_DONNEES } from '../data';
 import { Evenement } from '../types';
+import { api } from '../services/api';
 
 export default function EvenementsSection() {
   const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
+  const [chargement, definirChargement] = useState<boolean>(true);
   const [filtreCategorie, definirFiltreCategorie] = useState<string>('Tous');
   
   // États d'inscription modale
@@ -19,6 +21,27 @@ export default function EvenementsSection() {
   const [courrielDonneur, definirCourrielDonneur] = useState<string>('');
   const [placesReservees, definirPlacesReservees] = useState<number>(1);
   const [inscriptionTerminee, definirInscriptionTerminee] = useState<boolean>(false);
+
+  useEffect(() => {
+    let composantActif = true;
+
+    api.listerEvenements()
+      .then((evenementsApi) => {
+        if (composantActif && evenementsApi.length > 0) {
+          definirEvenements(evenementsApi);
+        }
+      })
+      .catch((erreur) => {
+        console.error('Chargement des événements depuis API impossible:', erreur);
+      })
+      .finally(() => {
+        if (composantActif) definirChargement(false);
+      });
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   const evenementsFiltrés = evenements.filter((evt) => {
     return filtreCategorie === 'Tous' || evt.categorie === filtreCategorie;
@@ -85,6 +108,11 @@ export default function EvenementsSection() {
         <p className="text-base text-slate-600 font-light dark:text-slate-400">
           Chaque semaine, notre église s’éveille au rythme de la prière. Venez, nous vous invitons à passer un bon moment avec nous dans le seigneur.
         </p>
+        {chargement && (
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
+            Chargement des activités...
+          </p>
+        )}
       </div>
 
       {/* Boutons de Filtres d'Événements */}

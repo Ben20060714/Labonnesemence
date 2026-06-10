@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Gift, Heart, MapPin, Play, Users, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SERMONS_DONNEES, EVENEMENTS_DONNEES } from '../data';
+import { api } from '../services/api';
+import { Evenement, Sermon } from '../types';
 
 // Helper pour la durée automatique
 function DureeAudioAuto({ url }: { url: string }) {
@@ -31,8 +33,28 @@ interface AccueilSectionProps {
 }
 
 export default function AccueilSection({ redirigerVersPage }: AccueilSectionProps) {
-  const dernierSermon = SERMONS_DONNEES[0];
-  const prochainEvenement = EVENEMENTS_DONNEES[0];
+  const [sermons, definirSermons] = useState<Sermon[]>(SERMONS_DONNEES);
+  const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
+  const dernierSermon = sermons[0] || SERMONS_DONNEES[0];
+  const prochainEvenement = evenements[0] || EVENEMENTS_DONNEES[0];
+
+  useEffect(() => {
+    let composantActif = true;
+
+    Promise.all([api.listerSermons(), api.listerEvenements()])
+      .then(([sermonsApi, evenementsApi]) => {
+        if (!composantActif) return;
+        if (sermonsApi.length > 0) definirSermons(sermonsApi);
+        if (evenementsApi.length > 0) definirEvenements(evenementsApi);
+      })
+      .catch((erreur) => {
+        console.error('Chargement accueil depuis API impossible:', erreur);
+      });
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   const piliersParoissiaux = [
     {

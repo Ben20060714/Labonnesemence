@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Calendar as CalendarIcon,
   Mic,
@@ -28,6 +28,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES, EVENEMENTS_DONNEES, EQUIPE_DONNEES } from '../data';
 import { Sermon, Evenement, MembreEquipe } from '../types';
+import { api, FichierBackend, obtenirUrlFichier } from '../services/api';
 
 type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie';
 type FormulaireEvenement = Omit<Evenement, 'identifiant' | 'date'>;
@@ -44,7 +45,9 @@ export default function AdminSection() {
   const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
   const [sermons, definirSermons] = useState<Sermon[]>(SERMONS_DONNEES);
   const [membres, definirMembres] = useState<MembreEquipe[]>(EQUIPE_DONNEES);
+  const [fichiers, definirFichiers] = useState<FichierBackend[]>([]);
   const [notif, definirNotif] = useState<string | null>(null);
+  const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
 
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
   const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
@@ -54,6 +57,38 @@ export default function AdminSection() {
   // --- Logique du Calendrier Interactif ---
   const [vueCalendrier, definirVueCalendrier] = useState(new Date());
   const [dateSelectionnee, definirDateSelectionnee] = useState<string>("");
+
+  useEffect(() => {
+    let composantActif = true;
+
+    api.listerEvenements()
+      .then((donnees) => {
+        if (composantActif && donnees.length > 0) definirEvenements(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin événements impossible:', erreur));
+
+    api.listerSermons()
+      .then((donnees) => {
+        if (composantActif && donnees.length > 0) definirSermons(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin sermons impossible:', erreur));
+
+    api.listerMembres()
+      .then((donnees) => {
+        if (composantActif && donnees.length > 0) definirMembres(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin membres impossible:', erreur));
+
+    api.listerFichiers()
+      .then((donnees) => {
+        if (composantActif) definirFichiers(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin fichiers impossible:', erreur));
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   const genererJoursMois = () => {
     const annee = vueCalendrier.getFullYear();
@@ -80,63 +115,100 @@ export default function AdminSection() {
   };
 
   // --- Logique d'ajout d'éléments ---
-  const ajouterEvenement = (e: React.FormEvent) => {
+  const ajouterEvenement = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nouveauEvt.titre || !dateSelectionnee || !nouveauEvt.heure || !nouveauEvt.lieu) {
       afficherNotification("Veuillez remplir tous les champs obligatoires de l'événement.");
       return;
     }
-    const nouvelId = `evenement-${Date.now()}`;
-    const nouvelEvenement: Evenement = {
-      identifiant: nouvelId,
-      date: dateSelectionnee,
-      ...nouveauEvt,
-      placesDisponibles: Number(nouveauEvt.placesDisponibles) // Assurez-vous que c'est un nombre
-    };
-    definirEvenements(prev => [...prev, nouvelEvenement]);
-    definirNouveauEvt({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
-    definirDateSelectionnee('');
-    afficherNotification("Événement ajouté avec succès !");
+    try {
+      const nouvelEvenement = await api.creerEvenement({
+        date: dateSelectionnee,
+        ...nouveauEvt,
+        placesDisponibles: Number(nouveauEvt.placesDisponibles)
+      });
+      definirEvenements(prev => [...prev, nouvelEvenement]);
+      definirNouveauEvt({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
+      definirDateSelectionnee('');
+      afficherNotification("Événement ajouté avec succès !");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible d'ajouter l'événement.");
+    }
   };
 
-  const ajouterSermon = (e: React.FormEvent) => {
+  const ajouterSermon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nouveauSermon.titre || !nouveauSermon.orateur || !nouveauSermon.urlAudio) {
       afficherNotification("Veuillez remplir tous les champs obligatoires du sermon.");
       return;
     }
-    const nouvelId = `sermon-${Date.now()}`;
-    const nouveau: Sermon = { identifiant: nouvelId, ...nouveauSermon };
-    definirSermons(prev => [...prev, nouveau]);
-    definirNouveauSermon({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
-    afficherNotification("Sermon publié avec succès !");
+    try {
+      const nouveau = await api.creerSermon(nouveauSermon);
+      definirSermons(prev => [...prev, nouveau]);
+      definirNouveauSermon({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
+      afficherNotification("Sermon publié avec succès !");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de publier le sermon.");
+    }
   };
 
-  const ajouterMembre = (e: React.FormEvent) => {
+  const ajouterMembre = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nouveauMembre.nom || !nouveauMembre.role || !nouveauMembre.initiales) {
       afficherNotification("Veuillez remplir au moins le nom, le rôle et les initiales du membre.");
       return;
     }
-    const nouvelId = `membre-${Date.now()}`;
-    const nouveau: MembreEquipe = { identifiant: nouvelId, ...nouveauMembre };
-    definirMembres(prev => [...prev, nouveau]);
-    definirNouveauMembre({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
-    afficherNotification("Membre ajouté à l'équipe !");
+    try {
+      const nouveau = await api.creerMembre(nouveauMembre);
+      definirMembres(prev => [...prev, nouveau]);
+      definirNouveauMembre({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
+      afficherNotification("Membre ajouté à l'équipe !");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible d'ajouter le membre.");
+    }
   };
 
   // --- Gestion de la suppression ---
-  const supprimerItem = (type: SectionAdmin, id: string) => {
+  const supprimerItem = async (type: SectionAdmin, id: string) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) return;
 
-    if (type === 'evenements') definirEvenements(prev => prev.filter(e => e.identifiant !== id));
-    if (type === 'sermons') definirSermons(prev => prev.filter(s => s.identifiant !== id));
-    if (type === 'membres') definirMembres(prev => prev.filter(m => m.identifiant !== id));
-    if (type === 'galerie') { // TODO: Implémenter la logique de suppression pour la galerie
-      // Logique de suppression galerie à implémenter ici
+    try {
+      if (type === 'evenements') {
+        await api.supprimerEvenement(id);
+        definirEvenements(prev => prev.filter(e => e.identifiant !== id));
+      }
+      if (type === 'sermons') {
+        await api.supprimerSermon(id);
+        definirSermons(prev => prev.filter(s => s.identifiant !== id));
+      }
+      if (type === 'membres') {
+        await api.supprimerMembre(id);
+        definirMembres(prev => prev.filter(m => m.identifiant !== id));
+      }
+      if (type === 'galerie') {
+        await api.supprimerFichier(id);
+        definirFichiers(prev => prev.filter(f => f.id !== id));
+      }
+      afficherNotification("Suppression effectuée avec succès.");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Suppression impossible.");
+    }
+  };
+
+  const envoyerPhotoGalerie = async () => {
+    if (!fichierGalerie) {
+      afficherNotification("Veuillez choisir une image à envoyer.");
+      return;
     }
 
-    afficherNotification("Suppression effectuée avec succès.");
+    try {
+      const fichier = await api.envoyerFichier(fichierGalerie);
+      definirFichiers(prev => [fichier, ...prev]);
+      definirFichierGalerie(null);
+      afficherNotification("Photo ajoutée à la galerie.");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Upload impossible.");
+    }
   };
 
   return (
@@ -497,43 +569,53 @@ export default function AdminSection() {
               <motion.div key="galerie" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <h2 className="font-serif text-xl font-bold">Mise à jour de la Galerie</h2>
 
-                <div className="bg-slate8000 dark:bg-slate-850 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
+                <div className="bg-slate-100 dark:bg-slate-850 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
                   <div className="max-w-xs mx-auto space-y-4">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
                       <Plus className="w-8 h-8" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-bold">Glissez une photo ici</p>
-                      <p className="text-xs text-slate-500">ou cliquez pour parcourir vos fichiers</p>
+                      <p className="text-sm font-bold">Ajouter une photo</p>
+                      <p className="text-xs text-slate-500">Les images sont envoyées vers /api/files/upload</p>
                     </div>
-                    <div className="pt-2">
-                      {/* Ces inputs sont également non contrôlés et devraient être gérés par un état */}
-                      {/* Exemple de correction (à implémenter complètement) */}
-                      {/* <input 
-                        type="file" 
-                        onChange={handleFileUpload} 
-                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" 
-                      /> */}
-                      {/* Les inputs ci-dessous sont aussi non contrôlés */}
-                      {/* <input type="text" placeholder="Légende de la photo" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 mb-2" />
-                      <select className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900">
-                        <option>Cérémonie</option>
-                        <option>Jeunesse</option>
-                        <option>Social</option>
-                        <option>Bâtiment</option>
-                      </select> */}
-                      <input type="text" placeholder="Légende de la photo" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 mb-2" />
-                      <select className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900">
-                        <option>Cérémonie</option>
-                        <option>Jeunesse</option>
-                        <option>Social</option>
-                        <option>Bâtiment</option>
-                      </select>
+                    <div className="pt-2 space-y-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={envoyerPhotoGalerie}
+                        className="w-full py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer"
+                      >
+                        Envoyer la photo
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-500 text-center italic">Cette section permet de mettre à jour la gallérie pour la communauté.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/')).map((fichier) => (
+                    <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
+                      <img src={obtenirUrlFichier(fichier.id)} alt={fichier.original_name} className="w-full h-36 object-cover" />
+                      <div className="p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold truncate">{fichier.original_name}</p>
+                          <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
+                        </div>
+                        <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/')).length === 0 && (
+                  <p className="text-xs text-slate-500 text-center italic">Aucune image n'est encore enregistrée en base.</p>
+                )}
               </motion.div>
             )}
 

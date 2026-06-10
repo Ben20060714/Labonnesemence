@@ -205,6 +205,29 @@ export function getFiles(req: AuthRequest, res: Response): void {
   sendSuccess(res, response);
 }
 
+export function getPublicFiles(req: AuthRequest, res: Response): void {
+  const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
+
+  const total = (db.prepare('SELECT COUNT(*) as count FROM files f WHERE f.is_public = 1').get() as { count: number }).count;
+  const files = db.prepare(`
+    SELECT f.*, u.username as uploader_username
+    FROM files f JOIN users u ON f.uploader_id = u.id
+    WHERE f.is_public = 1
+    ORDER BY f.created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset) as FileWithUploader[];
+
+  const response: PaginatedResponse<FileWithUploader> = {
+    items: files,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+
+  sendSuccess(res, response);
+}
+
 export function getFileInfo(req: AuthRequest, res: Response): void {
   const { id } = req.params;
 
