@@ -152,7 +152,7 @@ export default function AdminSection() {
             { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
             { id: 'evenements', label: 'Événements', icon: CalendarIcon },
             { id: 'sermons', label: 'Enseignements', icon: Mic },
-            { id: 'membres', label: 'Trombinoscope', icon: Users },
+            { id: 'membres', label: 'Membres', icon: Users },
             { id: 'galerie', label: 'Galerie Photos', icon: ImageIcon },
           ].map((item) => (
             <button
@@ -192,15 +192,13 @@ export default function AdminSection() {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl space-y-4">
+                <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl space-y-4">
                   <h3 className="font-serif text-lg font-bold flex items-center gap-2">
                     <Info className="w-4 h-4 text-[#af894d]" />
-                    Note de développement
+                    A modifier plus tard quand je vais me rassasier
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Bienvenue dans votre interface de gestion. Ici, vous pouvez organiser la vie numérique de votre église.
-                    Les modifications apportées ici sont actuellement locales (session active). Pour une persistance réelle,
-                    une intégration avec un backend (Firebase, Supabase ou Node.js) est nécessaire.
+                  <p className="text-sm  text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Pour le moment les modifications apportées ici sontinactives. Une intégration avec un backend (Firebase, Supabase ou Node.js) est peut-être nécessaire.
                   </p>
                 </div>
               </motion.div>
@@ -223,7 +221,7 @@ export default function AdminSection() {
                         <button onClick={() => changerMois(1)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"><ChevronRight className="w-4 h-4" /></button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-7 gap-1 text-center">
+                    <div className="grid grid-cols-7 gap-1 text-center bg-slate-100 dark:bg-slate-800 rounded-xl">
                       {JOURS_SEMAINE.map(j => <span key={j} className="text-[10px] font-bold text-slate-400 uppercase py-2">{j}</span>)}
                       {genererJoursMois().map((j, idx) => {
                         const dateStr = j ? `${j} ${NOMS_MOIS[vueCalendrier.getMonth()]} ${vueCalendrier.getFullYear()}` : "";
@@ -245,7 +243,7 @@ export default function AdminSection() {
                   </div>
 
                   {/* Formulaire Ajout Événement */}
-                  <form onSubmit={ajouterEvenement} className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+                  <form onSubmit={ajouterEvenement} className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-[#af894d]">Nouvel Événement</h3>
                     <div className="space-y-3">
                       <input
@@ -280,7 +278,7 @@ export default function AdminSection() {
                         <option value="Social">Social</option>
                       </select>
                       <textarea placeholder="Description courte..." value={nouveauEvt.description} onChange={e => definirNouveauEvt({ ...nouveauEvt, description: e.target.value })} rows={3} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"></textarea>
-                      <button type="submit" className="w-full py-2.5 bg-slate-900 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#af894d] transition-all cursor-pointer">
+                      <button type="submit" className="w-full py-2.5 bg-slate-400 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#af894d] transition-all cursor-pointer">
                         Enregistrer
                       </button>
                     </div>
@@ -302,7 +300,7 @@ export default function AdminSection() {
                       </thead>
                       <tbody className="divide-y divide-slate-50 dark:divide-slate-850">
                         {evenements.map(e => (
-                          <tr key={e.identifiant} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <tr key={e.identifiant} className="hover:bg-slate-100 dark:hover:bg-slate-800/50">
                             <td className="py-3 px-2 font-mono text-[11px]">{e.date} • {e.heure}</td>
                             <td className="py-3 px-2 font-semibold">{e.titre}</td>
                             <td className="py-3 px-2 text-slate-500">{e.lieu}</td>
@@ -323,9 +321,9 @@ export default function AdminSection() {
             {/* 3. ENSEIGNEMENTS (SERMONS) */}
             {sectionActive === 'sermons' && (
               <motion.div key="sermons" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
-                <h2 className="font-serif text-xl font-bold">Gestion des Enseignements Audio</h2>
+                <h2 className="font-serif text-xl font-bold">Gestion des Enseignements</h2>
 
-                <form onSubmit={ajouterSermon} className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={ajouterSermon} className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <input
                       type="text"
@@ -361,7 +359,7 @@ export default function AdminSection() {
                       onChange={e => definirNouveauSermon({ ...nouveauSermon, urlAudio: e.target.value })}
                       className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 font-mono text-[11px]"
                     />
-                  </div>
+                  </div> 
                   <div className="space-y-3 flex flex-col">
                     <input
                       type="text"
@@ -377,8 +375,8 @@ export default function AdminSection() {
                       value={nouveauSermon.resume}
                       onChange={e => definirNouveauSermon({ ...nouveauSermon, resume: e.target.value })}
                       className="flex-1 w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" rows={4}></textarea>
-                    <button type="button" onClick={() => afficherNotification("Sermon enregistré")} className="w-full py-2.5 bg-slate-900 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-emerald-600 transition-all cursor-pointer flex items-center justify-center gap-2">
-                      <Save className="w-4 h-4" /> Publier l'enseignement
+                    <button type="submit" className="w-full py-2.5 bg-slate-400 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#af894d] transition-all cursor-pointer flex items-center justify-center gap-2">
+                      <Save className="w-4 h-4" /> Publier
                     </button>
                   </div>
                 </form>
@@ -409,13 +407,13 @@ export default function AdminSection() {
             {sectionActive === 'membres' && (
               <motion.div key="membres" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-serif text-xl font-bold">Gestion du Trombinoscope</h2>
-                  <button type="button" onClick={ajouterMembre} className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 cursor-pointer">
+                  <h2 className="font-serif text-xl font-bold">Gestion des membres</h2>
+                  <button type="button" onClick={ajouterMembre} className="flex items-center gap-2 px-4 py-2 bg-[#af894d] text-white text-xs font-bold rounded-lg hover:bg-emerald-600 cursor-pointer">
                     <Plus className="w-4 h-4" /> Ajouter un membre
                   </button>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl border border-dashed border-[#e7d4b0] text-center space-y-4">
+                <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-dashed border-[#e7d4b0] text-center space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-3 text-left">
                       <label className="text-[10px] font-bold uppercase text-slate-400">Nom Complet</label>
@@ -443,7 +441,7 @@ export default function AdminSection() {
                         maxLength={2}
                         value={nouveauMembre.initiales}
                         onChange={e => definirNouveauMembre({ ...nouveauMembre, initiales: e.target.value.toUpperCase() })}
-                        className="w-20 px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 uppercase"
+                        className="w-20 px-3 py-2 text-sm rounded bg-slate-300 border border-slate-200 dark:bg-slate-900 dark:border-slate-700 uppercase"
                       />
                       <label className="text-[10px] font-bold uppercase text-slate-400">Contact</label>
                       <div className="relative"><Phone className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" /><input
@@ -499,7 +497,7 @@ export default function AdminSection() {
               <motion.div key="galerie" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <h2 className="font-serif text-xl font-bold">Mise à jour de la Galerie</h2>
 
-                <div className="bg-slate-50 dark:bg-slate-850 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
+                <div className="bg-slate8000 dark:bg-slate-850 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
                   <div className="max-w-xs mx-auto space-y-4">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
                       <Plus className="w-8 h-8" />
@@ -535,7 +533,7 @@ export default function AdminSection() {
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-500 text-center italic">Cette section permet de maintenir vos souvenirs visuels à jour pour la communauté.</p>
+                <p className="text-xs text-slate-500 text-center italic">Cette section permet de mettre à jour la gallérie pour la communauté.</p>
               </motion.div>
             )}
 
@@ -552,7 +550,7 @@ export default function AdminSection() {
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed bottom-8 right-8 z-[100] bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-500/50"
           >
-            <div className="bg-emerald-500 rounded-full p-1"><Check className="w-4 h-4" /></div>
+            <div className="bg-[#af894d] rounded-full p-1"><Check className="w-4 h-4" /></div>
             <span className="text-sm font-semibold">{notif}</span>
             <button onClick={() => definirNotif(null)} className="ml-4 text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
           </motion.div>

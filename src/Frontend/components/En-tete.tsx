@@ -28,7 +28,9 @@ export default function EnTete({
     { cle: 'evenements', libelle: 'Calendrier' },
     { cle: 'galerie', libelle: 'Galerie' },
     { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
-    { cle: 'contact-dons', libelle: 'Contact & Dons' }
+    { cle: 'contact-dons', libelle: 'Contact & Dons' },
+    { cle: 'administration', libelle: 'Administration' }, // Changed from 'Admin' for clarity
+    { cle: 'login', libelle: 'Connexion' } // Changed from 'S'enregistrer' to 'Connexion'
   ];
 
   const executerChangementPage = (clePage: string) => {
@@ -78,7 +80,7 @@ export default function EnTete({
               {modeSombre ? <Sun className="w-4 h-4 transition-transform duration-300 hover:rotate-45" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Bouton Faire un Don Rapide */}
+            {/* Bouton Faire un Don */}
             <button id="bouton-don-rapide" onClick={() => executerChangementPage('contact-dons')} className="px-5 py-2.5 rounded-md text-xs font-semibold tracking-wider uppercase text-white bg-gradient-to-r from-[#af894d] to-[#c29f63] shadow-md hover:shadow-lg hover:from-[#936f3c] hover:to-[#af894d] active:scale-95 transition-all duration-150 cursor-pointer">
               Faire un Don
             </button>

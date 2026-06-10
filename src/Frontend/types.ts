@@ -9,7 +9,7 @@ export interface Sermon {
   orateur: string;
   date: string;
   passageBiblique: string;
-  categorie: 'Dimanche' | 'Enseignement' | 'Fête' | 'Dévotion';
+  categorie: 'Dimanche' | 'Enseignement' | 'Fête' | 'Dévotion' | 'Exhortation';
   resume: string;
   audioEstJoue?: boolean;
   urlAudio: string;

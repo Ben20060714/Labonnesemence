@@ -13,6 +13,8 @@ import EvenementsSection from './components/EvenementsSection.tsx';
 import AProposSection from './components/AProposSection.tsx';
 import ContactDonsSection from './components/ContactDonsSection.tsx';
 import GalerieSection from './components/GalerieSection.tsx';
+import AdminSection from './components/AdminSection.tsx';
+import LoginSection from './components/LoginSection.tsx';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
@@ -56,6 +58,10 @@ export default function App() {
         return <GalerieSection />;
       case 'contact-dons':
         return <ContactDonsSection />;
+      case 'administration':
+        return <AdminSection/>;
+      case 'login':
+        return <LoginSection />;
       default:
         return <AccueilSection redirigerVersPage={definirPageActive} />;
     }

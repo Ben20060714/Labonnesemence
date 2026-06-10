@@ -23,7 +23,7 @@ export const SERMONS_DONNEES: Sermon[] = [
     orateur: 'Diacre Michel Mwamba',
     date: '17 Mai 2026',
     passageBiblique: 'Marc 4:35-41',
-    categorie: 'Enseignement',
+    categorie: 'Exhortation',
     resume: 'Une réflexion profonde sur la foi éprouvée dans les moments d’incertitude et la paix intérieure qui découle de la présence du Christ.',
     // urlAudio: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
     urlAudio: '../../audio/Killorbeezbeatz - Ameni Ameni - Killorbeezbeatz.mp3'
@@ -139,10 +139,10 @@ export const DEVELOPPEUR: DevEquipe[] = [
     initiales : 'AK',
     nom : 'Aurelio Kitenge',
     role : 'Developpeur Back-End',
-    telephone : '+243 0000000',
-    email : 'Email@gmail.com',
-    description : 'Lorem ipsum dolor sit amet adipiscing !',
-    accomplissement : '---, ***'
+    telephone : '+243 851750631',
+    email : 'Aureliokitenge@gmail.com',
+    description : 'Dev junior spécialisé en web et IoT',
+    accomplissement : 'Backend de l\'app Afrique Demain'
   }
 ]
 export const EQUIPE_DONNEES: MembreEquipe[] = [
