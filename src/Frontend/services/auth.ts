@@ -7,6 +7,8 @@ export interface UtilisateurAuthentifie {
   role: Role;
   created_at: string;
   updated_at?: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 interface ReponseApi<T> {
