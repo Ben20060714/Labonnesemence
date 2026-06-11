@@ -55,6 +55,15 @@ export interface FichierBackend {
   created_at?: string;
 }
 
+export interface MessageContact {
+  id: string;
+  nom: string;
+  email: string;
+  sujet: string;
+  contenu: string;
+  created_at: string;
+}
+
 const categoriesSermon = ['Dimanche', 'Enseignement', 'Fête', 'Dévotion', 'Exhortation'] as const;
 const categoriesEvenement = ['Culte', 'Jeunesse', 'Prière', 'Social'] as const;
 
@@ -154,6 +163,21 @@ async function requeteApi<T>(chemin: string, options: RequestInit = {}, authenti
 }
 
 export const api = {
+  async envoyerMessageContact(message: Omit<MessageContact, 'id' | 'created_at'>): Promise<MessageContact> {
+    return requeteApi<MessageContact>('/contacts', {
+      method: 'POST',
+      body: JSON.stringify(message),
+    });
+  },
+
+  async listerMessagesContact(): Promise<MessageContact[]> {
+    return requeteApi<MessageContact[]>('/contacts', {}, true);
+  },
+
+  async supprimerMessageContact(id: string): Promise<void> {
+    await requeteApi<null>(`/contacts/${id}`, { method: 'DELETE' }, true);
+  },
+
   async listerSermons(): Promise<Sermon[]> {
     const donnees = await requeteApi<SermonBackend[]>('/sermons');
     return donnees.map(convertirSermon);

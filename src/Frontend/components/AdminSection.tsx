@@ -17,6 +17,7 @@ import {
   BookOpen,
   User,
   Mail,
+  MessageSquare,
   Phone,
   LayoutDashboard,
   ChevronLeft,
@@ -28,9 +29,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES, EVENEMENTS_DONNEES, EQUIPE_DONNEES } from '../data';
 import { Sermon, Evenement, MembreEquipe } from '../types';
-import { api, FichierBackend, obtenirUrlFichier } from '../services/api';
+import { api, FichierBackend, MessageContact, obtenirUrlFichier } from '../services/api';
 
-type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie';
+type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie' | 'messages';
 type FormulaireEvenement = Omit<Evenement, 'identifiant' | 'date'>;
 type FormulaireSermon = Omit<Sermon, 'identifiant'>;
 type FormulaireMembre = Omit<MembreEquipe, 'identifiant'>;
@@ -46,6 +47,7 @@ export default function AdminSection() {
   const [sermons, definirSermons] = useState<Sermon[]>(SERMONS_DONNEES);
   const [membres, definirMembres] = useState<MembreEquipe[]>(EQUIPE_DONNEES);
   const [fichiers, definirFichiers] = useState<FichierBackend[]>([]);
+  const [messagesContact, definirMessagesContact] = useState<MessageContact[]>([]);
   const [notif, definirNotif] = useState<string | null>(null);
   const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
 
@@ -84,6 +86,12 @@ export default function AdminSection() {
         if (composantActif) definirFichiers(donnees);
       })
       .catch((erreur) => console.error('Chargement admin fichiers impossible:', erreur));
+
+    api.listerMessagesContact()
+      .then((donnees) => {
+        if (composantActif) definirMessagesContact(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin messages contact impossible:', erreur));
 
     return () => {
       composantActif = false;
@@ -189,6 +197,10 @@ export default function AdminSection() {
         await api.supprimerFichier(id);
         definirFichiers(prev => prev.filter(f => f.id !== id));
       }
+      if (type === 'messages') {
+        await api.supprimerMessageContact(id);
+        definirMessagesContact(prev => prev.filter(message => message.id !== id));
+      }
       afficherNotification("Suppression effectuée avec succès.");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Suppression impossible.");
@@ -226,6 +238,7 @@ export default function AdminSection() {
             { id: 'sermons', label: 'Enseignements', icon: Mic },
             { id: 'membres', label: 'Membres', icon: Users },
             { id: 'galerie', label: 'Galerie Photos', icon: ImageIcon },
+            { id: 'messages', label: 'Messages', icon: MessageSquare },
           ].map((item) => (
             <button
               key={item.id}
@@ -249,7 +262,7 @@ export default function AdminSection() {
             {/* 1. DASHBOARD */}
             {sectionActive === 'dashboard' && (
               <motion.div key="dash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-6 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-100 dark:border-amber-900/30">
                     <span className="text-xs font-mono text-amber-600 uppercase tracking-widest">Événements</span>
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{evenements.length}</p>
@@ -261,6 +274,10 @@ export default function AdminSection() {
                   <div className="p-6 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
                     <span className="text-xs font-mono text-blue-600 uppercase tracking-widest">Membres</span>
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{membres.length}</p>
+                  </div>
+                  <div className="p-6 bg-rose-50 dark:bg-rose-950/20 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                    <span className="text-xs font-mono text-rose-600 uppercase tracking-widest">Messages</span>
+                    <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{messagesContact.length}</p>
                   </div>
                 </div>
 
@@ -561,6 +578,50 @@ export default function AdminSection() {
                     </div>
                   ))}
                 </div>
+              </motion.div>
+            )}
+
+            {/* 5. MESSAGES DE CONTACT */}
+            {sectionActive === 'messages' && (
+              <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-serif text-xl font-bold">Messages reçus</h2>
+                  <span className="text-xs font-mono uppercase tracking-widest text-slate-400">{messagesContact.length} message(s)</span>
+                </div>
+
+                <div className="space-y-4">
+                  {messagesContact.map((message) => (
+                    <div key={message.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-5 space-y-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-1">
+                          <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">{message.sujet}</h3>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                            <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {message.nom}</span>
+                            <a href={`mailto:${message.email}`} className="flex items-center gap-1.5 text-[#af894d] hover:underline">
+                              <Mail className="w-3.5 h-3.5" /> {message.email}
+                            </a>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap">
+                            {new Date(message.created_at).toLocaleString('fr-FR')}
+                          </span>
+                          <button onClick={() => supprimerItem('messages', message.id)} className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all cursor-pointer">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{message.contenu}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {messagesContact.length === 0 && (
+                  <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-10 text-center space-y-2">
+                    <MessageSquare className="w-8 h-8 mx-auto text-slate-400" />
+                    <p className="text-sm text-slate-500">Aucun message de contact enregistré pour le moment.</p>
+                  </div>
+                )}
               </motion.div>
             )}
 

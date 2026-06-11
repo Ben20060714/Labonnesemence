@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock } from 'lucide-react'; // Assurez-vous d'avoir lucide-react installé
-import { UtilisateurAuthentifie } from '../services/auth';
+import { connecterUtilisateur, enregistrerSessionAuth, UtilisateurAuthentifie } from '../services/auth';
 
 interface LoginPageProps {
     onLoginSuccess: (user: UtilisateurAuthentifie) => void;
@@ -18,35 +17,12 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
         setError(null);
 
         try {
-            // Ici, vous feriez un appel à votre API de backend pour l'authentification
-            // Exemple simulé:
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Simuler la structure de l'utilisateur retournée par l'API
-                const user: UtilisateurAuthentifie = {
-                    id: data.data.user.id,
-                    username: data.data.user.username,
-                    email: data.data.user.email,
-                    role: data.data.user.role, // 'admin' ou 'user'
-                    accessToken: data.data.accessToken,
-                    refreshToken: data.data.refreshToken,
-                };
-                onLoginSuccess(user);
-            } else {
-                setError(data.error || 'Identifiants invalides.');
-            }
+            const session = await connecterUtilisateur(email, password);
+            enregistrerSessionAuth(session);
+            onLoginSuccess(session.user);
         } catch (err) {
             console.error('Erreur de connexion:', err);
-            setError('Une erreur est survenue lors de la connexion.');
+            setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la connexion.');
         } finally {
             setLoading(false);
         }

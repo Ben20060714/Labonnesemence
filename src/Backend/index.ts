@@ -13,6 +13,7 @@ import postsRoutes from './routes/posts.routes.js';
 import filesRoutes from './routes/files.routes.js';
 import sermonsRoutes from './routes/sermons.routes.js';
 import eventsRoutes from './routes/events.routes.js';
+import contactsRoutes from './routes/contacts.routes.js';
 import { spawn } from 'child_process';
 
 const dir = import.meta.dirname;
@@ -118,6 +119,7 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/sermons', sermonsRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/contacts', contactsRoutes);
 
 // ─── Error handling ──────────────────────────────────────────────────────────
 app.use(notFoundHandler);
@@ -155,6 +157,9 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/events           (admin)`);
   console.log(`  PUT    /api/events/:id       (admin)`);
   console.log(`  DELETE /api/events/:id       (admin)`);
+  console.log(`  POST   /api/contacts`);
+  console.log(`  GET    /api/contacts         (admin)`);
+  console.log(`  DELETE /api/contacts/:id     (admin)`);
   console.log(`  GET    /api/files`);
   console.log(`  POST   /api/files/upload`);
   console.log(`  POST   /api/files/upload-multiple`);

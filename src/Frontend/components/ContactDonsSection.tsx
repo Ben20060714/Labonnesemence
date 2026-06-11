@@ -5,6 +5,7 @@
 import { useState, SyntheticEvent, useEffect } from 'react';
 import { Mail, MessageSquare, ShieldCheck, Heart, User, Check, Send, Award, Compass, CreditCard, X, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { api } from '../services/api';
 
 export default function ContactDonsSection() {
   // Regroupement des états du formulaire pour une gestion plus fluide
@@ -15,6 +16,8 @@ export default function ContactDonsSection() {
     contenu: ''
   });
   const [notificationContactEnvoye, definirNotificationContactEnvoye] = useState<boolean>(false);
+  const [contactEnvoiEnCours, definirContactEnvoiEnCours] = useState<boolean>(false);
+  const [erreurContact, definirErreurContact] = useState<string | null>(null);
 
   // États Section Dons
   const [montantDon, definirMontantDon] = useState<number>(50);
@@ -82,16 +85,29 @@ export default function ContactDonsSection() {
     }
   };
 
-  const gererSoumissionContact = (evenement: SyntheticEvent) => {
+  const gererSoumissionContact = async (evenement: SyntheticEvent) => {
     evenement.preventDefault();
     const { nom, email, sujet, contenu } = formulaireContact;
     if (!nom.trim() || !email.trim() || !sujet.trim() || !contenu.trim()) return;
 
-    definirNotificationContactEnvoye(true);
-    setTimeout(() => {
+    definirContactEnvoiEnCours(true);
+    definirErreurContact(null);
+
+    try {
+      await api.envoyerMessageContact({
+        nom: nom.trim(),
+        email: email.trim(),
+        sujet: sujet.trim(),
+        contenu: contenu.trim()
+      });
+      definirNotificationContactEnvoye(true);
       definirFormulaireContact({ nom: '', email: '', sujet: '', contenu: '' });
-      definirNotificationContactEnvoye(false);
-    }, 4000);
+      setTimeout(() => definirNotificationContactEnvoye(false), 4000);
+    } catch (erreur) {
+      definirErreurContact(erreur instanceof Error ? erreur.message : "Impossible d'envoyer le message.");
+    } finally {
+      definirContactEnvoiEnCours(false);
+    }
   };
 
   // This function will now handle the Monetbil payment initiation
@@ -206,9 +222,14 @@ export default function ContactDonsSection() {
             <button
               type="submit"
               id="bouton-envoi-formulaire-contact"
-              className="w-full py-3 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded transition-all hover:bg-[#af894d] flex items-center justify-center gap-2 cursor-pointer dark:bg-slate-800 dark:hover:bg-[#af894d]"
+              disabled={contactEnvoiEnCours}
+              className="w-full py-3 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded transition-all hover:bg-[#af894d] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed dark:bg-slate-800 dark:hover:bg-[#af894d]"
             >
-              {notificationContactEnvoye ? (
+              {contactEnvoiEnCours ? (
+                <>
+                  <Send className="w-3.5 h-3.5" /> Envoi en cours...
+                </>
+              ) : notificationContactEnvoye ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-400" /> Envoyé avec succès !
                 </>
@@ -218,6 +239,9 @@ export default function ContactDonsSection() {
                 </>
               )}
             </button>
+            {erreurContact && (
+              <p className="text-sm text-red-500 text-center">{erreurContact}</p>
+            )}
           </form>
         </div>
 
