@@ -8,9 +8,10 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "server": "tsx --watch src/Backend/index.ts",
+    "server": "tsx src/Backend/index.ts",
+    "server:watch": "tsx --watch src/Backend/index.ts",
     "client": "vite --port=3001 --host=0.0.0.0",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server:watch\" \"npm run client\"",
     "start": "tsx src/Backend/index.ts"
   },
   "dependencies": {

@@ -64,6 +64,33 @@ export interface MessageContact {
   created_at: string;
 }
 
+export type StatutDonation = 'pending' | 'paid' | 'failed' | 'cancelled';
+
+export interface DonationBackend {
+  id: string;
+  reference: string;
+  donor_name: string;
+  donor_email: string;
+  donor_phone: string;
+  amount: number;
+  currency: string;
+  designation: string;
+  description?: string;
+  status: StatutDonation;
+  provider: string;
+  provider_transaction_id?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MonetbilConfig {
+  serviceKey: string;
+  paymentUrl: string;
+  notifyUrl: string;
+  returnUrl: string;
+  cancelUrl: string;
+}
+
 const categoriesSermon = ['Dimanche', 'Enseignement', 'Fête', 'Dévotion', 'Exhortation'] as const;
 const categoriesEvenement = ['Culte', 'Jeunesse', 'Prière', 'Social'] as const;
 
@@ -163,6 +190,35 @@ async function requeteApi<T>(chemin: string, options: RequestInit = {}, authenti
 }
 
 export const api = {
+  async obtenirConfigurationMonetbil(): Promise<MonetbilConfig> {
+    return requeteApi<MonetbilConfig>('/donations/monetbil/config');
+  },
+
+  async preparerDonation(donation: {
+    donorName: string;
+    donorEmail: string;
+    donorPhone: string;
+    amount: number;
+    designation: string;
+    description: string;
+  }): Promise<DonationBackend> {
+    return requeteApi<DonationBackend>('/donations', {
+      method: 'POST',
+      body: JSON.stringify(donation),
+    });
+  },
+
+  async listerDonations(): Promise<DonationBackend[]> {
+    return requeteApi<DonationBackend[]>('/donations', {}, true);
+  },
+
+  async mettreAJourStatutDonation(id: string, status: StatutDonation): Promise<DonationBackend> {
+    return requeteApi<DonationBackend>(`/donations/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }, true);
+  },
+
   async envoyerMessageContact(message: Omit<MessageContact, 'id' | 'created_at'>): Promise<MessageContact> {
     return requeteApi<MessageContact>('/contacts', {
       method: 'POST',

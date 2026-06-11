@@ -8,6 +8,7 @@ import {
   Calendar as CalendarIcon,
   Mic,
   Image as ImageIcon,
+  CreditCard,
   Users,
   Plus,
   Trash2,
@@ -29,9 +30,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { SERMONS_DONNEES, EVENEMENTS_DONNEES, EQUIPE_DONNEES } from '../data';
 import { Sermon, Evenement, MembreEquipe } from '../types';
-import { api, FichierBackend, MessageContact, obtenirUrlFichier } from '../services/api';
+import { api, DonationBackend, FichierBackend, MessageContact, obtenirUrlFichier, StatutDonation } from '../services/api';
 
-type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie' | 'messages';
+type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie' | 'messages' | 'dons';
 type FormulaireEvenement = Omit<Evenement, 'identifiant' | 'date'>;
 type FormulaireSermon = Omit<Sermon, 'identifiant'>;
 type FormulaireMembre = Omit<MembreEquipe, 'identifiant'>;
@@ -48,6 +49,7 @@ export default function AdminSection() {
   const [membres, definirMembres] = useState<MembreEquipe[]>(EQUIPE_DONNEES);
   const [fichiers, definirFichiers] = useState<FichierBackend[]>([]);
   const [messagesContact, definirMessagesContact] = useState<MessageContact[]>([]);
+  const [donations, definirDonations] = useState<DonationBackend[]>([]);
   const [notif, definirNotif] = useState<string | null>(null);
   const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
   const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
@@ -95,6 +97,12 @@ export default function AdminSection() {
         if (composantActif) definirMessagesContact(donnees);
       })
       .catch((erreur) => console.error('Chargement admin messages contact impossible:', erreur));
+
+    api.listerDonations()
+      .then((donnees) => {
+        if (composantActif) definirDonations(donnees);
+      })
+      .catch((erreur) => console.error('Chargement admin dons impossible:', erreur));
 
     return () => {
       composantActif = false;
@@ -244,6 +252,16 @@ export default function AdminSection() {
     }
   };
 
+  const changerStatutDonation = async (id: string, status: StatutDonation) => {
+    try {
+      const donation = await api.mettreAJourStatutDonation(id, status);
+      definirDonations(prev => prev.map(item => item.id === id ? donation : item));
+      afficherNotification("Statut du don mis à jour.");
+    } catch (erreur) {
+      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de mettre à jour le don.");
+    }
+  };
+
   return (
     <section id="admin-panel-screen" className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
@@ -260,6 +278,7 @@ export default function AdminSection() {
             { id: 'membres', label: 'Membres', icon: Users },
             { id: 'galerie', label: 'Galerie Photos', icon: ImageIcon },
             { id: 'messages', label: 'Messages', icon: MessageSquare },
+            { id: 'dons', label: 'Dons', icon: CreditCard },
           ].map((item) => (
             <button
               key={item.id}
@@ -283,7 +302,7 @@ export default function AdminSection() {
             {/* 1. DASHBOARD */}
             {sectionActive === 'dashboard' && (
               <motion.div key="dash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div className="p-6 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-100 dark:border-amber-900/30">
                     <span className="text-xs font-mono text-amber-600 uppercase tracking-widest">Événements</span>
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{evenements.length}</p>
@@ -299,6 +318,10 @@ export default function AdminSection() {
                   <div className="p-6 bg-rose-50 dark:bg-rose-950/20 rounded-xl border border-rose-100 dark:border-rose-900/30">
                     <span className="text-xs font-mono text-rose-600 uppercase tracking-widest">Messages</span>
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{messagesContact.length}</p>
+                  </div>
+                  <div className="p-6 bg-violet-50 dark:bg-violet-950/20 rounded-xl border border-violet-100 dark:border-violet-900/30">
+                    <span className="text-xs font-mono text-violet-600 uppercase tracking-widest">Dons</span>
+                    <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{donations.length}</p>
                   </div>
                 </div>
 
@@ -653,6 +676,72 @@ export default function AdminSection() {
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-10 text-center space-y-2">
                     <MessageSquare className="w-8 h-8 mx-auto text-slate-400" />
                     <p className="text-sm text-slate-500">Aucun message de contact enregistré pour le moment.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* 6. DONS */}
+            {sectionActive === 'dons' && (
+              <motion.div key="dons" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-serif text-xl font-bold">Suivi des dons</h2>
+                  <span className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                    {donations.reduce((total, don) => total + (don.status === 'paid' ? don.amount : 0), 0)} $ confirmés
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 text-[10px] uppercase font-mono">
+                        <th className="py-3 px-2">Donateur</th>
+                        <th className="py-3 px-2">Montant</th>
+                        <th className="py-3 px-2">Référence</th>
+                        <th className="py-3 px-2">Statut</th>
+                        <th className="py-3 px-2">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-850">
+                      {donations.map((donation) => (
+                        <tr key={donation.id} className="hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                          <td className="py-3 px-2">
+                            <div className="font-semibold">{donation.donor_name}</div>
+                            <div className="text-[11px] text-slate-500">{donation.donor_email} • {donation.donor_phone}</div>
+                          </td>
+                          <td className="py-3 px-2 font-serif font-bold">{donation.amount} {donation.currency}</td>
+                          <td className="py-3 px-2 font-mono text-[11px]">{donation.reference}</td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={donation.status}
+                              onChange={(e) => changerStatutDonation(donation.id, e.target.value as StatutDonation)}
+                              className={`px-2 py-1 rounded text-[11px] font-bold uppercase border ${
+                                donation.status === 'paid'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                  : donation.status === 'failed'
+                                    ? 'bg-rose-50 text-rose-700 border-rose-100'
+                                    : donation.status === 'cancelled'
+                                      ? 'bg-slate-100 text-slate-600 border-slate-200'
+                                      : 'bg-amber-50 text-amber-700 border-amber-100'
+                              }`}
+                            >
+                              <option value="pending">En attente</option>
+                              <option value="paid">Payé</option>
+                              <option value="failed">Échoué</option>
+                              <option value="cancelled">Annulé</option>
+                            </select>
+                          </td>
+                          <td className="py-3 px-2 text-[11px] text-slate-500">{new Date(donation.created_at).toLocaleString('fr-FR')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {donations.length === 0 && (
+                  <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-10 text-center space-y-2">
+                    <CreditCard className="w-8 h-8 mx-auto text-slate-400" />
+                    <p className="text-sm text-slate-500">Aucun don enregistré pour le moment.</p>
                   </div>
                 )}
               </motion.div>

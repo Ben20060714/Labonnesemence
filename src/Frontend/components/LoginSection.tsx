@@ -10,9 +10,10 @@ import { connecterUtilisateur, enregistrerSessionAuth, UtilisateurAuthentifie } 
 interface LoginSectionProps {
   redirigerVersPage: (page: string) => void;
   definirUtilisateur: (utilisateur: UtilisateurAuthentifie | null) => void;
+  pageApresConnexion?: string;
 }
 
-export default function LoginSection({ redirigerVersPage, definirUtilisateur }: LoginSectionProps) {
+export default function LoginSection({ redirigerVersPage, definirUtilisateur, pageApresConnexion }: LoginSectionProps) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,7 +28,12 @@ export default function LoginSection({ redirigerVersPage, definirUtilisateur }: 
       const session = await connecterUtilisateur(email, password);
       enregistrerSessionAuth(session);
       definirUtilisateur(session.user);
-      redirigerVersPage(session.user.role === 'admin' ? 'administration' : 'mon-compte');
+      const pageParDefaut = session.user.role === 'admin' ? 'administration' : 'mon-compte';
+      const pageCible = pageApresConnexion === 'administration' && session.user.role !== 'admin'
+        ? 'mon-compte'
+        : pageApresConnexion || pageParDefaut;
+
+      redirigerVersPage(pageCible);
     } catch (erreur) {
       setError(erreur instanceof Error ? erreur.message : 'Connexion impossible.');
     } finally {

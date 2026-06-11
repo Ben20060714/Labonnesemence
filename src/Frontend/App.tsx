@@ -80,7 +80,7 @@ export default function App() {
         return <ContactDonsSection />;
       case 'administration':
         if (utilisateur?.role !== 'admin') {
-          return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} />;
+          return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} pageApresConnexion="administration" />;
         }
         return <AdminSection/>;
       case 'login':

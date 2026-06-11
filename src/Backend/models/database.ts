@@ -104,6 +104,24 @@ export function initializeDatabase(): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS donations (
+      id TEXT PRIMARY KEY,
+      reference TEXT UNIQUE NOT NULL,
+      donor_name TEXT NOT NULL,
+      donor_email TEXT NOT NULL,
+      donor_phone TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      currency TEXT NOT NULL DEFAULT 'USD',
+      designation TEXT NOT NULL,
+      description TEXT,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'failed', 'cancelled')),
+      provider TEXT NOT NULL DEFAULT 'monetbil',
+      provider_transaction_id TEXT,
+      provider_payload TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
     CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
     CREATE INDEX IF NOT EXISTS idx_posts_published ON posts(published);
@@ -111,10 +129,50 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
     CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON contact_messages(created_at);
+    CREATE INDEX IF NOT EXISTS idx_donations_reference ON donations(reference);
+    CREATE INDEX IF NOT EXISTS idx_donations_status ON donations(status);
+    CREATE INDEX IF NOT EXISTS idx_donations_created ON donations(created_at);
   `);
 
   ensureDefaultAdmin();
+  migrateUploadsIntoTypedFolders();
   console.log('# Database initialized at:', DB_PATH);
+}
+
+function getUploadCategory(mimetype: string): string {
+  if (mimetype.startsWith('image/')) return 'images';
+  if (mimetype.startsWith('audio/')) return 'audio';
+  if (mimetype.startsWith('video/')) return 'videos';
+  if (mimetype === 'application/pdf') return 'pdf';
+  if (mimetype.startsWith('text/') || mimetype === 'application/json') return 'documents';
+  if (mimetype.includes('word') || mimetype.includes('excel') || mimetype.includes('spreadsheet')) return 'documents';
+  if (mimetype.includes('zip')) return 'archives';
+  return 'others';
+}
+
+function migrateUploadsIntoTypedFolders(): void {
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) return;
+
+  const files = db.prepare(`
+    SELECT id, filename, mimetype
+    FROM files
+    WHERE filename NOT LIKE '%/%'
+  `).all() as { id: string; filename: string; mimetype: string }[];
+
+  for (const file of files) {
+    const source = path.join(uploadsDir, file.filename);
+    if (!fs.existsSync(source)) continue;
+
+    const category = getUploadCategory(file.mimetype);
+    const targetDir = path.join(uploadsDir, category);
+    const relativeTarget = `${category}/${file.filename}`;
+    const target = path.join(uploadsDir, relativeTarget);
+
+    fs.mkdirSync(targetDir, { recursive: true });
+    fs.renameSync(source, target);
+    db.prepare('UPDATE files SET filename = ? WHERE id = ?').run(relativeTarget, file.id);
+  }
 }
 
 function ensureDefaultAdmin(): void {

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import http from 'http';
+import fs from 'fs';
 
 import { initializeDatabase } from './models/database.ts';
 import { cleanExpiredRefreshTokens } from './utils/jwt.ts';
@@ -14,61 +14,14 @@ import filesRoutes from './routes/files.routes.js';
 import sermonsRoutes from './routes/sermons.routes.js';
 import eventsRoutes from './routes/events.routes.js';
 import contactsRoutes from './routes/contacts.routes.js';
-import { spawn } from 'child_process';
+import donationsRoutes from './routes/donations.routes.js';
 
 const dir = import.meta.dirname;
 const app = express();
 const PORT = process.env.PORT || 5000;
 const projectRoot = path.resolve(dir, '..', '..');
-const VITE_PORT = process.env.VITE_PORT || 3001;
-const viteUrl = process.env.VITE_DEV_SERVER_URL || `http://localhost:${VITE_PORT}`;
-let viteProcess = null;
-
-const isViteServerReachable = () => new Promise<boolean>((resolve) => {
-  const request = http.get(viteUrl, (response) => {
-    response.resume();
-    resolve(true);
-  });
-
-  request.on('error', () => resolve(false));
-  request.setTimeout(1000, () => {
-    request.destroy();
-    resolve(false);
-  });
-});
-
-// ---- fonction start viteServer pour démarrer le serveur Vite ----
-const startViteServer = async () => {
-  if (await isViteServerReachable()) {
-    return false;
-  }
-
-  if (viteProcess && !viteProcess.killed) {
-    return false;
-  }
-
-  const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-
-  viteProcess = spawn(npmCommand, ['run', 'client', '--', '--port', String(VITE_PORT)], {
-    cwd: projectRoot,
-    stdio: 'ignore',
-    detached: true,
-    shell: true
-  });
-
-  viteProcess.on('error', (error: any) => {
-    viteProcess = null;
-    console.error('Failed to start Vite server:', error);
-  });
-
-  viteProcess.on('exit', () => {
-    viteProcess = null;
-  });
-
-  viteProcess.unref();
-
-  return true;
-};
+const distDir = path.join(projectRoot, 'dist');
+const indexHtmlPath = path.join(distDir, 'index.html');
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
 app.use(cors({
@@ -96,23 +49,6 @@ app.get('/health', (_req: any, res: any) => {
 });
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
-const redirectToFrontend = async (_req: any, res: any) => {
-  await startViteServer();
-  res.redirect(viteUrl);
-};
-
-app.get('/', redirectToFrontend);
-app.get('/page', redirectToFrontend);
-
-app.get('/start-vite', async (req: any, res: any) => {
-  const started = await startViteServer();
-
-  res.status(202).json({
-    message: started ? 'Vite server started.' : 'Vite server is already running.',
-    url: viteUrl
-  });
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/posts', postsRoutes);
@@ -120,6 +56,25 @@ app.use('/api/files', filesRoutes);
 app.use('/api/sermons', sermonsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/contacts', contactsRoutes);
+app.use('/api/donations', donationsRoutes);
+
+// ─── Frontend statique ───────────────────────────────────────────────────────
+if (fs.existsSync(indexHtmlPath)) {
+  app.use(express.static(distDir));
+
+  app.get('*', (req: any, res: any, next: any) => {
+    if (req.path.startsWith('/api/')) {
+      next();
+      return;
+    }
+
+    res.sendFile(indexHtmlPath);
+  });
+} else {
+  app.get('/', (_req: any, res: any) => {
+    res.status(503).send('Frontend non compilé. Lancez `npm run build`, puis redémarrez le serveur.');
+  });
+}
 
 // ─── Error handling ──────────────────────────────────────────────────────────
 app.use(notFoundHandler);
@@ -128,6 +83,7 @@ app.use(errorHandler);
 // ─── Start server ────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n Server running on http://localhost:${PORT}`);
+  console.log(` Frontend: ${fs.existsSync(indexHtmlPath) ? `served from ${distDir}` : 'dist not found, run npm run build'}`);
   console.log(` Health check: http://localhost:${PORT}/health`);
   console.log(`\nAvailable routes:`);
   console.log(`  POST   /api/auth/register`);
@@ -160,6 +116,11 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/contacts`);
   console.log(`  GET    /api/contacts         (admin)`);
   console.log(`  DELETE /api/contacts/:id     (admin)`);
+  console.log(`  GET    /api/donations/monetbil/config`);
+  console.log(`  POST   /api/donations`);
+  console.log(`  POST   /api/donations/monetbil/notify`);
+  console.log(`  GET    /api/donations        (admin)`);
+  console.log(`  PATCH  /api/donations/:id/status (admin)`);
   console.log(`  GET    /api/files`);
   console.log(`  POST   /api/files/upload`);
   console.log(`  POST   /api/files/upload-multiple`);

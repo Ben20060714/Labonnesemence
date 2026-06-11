@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useState, SyntheticEvent, useEffect } from 'react';
-import { Mail, MessageSquare, ShieldCheck, Heart, User, Check, Send, Award, Compass, CreditCard, X, Phone } from 'lucide-react';
+import { Mail, ShieldCheck, Heart, User, Check, Send, Award, X, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { api } from '../services/api';
+import { api, DonationBackend, MonetbilConfig } from '../services/api';
 
 export default function ContactDonsSection() {
   // Regroupement des états du formulaire pour une gestion plus fluide
@@ -24,14 +24,13 @@ export default function ContactDonsSection() {
   const [etapeDonation, definirEtapeDonation] = useState<number>(0); // 0: choix, 1: transaction, 2: merci
   const [donateurNom, definirDonateurNom] = useState<string>('');
   const [donateurEmail, definirDonateurEmail] = useState<string>('');
-  const [donNumeroCarte, definirDonNumeroCarte] = useState<string>('');
   const [donateurTelephone, definirDonateurTelephone] = useState<string>('+243850000'); // Numéro provisoire
+  const [configurationMonetbil, definirConfigurationMonetbil] = useState<MonetbilConfig | null>(null);
+  const [donationPreparee, definirDonationPreparee] = useState<DonationBackend | null>(null);
+  const [donPreparationEnCours, definirDonPreparationEnCours] = useState<boolean>(false);
+  const [erreurDon, definirErreurDon] = useState<string | null>(null);
 
   const montantsPredefinis = [15, 30, 50, 100, 250, 500];
-
-  // Monetbil Service Keys (provided by user)
-  const MONETBIL_SERVICE_KEY = 'Tr36XiIBha8vBJcx2pEZEzx2RINEZIcR';
-  const MONETBIL_SERVICE_SECRET = 'Dvsun1LkWKbxJ9qZ7JwTqGzflTlduE4Bocrq1LmAK90bxKaG2DF60qKvQ1L0JrSU';
 
   // Dynamically load Monetbil script
   useEffect(() => {
@@ -45,15 +44,22 @@ export default function ContactDonsSection() {
       document.body.appendChild(script);
     }
 
+    api.obtenirConfigurationMonetbil()
+      .then(definirConfigurationMonetbil)
+      .catch((erreur) => {
+        console.error('Configuration Monetbil indisponible:', erreur);
+        definirErreurDon("Le paiement n'est pas disponible pour le moment.");
+      });
+
     // Écouteur pour les événements du widget Monetbil v2
     const gererMessageMonetbil = (event: MessageEvent) => {
       // Le widget Monetbil v2 envoie des objets via postMessage
       if (event.data && event.data.name) {
         if (event.data.name === 'monetbil.payment.success') {
-          // Paiement réussi : on ferme le formulaire et on affiche le remerciement
           definirEtapeDonation(2);
         } else if (event.data.name === 'monetbil.payment.error') {
           console.error("Erreur de transaction Monetbil :", event.data);
+          definirErreurDon("Le paiement a échoué. Veuillez réessayer.");
         }
       }
     };
@@ -110,11 +116,29 @@ export default function ContactDonsSection() {
     }
   };
 
-  // This function will now handle the Monetbil payment initiation
-  const executerTransactionMonetbil = (evenement: SyntheticEvent) => {
+  const preparerTransactionMonetbil = async (evenement: SyntheticEvent) => {
     evenement.preventDefault();
     if (!donateurNom.trim() || !donateurEmail.trim() || !donateurTelephone.trim()) return;
-    // Le script monetbil.min.js intercepte la soumission car data-monetbil="form" est présent
+
+    definirDonPreparationEnCours(true);
+    definirErreurDon(null);
+
+    try {
+      const donation = await api.preparerDonation({
+        donorName: donateurNom.trim(),
+        donorEmail: donateurEmail.trim(),
+        donorPhone: donateurTelephone.trim(),
+        amount: montantDon,
+        designation: 'Don CABCS',
+        description: determinerImpactDon(montantDon),
+      });
+
+      definirDonationPreparee(donation);
+    } catch (erreur) {
+      definirErreurDon(erreur instanceof Error ? erreur.message : 'Impossible de préparer le paiement.');
+    } finally {
+      definirDonPreparationEnCours(false);
+    }
   };
 
   const reinitialiserEspaceDon = () => {
@@ -123,6 +147,33 @@ export default function ContactDonsSection() {
     definirDonateurNom('');
     definirDonateurEmail('');
     definirDonateurTelephone(''); // Reset phone number
+    definirDonationPreparee(null);
+    definirErreurDon(null);
+  };
+
+  const construireUrlPaiementMonetbil = () => {
+    if (!configurationMonetbil || !donationPreparee) return '#';
+
+    const params = new URLSearchParams({
+      service: configurationMonetbil.serviceKey,
+      service_key: configurationMonetbil.serviceKey,
+      amount: String(donationPreparee.amount),
+      currency: donationPreparee.currency,
+      reference: donationPreparee.reference,
+      item_ref: donationPreparee.reference,
+      item_name: 'Don solidaire',
+      item_type: 'SOCIAL',
+      designation: donationPreparee.designation,
+      description: donationPreparee.description || determinerImpactDon(montantDon),
+      phone: donationPreparee.donor_phone,
+      customer_name: donationPreparee.donor_name,
+      customer_email: donationPreparee.donor_email,
+      notify_url: configurationMonetbil.notifyUrl,
+      return_url: configurationMonetbil.returnUrl,
+      cancel_url: configurationMonetbil.cancelUrl,
+    });
+
+    return `${configurationMonetbil.paymentUrl}?${params.toString()}`;
   };
 
   return (
@@ -365,21 +416,11 @@ export default function ContactDonsSection() {
               </button>
 
               {/* Monetbil Payment Form */}
-              {etapeDonation === 1 && (
+              {etapeDonation === 1 && !donationPreparee && (
                 <form
                   id="formulaire-offrande-paiement-monetbil"
-                  onSubmit={executerTransactionMonetbil}
+                  onSubmit={preparerTransactionMonetbil}
                   className="space-y-5"
-                  data-monetbil="form"
-                  data-monetbil-service-key={MONETBIL_SERVICE_KEY}
-                  data-monetbil-service-secret={MONETBIL_SERVICE_SECRET}
-                  data-monetbil-amount={montantDon}
-                  data-monetbil-designation="Don CABCS"
-                  data-monetbil-item-name="Don solidaire"
-                  data-monetbil-item-type="SOCIAL"
-                  data-monetbil-description={determinerImpactDon(montantDon)}
-                  data-monetbil-phone={donateurTelephone}
-                  // You might want to set return_url, cancel_url, notify_url for production
                 >
                   <div className="space-y-1.5 text-center">
                     <span className="text-[10px] uppercase font-mono tracking-widest text-[#c29f63] font-bold">
@@ -448,13 +489,81 @@ export default function ContactDonsSection() {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      id="bouton-soumettre-paiement-final"
-                      className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2" // Changed button text and icon
+                      id="bouton-preparer-paiement-final"
+                      disabled={donPreparationEnCours || !configurationMonetbil}
+                      className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      <ShieldCheck className="w-4 h-4" /> Finaliser la transaction
+                      <ShieldCheck className="w-4 h-4" />
+                      {donPreparationEnCours ? 'Préparation...' : 'Préparer le paiement'}
                     </button>
                   </div>
                 </form>
+              )}
+
+              {etapeDonation === 1 && donationPreparee && configurationMonetbil && (
+                <form
+                  id="formulaire-monetbil-widget"
+                  className="space-y-4"
+                  action={configurationMonetbil.paymentUrl}
+                  method="POST"
+                  target="_blank"
+                  data-monetbil="form"
+                  data-monetbil-service-key={configurationMonetbil.serviceKey}
+                  data-monetbil-amount={donationPreparee.amount}
+                  data-monetbil-currency={donationPreparee.currency}
+                  data-monetbil-reference={donationPreparee.reference}
+                  data-monetbil-item-ref={donationPreparee.reference}
+                  data-monetbil-designation={donationPreparee.designation}
+                  data-monetbil-item-name="Don solidaire"
+                  data-monetbil-item-type="SOCIAL"
+                  data-monetbil-description={donationPreparee.description || determinerImpactDon(montantDon)}
+                  data-monetbil-phone={donationPreparee.donor_phone}
+                  data-monetbil-customer-name={donationPreparee.donor_name}
+                  data-monetbil-customer-email={donationPreparee.donor_email}
+                  data-monetbil-notify-url={configurationMonetbil.notifyUrl}
+                  data-monetbil-return-url={configurationMonetbil.returnUrl}
+                  data-monetbil-cancel-url={configurationMonetbil.cancelUrl}
+                >
+                  <input type="hidden" name="service" value={configurationMonetbil.serviceKey} />
+                  <input type="hidden" name="service_key" value={configurationMonetbil.serviceKey} />
+                  <input type="hidden" name="amount" value={donationPreparee.amount} />
+                  <input type="hidden" name="currency" value={donationPreparee.currency} />
+                  <input type="hidden" name="reference" value={donationPreparee.reference} />
+                  <input type="hidden" name="item_ref" value={donationPreparee.reference} />
+                  <input type="hidden" name="item_name" value="Don solidaire" />
+                  <input type="hidden" name="item_type" value="SOCIAL" />
+                  <input type="hidden" name="designation" value={donationPreparee.designation} />
+                  <input type="hidden" name="description" value={donationPreparee.description || determinerImpactDon(montantDon)} />
+                  <input type="hidden" name="phone" value={donationPreparee.donor_phone} />
+                  <input type="hidden" name="customer_name" value={donationPreparee.donor_name} />
+                  <input type="hidden" name="customer_email" value={donationPreparee.donor_email} />
+                  <input type="hidden" name="notify_url" value={configurationMonetbil.notifyUrl} />
+                  <input type="hidden" name="return_url" value={configurationMonetbil.returnUrl} />
+                  <input type="hidden" name="cancel_url" value={configurationMonetbil.cancelUrl} />
+                  <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800 space-y-1">
+                    <p className="font-bold">Paiement préparé</p>
+                    <p className="font-mono text-[11px] break-all">Référence : {donationPreparee.reference}</p>
+                  </div>
+                  <button
+                    type="submit"
+                    id="bouton-soumettre-paiement-final"
+                    className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" /> Ouvrir Monetbil
+                  </button>
+                  <a
+                    href={construireUrlPaiementMonetbil()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-center text-xs font-semibold text-[#af894d] hover:underline"
+                  >
+                    Ouvrir la page de paiement dans un nouvel onglet
+                  </a>
+                </form>
+              )}
+
+              {erreurDon && (
+                <p className="text-sm text-red-500 text-center">{erreurDon}</p>
               )}
 
               {etapeDonation === 2 && (
@@ -484,6 +593,7 @@ export default function ContactDonsSection() {
                     <div><strong>Donateur :</strong> {donateurNom}</div>
                     <div><strong>Accusé de réception :</strong> Envoyé à {donateurEmail}</div>
                     <div><strong>Téléphone :</strong> {donateurTelephone}</div>
+                    {donationPreparee && <div><strong>Référence :</strong> {donationPreparee.reference}</div>}
                     <div><strong>Destinations :</strong> {determinerImpactDon(montantDon)}</div>
                   </div>
 

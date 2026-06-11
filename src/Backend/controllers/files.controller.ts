@@ -5,7 +5,11 @@ import db from '../models/database.ts';
 import { v4 as uuidv4 } from 'uuid';
 import { sendSuccess, sendError, parsePagination } from '../utils/helpers.ts';
 import { AuthRequest, FileRecord, FileWithUploader, PaginatedResponse, PaginationQuery } from '../types';
-import { UPLOAD_PATH } from '../middlewares/upload.middleware.ts';
+import { getUploadFilePath, UPLOAD_PATH } from '../middlewares/upload.middleware.ts';
+
+const getStoredFilename = (file: Express.Multer.File) => {
+  return path.relative(UPLOAD_PATH, file.path).replace(/\\/g, '/');
+};
 
 export function uploadFile(req: AuthRequest, res: Response): void {
   if (!req.user) {
@@ -28,7 +32,7 @@ export function uploadFile(req: AuthRequest, res: Response): void {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
-      req.file.filename,
+      getStoredFilename(req.file),
       req.file.originalname,
       req.file.mimetype,
       req.file.size,
@@ -75,7 +79,7 @@ export function uploadMultipleFiles(req: AuthRequest, res: Response): void {
       db.prepare(`
         INSERT INTO files (id, filename, original_name, mimetype, size, uploader_id, is_public)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(id, file.filename, file.originalname, file.mimetype, file.size, req.user!.userId, isPublic);
+      `).run(id, getStoredFilename(file), file.originalname, file.mimetype, file.size, req.user!.userId, isPublic);
       results.push(id);
     }
     return results;
@@ -121,7 +125,7 @@ export function downloadFile(req: AuthRequest, res: Response): void {
     }
   }
 
-  const filePath = path.join(UPLOAD_PATH, file.filename);
+  const filePath = getUploadFilePath(file.filename);
 
   if (!fs.existsSync(filePath)) {
     sendError(res, 'File not found on disk', 404);
@@ -154,7 +158,7 @@ export function streamFile(req: AuthRequest, res: Response): void {
     }
   }
 
-  const filePath = path.join(UPLOAD_PATH, file.filename);
+  const filePath = getUploadFilePath(file.filename);
 
   if (!fs.existsSync(filePath)) {
     sendError(res, 'File not found on disk', 404);
@@ -276,7 +280,7 @@ export function deleteFile(req: AuthRequest, res: Response): void {
   }
 
   // Delete physical file
-  const filePath = path.join(UPLOAD_PATH, file.filename);
+  const filePath = getUploadFilePath(file.filename);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
