@@ -48,6 +48,9 @@ export default function AdminSection() {
   const [fichiers, definirFichiers] = useState<FichierBackend[]>([]);
   const [notif, definirNotif] = useState<string | null>(null);
   const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
+  const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
+  const [legendeGalerie, definirLegendeGalerie] = useState('');
+  const [legendesGalerie, definirLegendesGalerie] = useState<Record<string, string>>({});
 
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
   const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
@@ -138,14 +141,25 @@ export default function AdminSection() {
 
   const ajouterSermon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nouveauSermon.titre || !nouveauSermon.orateur || !nouveauSermon.urlAudio) {
+    if (!nouveauSermon.titre || !nouveauSermon.orateur || (!nouveauSermon.urlAudio && !fichierAudioSermon)) {
       afficherNotification("Veuillez remplir tous les champs obligatoires du sermon.");
       return;
     }
     try {
-      const nouveau = await api.creerSermon(nouveauSermon);
+      let urlAudio = nouveauSermon.urlAudio;
+
+      if (fichierAudioSermon) {
+        const fichierTeleverse = await api.envoyerFichier(fichierAudioSermon);
+        urlAudio = obtenirUrlFichier(fichierTeleverse.id);
+      }
+
+      const nouveau = await api.creerSermon({
+        ...nouveauSermon,
+        urlAudio,
+      });
       definirSermons(prev => [...prev, nouveau]);
       definirNouveauSermon({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
+      definirFichierAudioSermon(null);
       afficherNotification("Sermon publié avec succès !");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de publier le sermon.");
@@ -205,6 +219,13 @@ export default function AdminSection() {
       const fichier = await api.envoyerFichier(fichierGalerie);
       definirFichiers(prev => [fichier, ...prev]);
       definirFichierGalerie(null);
+      if (legendeGalerie.trim()) {
+        definirLegendesGalerie(prev => ({
+          ...prev,
+          [fichier.id]: legendeGalerie.trim(),
+        }));
+      }
+      definirLegendeGalerie('');
       afficherNotification("Photo ajoutée à la galerie.");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Upload impossible.");
@@ -424,13 +445,25 @@ export default function AdminSection() {
                         className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       />
                     </div>
-                    <input
-                      type="text"
-                      placeholder="URL du fichier audio (.mp3)"
-                      value={nouveauSermon.urlAudio}
-                      onChange={e => definirNouveauSermon({ ...nouveauSermon, urlAudio: e.target.value })}
-                      className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 font-mono text-[11px]"
-                    />
+                    <div className="space-y-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/40 p-3">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Fichier audio
+                      </label>
+                      <input
+                        type="file"
+                        accept="audio/*"
+                        onChange={e => definirFichierAudioSermon(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      <p className="text-[10px] text-slate-500">
+                        Sélectionnez un fichier audio depuis votre ordinateur. L’URL sera générée automatiquement après l’envoi.
+                      </p>
+                      {fichierAudioSermon && (
+                        <p className="text-[10px] font-mono text-[#af894d] truncate">
+                          Sélectionné : {fichierAudioSermon.name}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-3 flex flex-col">
                     <input
@@ -569,7 +602,7 @@ export default function AdminSection() {
               <motion.div key="galerie" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <h2 className="font-serif text-xl font-bold">Mise à jour de la Galerie</h2>
 
-                <div className="bg-slate-100 dark:bg-slate-850 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
+                <div className="bg-slate-100 dark:bg-slate-800 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
                   <div className="max-w-xs mx-auto space-y-4">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
                       <Plus className="w-8 h-8" />
@@ -583,6 +616,13 @@ export default function AdminSection() {
                         type="file"
                         accept="image/*"
                         onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      <input
+                        type="text"
+                        value={legendeGalerie}
+                        onChange={(e) => definirLegendeGalerie(e.target.value)}
+                        placeholder="Légende de l'image"
                         className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       />
                       <button
@@ -603,6 +643,9 @@ export default function AdminSection() {
                       <div className="p-4 flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate">{fichier.original_name}</p>
+                          {legendesGalerie[fichier.id] && (
+                            <p className="text-[11px] text-slate-500 truncate">{legendesGalerie[fichier.id]}</p>
+                          )}
                           <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
                         </div>
                         <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
