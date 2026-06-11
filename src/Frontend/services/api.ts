@@ -290,6 +290,11 @@ export const api = {
     return donnees.items.map(convertirUtilisateurEnMembre);
   },
 
+  async listerMembresPublics(): Promise<MembreEquipe[]> {
+    const donnees = await requeteApi<ReponsePaginee<UtilisateurBackend>>('/users/public?limit=100');
+    return donnees.items.map(convertirUtilisateurEnMembre);
+  },
+
   async creerMembre(membre: Omit<MembreEquipe, 'identifiant'>): Promise<MembreEquipe> {
     const username = membre.nom.trim();
     const email = membre.email?.trim() || `${username.toLowerCase().replace(/\s+/g, '.')}@labonnesemence.local`;

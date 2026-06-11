@@ -15,49 +15,10 @@ interface PhotoGalerie {
   descr: string;
 }
 
-const PHOTOS_LOCALES: PhotoGalerie[] = [
-  {
-    titre: '30eme Fete anniversaire de l eglise',
-    image: '../../img/MM_1.jpg',
-    categorie: 'Ceremonie',
-    descr: 'Les rires qui eclatent de partout, c est ca la vie.'
-  },
-  {
-    titre: 'Sortie avec la jeunesse JPC',
-    image: '../../img/MM_2.jpg',
-    categorie: 'Jeunesse',
-    descr: 'Sortie avec la jeunesse de l eglise : une belle journee.'
-  },
-  {
-    titre: 'Chorales & Chants',
-    image: '../../img/MM_3.jpg',
-    categorie: 'Louange',
-    descr: 'Les Nyimbo za Wokovu & Nyimbo za Mungu avec le Frere Patrick.'
-  },
-  {
-    titre: 'Mouvement de charite',
-    image: '../../img/MM_4.jpg',
-    categorie: 'Social',
-    descr: 'Descente dans l orphelinat Katena.'
-  },
-  {
-    titre: 'Interieur de l eglise',
-    image: '../../img/MM_5.jpg',
-    categorie: 'Batiment',
-    descr: 'Un lieu de paix et de recueillement.'
-  },
-  {
-    titre: 'Accueil de l eglise',
-    image: '../../img/Hero_pic.jpg',
-    categorie: 'Batiment',
-    descr: 'Notre facade accueillante lors du culte dominical.'
-  }
-];
-
 export default function GalerieSection() {
   const [imageSelectionnee, definirImageSelectionnee] = useState<PhotoGalerie | null>(null);
   const [filtreActif, definirFiltreActif] = useState('Tous');
-  const [photos, definirPhotos] = useState<PhotoGalerie[]>(PHOTOS_LOCALES);
+  const [photos, definirPhotos] = useState<PhotoGalerie[]>([]);
 
   useEffect(() => {
     let composantActif = true;
@@ -73,7 +34,7 @@ export default function GalerieSection() {
             descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
           }));
 
-        if (composantActif && images.length > 0) {
+        if (composantActif) {
           definirPhotos(images);
         }
       })

@@ -6,7 +6,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, Play, Pause, Headphones, Calendar, Compass, Volume2, VolumeX, Square, Book } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SERMONS_DONNEES } from '../data';
 import { Sermon } from '../types';
 import { api } from '../services/api';
 
@@ -29,7 +28,7 @@ function AffichageDureeDynamique({ url }: { url: string }) {
 }
 
 export default function SermonsSection() {
-  const [listeSermons, definirListeSermons] = useState<Sermon[]>(SERMONS_DONNEES);
+  const [listeSermons, definirListeSermons] = useState<Sermon[]>([]);
   const [chargement, definirChargement] = useState<boolean>(true);
   const [recherche, definirRecherche] = useState<string>('');
   const [categorieFiltree, definirCategorieFiltree] = useState<string>('Tous');
@@ -49,7 +48,7 @@ export default function SermonsSection() {
 
     api.listerSermons()
       .then((sermonsApi) => {
-        if (composantActif && sermonsApi.length > 0) {
+        if (composantActif) {
           definirListeSermons(sermonsApi);
         }
       })

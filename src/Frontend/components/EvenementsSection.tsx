@@ -6,12 +6,11 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
 import { Calendar, MapPin, Clock, Users, Check, X, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { EVENEMENTS_DONNEES } from '../data';
 import { Evenement } from '../types';
 import { api } from '../services/api';
 
 export default function EvenementsSection() {
-  const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
+  const [evenements, definirEvenements] = useState<Evenement[]>([]);
   const [chargement, definirChargement] = useState<boolean>(true);
   const [filtreCategorie, definirFiltreCategorie] = useState<string>('Tous');
   
@@ -27,7 +26,7 @@ export default function EvenementsSection() {
 
     api.listerEvenements()
       .then((evenementsApi) => {
-        if (composantActif && evenementsApi.length > 0) {
+        if (composantActif) {
           definirEvenements(evenementsApi);
         }
       })

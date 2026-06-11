@@ -42,7 +42,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed font-light">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ab similique voluptatum nobis. Consectetur eaque, autem assumenda illo doloremque fuga distinctio tenetur eius ipsam eum debitis deserunt omnis velit. Autem, et?.
+              La Bonne Semence accompagne les familles dans la foi, la prière, l'enseignement biblique et le service communautaire.
             </p>
             <div className="text-xs text-slate-500 font-mono">
               © {new Date().getFullYear()} CABCS.

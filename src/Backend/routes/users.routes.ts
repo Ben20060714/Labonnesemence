@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getAllUsers,
+  getPublicUsers,
   getUserById,
   updateUser,
   deleteUser,
@@ -9,6 +10,8 @@ import {
 import { authenticate, requireAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+router.get('/public', getPublicUsers);
 
 /**
  * @route  GET /api/users

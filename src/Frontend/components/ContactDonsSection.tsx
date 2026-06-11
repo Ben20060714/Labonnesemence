@@ -182,7 +182,7 @@ export default function ContactDonsSection() {
       {/* 1. Titre Global */}
       <div className="space-y-4 max-w-3xl">
         <span className="font-mono text-xs uppercase tracking-widest text-[#af894d] dark:text-[#c29f63] block">
-          Lorem ipsum dolor
+          Contact et générosité
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-slate-900 leading-tight dark:text-slate-100">
           Entrer en Contact & Soutenir l’église
@@ -304,10 +304,10 @@ export default function ContactDonsSection() {
             <div className="space-y-2 text-left">
               <div className="flex items-center gap-1.5 bg-[#c29f63]/10 text-[#af894d] w-fit px-2.5 py-1 rounded dark:bg-[#c29f63]/15 dark:text-[#c29f63]">
                 <Heart className="w-4 h-4 fill-current animate-pulse text-rose-500" />
-                <span className="text-[10px] font-mono tracking-wider font-bold uppercase">Lorem ipsum dolor</span>
+                <span className="text-[10px] font-mono tracking-wider font-bold uppercase">Soutenir l'église</span>
               </div>
               <h2 className="font-serif text-3xl font-bold text-slate-900 dark:text-slate-100">
-                Dons et lorem ipsum
+                Dons et offrandes
               </h2>
               <p className="text-sm text-slate-500 font-light dark:text-slate-400">
                 Aidez-nous financièrement dans nos œuvres. Ajustez le curseur ci-dessous pour fixer votre montant.

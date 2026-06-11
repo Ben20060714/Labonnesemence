@@ -23,6 +23,25 @@ export function getAllUsers(req: AuthRequest, res: Response): void {
   sendSuccess(res, response);
 }
 
+export function getPublicUsers(req: AuthRequest, res: Response): void {
+  const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
+
+  const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
+  const users = db.prepare(
+    'SELECT id, email, username, role, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
+  ).all(limit, offset) as PublicUser[];
+
+  const response: PaginatedResponse<PublicUser> = {
+    items: users,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+
+  sendSuccess(res, response);
+}
+
 export function getUserById(req: AuthRequest, res: Response): void {
   const { id } = req.params;
 

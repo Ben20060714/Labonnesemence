@@ -28,7 +28,6 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SERMONS_DONNEES, EVENEMENTS_DONNEES, EQUIPE_DONNEES } from '../data';
 import { Sermon, Evenement, MembreEquipe } from '../types';
 import { api, DonationBackend, FichierBackend, MessageContact, obtenirUrlFichier, StatutDonation } from '../services/api';
 
@@ -43,10 +42,9 @@ const JOURS_SEMAINE = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 export default function AdminSection() {
   const [sectionActive, definirSectionActive] = useState<SectionAdmin>('dashboard');
 
-  // États pour la gestion des données (Simulé - Normalement lié à une API/Base de données)
-  const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
-  const [sermons, definirSermons] = useState<Sermon[]>(SERMONS_DONNEES);
-  const [membres, definirMembres] = useState<MembreEquipe[]>(EQUIPE_DONNEES);
+  const [evenements, definirEvenements] = useState<Evenement[]>([]);
+  const [sermons, definirSermons] = useState<Sermon[]>([]);
+  const [membres, definirMembres] = useState<MembreEquipe[]>([]);
   const [fichiers, definirFichiers] = useState<FichierBackend[]>([]);
   const [messagesContact, definirMessagesContact] = useState<MessageContact[]>([]);
   const [donations, definirDonations] = useState<DonationBackend[]>([]);
@@ -70,19 +68,19 @@ export default function AdminSection() {
 
     api.listerEvenements()
       .then((donnees) => {
-        if (composantActif && donnees.length > 0) definirEvenements(donnees);
+        if (composantActif) definirEvenements(donnees);
       })
       .catch((erreur) => console.error('Chargement admin événements impossible:', erreur));
 
     api.listerSermons()
       .then((donnees) => {
-        if (composantActif && donnees.length > 0) definirSermons(donnees);
+        if (composantActif) definirSermons(donnees);
       })
       .catch((erreur) => console.error('Chargement admin sermons impossible:', erreur));
 
     api.listerMembres()
       .then((donnees) => {
-        if (composantActif && donnees.length > 0) definirMembres(donnees);
+        if (composantActif) definirMembres(donnees);
       })
       .catch((erreur) => console.error('Chargement admin membres impossible:', erreur));
 

@@ -3,15 +3,65 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShieldCheck, History, X, Mail, Phone, Award, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { DEVELOPPEUR, EQUIPE_DONNEES } from '../data';
 import { MembreEquipe, DevEquipe } from '../types';
+import { api } from '../services/api';
+
+const DEVELOPPEUR: DevEquipe[] = [
+  {
+    identifiant : 'Dev-1',
+    initiales : 'BM',
+    nom : 'Benjamin Mwaku',
+    role : 'Developpeur Front-End',
+    telephone : '+243 82 043 3981',
+    email : 'Benkailazad8@gmail.com',
+    description : 'Je suis developpeur web FrontEnd aussi passionne par la securite informatique.',
+    accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
+  },
+  {
+    identifiant : 'Dev-2',
+    initiales : 'DB',
+    nom : 'Djeef Bulabula',
+    role : 'Developpeur',
+    telephone : '+243 83 888 983',
+    email : 'Djeefjason@gmail.com',
+    description : 'Je suis disponible pour apprendre avec vous.',
+    accomplissement : 'En cours'
+  },
+  {
+    identifiant : 'Dev-3',
+    initiales : 'AK',
+    nom : 'Aurelio Kitenge',
+    role : 'Developpeur Back-End',
+    telephone : '+243 851750631',
+    email : 'Aureliokitenge@gmail.com',
+    description : 'Dev junior specialise en web et IoT',
+    accomplissement : 'Backend de l app Afrique Demain'
+  }
+];
 
 export default function AProposSection() {
+  const [membresEquipe, definirMembresEquipe] = useState<MembreEquipe[]>([]);
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
+
+  useEffect(() => {
+    let composantActif = true;
+
+    api.listerMembresPublics()
+      .then((membres) => {
+        if (composantActif) definirMembresEquipe(membres);
+      })
+      .catch((erreur) => {
+        console.error('Chargement de l equipe depuis API impossible:', erreur);
+      });
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   const croyancesFondatrices = [
     {
@@ -182,7 +232,7 @@ export default function AProposSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {EQUIPE_DONNEES.map((membre) => (
+          {membresEquipe.map((membre) => (
             <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm">
                 {membre.initiales}
@@ -204,6 +254,11 @@ export default function AProposSection() {
             </motion.div>
           ))}
         </div>
+        {membresEquipe.length === 0 && (
+          <div className="py-12 text-center text-sm text-slate-500 border border-dashed border-[#f4ebd9] rounded-xl dark:border-slate-800">
+            Aucun membre n'est encore enregistré en base.
+          </div>
+        )}
       </div>
 
       {/* Modale de description du membre (Pastoral Detail sheet) */}

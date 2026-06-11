@@ -6,9 +6,14 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Gift, Heart, MapPin, Play, Users, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
-import { SERMONS_DONNEES, EVENEMENTS_DONNEES } from '../data';
-import { api } from '../services/api';
+import { api, obtenirUrlFichier } from '../services/api';
 import { Evenement, Sermon } from '../types';
+
+interface PhotoAccueil {
+  titre: string;
+  image: string;
+  descr: string;
+}
 
 // Helper pour la durée automatique
 function DureeAudioAuto({ url }: { url: string }) {
@@ -33,19 +38,30 @@ interface AccueilSectionProps {
 }
 
 export default function AccueilSection({ redirigerVersPage }: AccueilSectionProps) {
-  const [sermons, definirSermons] = useState<Sermon[]>(SERMONS_DONNEES);
-  const [evenements, definirEvenements] = useState<Evenement[]>(EVENEMENTS_DONNEES);
-  const dernierSermon = sermons[0] || SERMONS_DONNEES[0];
-  const prochainEvenement = evenements[0] || EVENEMENTS_DONNEES[0];
+  const [sermons, definirSermons] = useState<Sermon[]>([]);
+  const [evenements, definirEvenements] = useState<Evenement[]>([]);
+  const [photosAccueil, definirPhotosAccueil] = useState<PhotoAccueil[]>([]);
+  const dernierSermon = sermons[0];
+  const prochainEvenement = evenements[0];
 
   useEffect(() => {
     let composantActif = true;
 
-    Promise.all([api.listerSermons(), api.listerEvenements()])
-      .then(([sermonsApi, evenementsApi]) => {
+    Promise.all([api.listerSermons(), api.listerEvenements(), api.listerFichiersPublics()])
+      .then(([sermonsApi, evenementsApi, fichiersApi]) => {
         if (!composantActif) return;
-        if (sermonsApi.length > 0) definirSermons(sermonsApi);
-        if (evenementsApi.length > 0) definirEvenements(evenementsApi);
+        definirSermons(sermonsApi);
+        definirEvenements(evenementsApi);
+        definirPhotosAccueil(
+          fichiersApi
+            .filter((fichier) => fichier.mimetype.startsWith('image/'))
+            .slice(0, 4)
+            .map((fichier) => ({
+              titre: fichier.original_name,
+              image: obtenirUrlFichier(fichier.id),
+              descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
+            }))
+        );
       })
       .catch((erreur) => {
         console.error('Chargement accueil depuis API impossible:', erreur);
@@ -109,7 +125,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
               La bonne semence <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e7d4b0] via-[#c29f63] to-[#e7d4b0] bg-300% animate-pulse">
-                Unie par lorem ipsum dolor sit
+                Unie dans la foi et le service
               </span>
             </h1>
           </motion.div>
@@ -150,6 +166,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             </div>
           </div>
 
+          {prochainEvenement ? (
           <div className="lg:col-span-8 bg-white border border-[#f4ebd9]/80 rounded-xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
             <div className="space-y-4">
               <span className="px-3 py-1 bg-amber-50 text-[#af894d] text-[11px] font-semibold font-mono uppercase rounded dark:bg-amber-950/40 dark:text-amber-400">
@@ -175,6 +192,11 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               En savoir plus
             </button>
           </div>
+          ) : (
+          <div className="lg:col-span-8 bg-white border border-dashed border-[#f4ebd9]/80 rounded-xl p-8 text-center text-sm text-slate-500 dark:bg-slate-900 dark:border-slate-800">
+            Aucun événement n'est encore enregistré en base.
+          </div>
+          )}
 
         </div>
       </section>
@@ -213,6 +235,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
       </section>
 
       {/* 4. Focus Dernier Sermon / Homélie */}
+      {dernierSermon && (
       <section id="section-homelie-focus" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white p-8 sm:p-12 border border-slate-800">
           {/* Accent decoration */}
@@ -259,6 +282,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </div>
         </div>
       </section>
+      )}
 
       {/* Galerie de l'église (Places for outstanding imagery) */}
       <section id="galerie-communautaire" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -271,7 +295,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </h2>
           <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
           <p className="text-sm text-slate-500 font-light dark:text-slate-400">
-            Lorem ipsum dolor sit amet adipiscing consectetur elit quam.
+            Les photos affichées ici proviennent de la galerie enregistrée en base.
           </p>
           <button
             id="bouton-voir-toute-galerie"
@@ -282,29 +306,9 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </button>
         </div>
 
+        {photosAccueil.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              titre: '30ème Fête d’anniversaire de l’église',
-              image: '../../img/MM_1.jpg',
-              descr: 'Les rires qui éclatent de partout, c’est ça la vie.'
-            },
-            {
-              titre: 'Sortie avec la jeunesse JPC',
-              image: '../../img/MM_2.jpg',
-              descr: 'Sortie avec la jeunesse de l’église en colombie : une belle journée.'
-            },
-            {
-              titre: 'Chorales & Chants',
-              image: '../../img/MM_3.jpg',
-              descr: 'Les Nyimbo za Wokovu & Nyimbo za Mungu avec le Frère Patrick.'
-            },
-            {
-              titre: 'Mouvement de charité',
-              image: '../../img/MM_4.jpg',
-              descr: 'Déscente dans l’orphelinat Katena.'
-            }
-          ].map((item, idx) => (
+          {photosAccueil.map((item, idx) => (
             <div
               key={idx}
               className="group overflow-hidden rounded-xl bg-white border border-[#f4ebd9]/60 shadow-sm hover:shadow-md transition-all duration-300 dark:bg-slate-900 dark:border-slate-800">
@@ -328,6 +332,11 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             </div>
           ))}
         </div>
+        ) : (
+        <div className="py-12 text-center text-sm text-slate-500 border border-dashed border-[#f4ebd9] rounded-xl dark:border-slate-800">
+          Aucune photo publique n'est encore enregistrée en base.
+        </div>
+        )}
       </section>
 
       {/* 5. Appel à la solidarité / Dons */}
