@@ -56,6 +56,7 @@ export function initializeDatabase(): void {
       filename TEXT NOT NULL,
       original_name TEXT NOT NULL,
       legend TEXT,
+      usage TEXT NOT NULL DEFAULT 'gallery',
       mimetype TEXT NOT NULL,
       size INTEGER NOT NULL,
       uploader_id TEXT NOT NULL,
@@ -144,6 +145,7 @@ export function initializeDatabase(): void {
   ensureColumnExists('sermons', 'image_url', 'TEXT');
   ensureColumnExists('events', 'image_url', 'TEXT');
   ensureFilesLegendColumn();
+  ensureFilesUsageColumn();
   ensureDefaultAdmin();
   migrateUploadsIntoTypedFolders();
   console.log('# Database initialized at:', DB_PATH);
@@ -160,6 +162,11 @@ function ensureColumnExists(tableName: string, columnName: string, definition: s
 
 function ensureFilesLegendColumn(): void {
   ensureColumnExists('files', 'legend', 'TEXT');
+}
+
+function ensureFilesUsageColumn(): void {
+  ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
+  db.prepare("UPDATE files SET usage = 'gallery' WHERE usage IS NULL OR usage = ''").run();
 }
 
 function getUploadCategory(mimetype: string): string {

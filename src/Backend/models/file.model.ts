@@ -16,18 +16,20 @@ export class FileModel {
     id: string;
     original_name: string;
     stored_name: string;
+    usage?: string;
     mime_type: string;
     size: number;
     uploader_id: string;
   }): FileRecord {
     const db = getDb();
     db.prepare(`
-      INSERT INTO files (id, original_name, stored_name, mime_type, size, uploader_id)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO files (id, original_name, stored_name, usage, mime_type, size, uploader_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
       data.id,
       data.original_name,
       data.stored_name,
+      data.usage ?? 'gallery',
       data.mime_type,
       data.size,
       data.uploader_id

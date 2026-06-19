@@ -22,20 +22,22 @@ export function uploadFile(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const { is_public, legend } = req.body as { is_public?: string; legend?: string };
+  const { is_public, legend, usage } = req.body as { is_public?: string; legend?: string; usage?: string };
   const isPublic = is_public === 'true' ? 1 : 0;
   const cleanedLegend = legend?.trim() || null;
+  const cleanedUsage = usage?.trim() === 'cover' ? 'cover' : 'gallery';
 
   try {
     const id = uuidv4();
     db.prepare(`
-      INSERT INTO files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO files (id, filename, original_name, legend, usage, mimetype, size, uploader_id, is_public)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       getStoredFilename(req.file),
       req.file.originalname,
       cleanedLegend,
+      cleanedUsage,
       req.file.mimetype,
       req.file.size,
       req.user.userId,
@@ -71,18 +73,19 @@ export function uploadMultipleFiles(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const { is_public, legend } = req.body as { is_public?: string; legend?: string };
+  const { is_public, legend, usage } = req.body as { is_public?: string; legend?: string; usage?: string };
   const isPublic = is_public === 'true' ? 1 : 0;
   const cleanedLegend = legend?.trim() || null;
+  const cleanedUsage = usage?.trim() === 'cover' ? 'cover' : 'gallery';
 
   const insertMany = db.transaction((filesToInsert: Express.Multer.File[]) => {
     const results: string[] = [];
     for (const file of filesToInsert) {
       const id = uuidv4();
       db.prepare(`
-        INSERT INTO files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(id, getStoredFilename(file), file.originalname, cleanedLegend, file.mimetype, file.size, req.user!.userId, isPublic);
+        INSERT INTO files (id, filename, original_name, legend, usage, mimetype, size, uploader_id, is_public)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, getStoredFilename(file), file.originalname, cleanedLegend, cleanedUsage, file.mimetype, file.size, req.user!.userId, isPublic);
       results.push(id);
     }
     return results;
@@ -215,11 +218,11 @@ export function getFiles(req: AuthRequest, res: Response): void {
 export function getPublicFiles(req: AuthRequest, res: Response): void {
   const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
 
-  const total = (db.prepare('SELECT COUNT(*) as count FROM files f WHERE f.is_public = 1').get() as { count: number }).count;
+  const total = (db.prepare("SELECT COUNT(*) as count FROM files f WHERE f.is_public = 1 AND COALESCE(f.usage, 'gallery') = 'gallery'").get() as { count: number }).count;
   const files = db.prepare(`
     SELECT f.*, u.username as uploader_username
     FROM files f JOIN users u ON f.uploader_id = u.id
-    WHERE f.is_public = 1
+    WHERE f.is_public = 1 AND COALESCE(f.usage, 'gallery') = 'gallery'
     ORDER BY f.created_at DESC
     LIMIT ? OFFSET ?
   `).all(limit, offset) as FileWithUploader[];

@@ -133,9 +133,9 @@ export default function AdminSection() {
     setTimeout(() => definirNotif(null), 3000);
   };
 
-  const televerserImageEtObtenirUrl = async (fichier: File | null): Promise<string | undefined> => {
+  const televerserImageEtObtenirUrl = async (fichier: File | null, usage: 'gallery' | 'cover' = 'gallery'): Promise<string | undefined> => {
     if (!fichier) return undefined;
-    const televerse = await api.envoyerFichier(fichier);
+    const televerse = await api.envoyerFichier(fichier, { usage });
     return obtenirUrlFichier(televerse.id);
   };
 
@@ -147,7 +147,7 @@ export default function AdminSection() {
       return;
     }
     try {
-      const imageUrl = await televerserImageEtObtenirUrl(fichierImageEvenement);
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageEvenement, 'cover');
       const nouvelEvenement = await api.creerEvenement({
         date: dateSelectionnee,
         ...nouveauEvt,
@@ -172,7 +172,7 @@ export default function AdminSection() {
     }
     try {
       let urlAudio = nouveauSermon.urlAudio;
-      const imageUrl = await televerserImageEtObtenirUrl(fichierImageSermon);
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageSermon, 'cover');
 
       if (fichierAudioSermon) {
         const fichierTeleverse = await api.envoyerFichier(fichierAudioSermon);
@@ -201,7 +201,7 @@ export default function AdminSection() {
       return;
     }
     try {
-      const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre);
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre, 'cover');
       const nouveau = await api.creerMembre({
         ...nouveauMembre,
         imageUrl,
@@ -253,7 +253,7 @@ export default function AdminSection() {
     }
 
     try {
-      const fichier = await api.envoyerFichier(fichierGalerie, { legend: legendeGalerie });
+      const fichier = await api.envoyerFichier(fichierGalerie, { legend: legendeGalerie, usage: 'gallery' });
       definirFichiers(prev => [fichier, ...prev]);
       definirFichierGalerie(null);
       definirLegendeGalerie('');
@@ -847,7 +847,7 @@ export default function AdminSection() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/')).map((fichier) => (
+                  {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery').map((fichier) => (
                     <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
                       <img
                         src={obtenirUrlFichier(fichier.id)}
@@ -869,7 +869,7 @@ export default function AdminSection() {
                   ))}
                 </div>
 
-                {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/')).length === 0 && (
+                {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery').length === 0 && (
                   <p className="text-xs text-slate-500 text-center italic">Aucune image n'est encore enregistrée en base.</p>
                 )}
               </motion.div>

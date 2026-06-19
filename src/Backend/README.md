@@ -245,6 +245,7 @@ Le `slug` est généré automatiquement depuis le titre (unicité garantie).
 file: <fichier>
 is_public: true   (optionnel, défaut: false)
 legend: "Légende de l'image"   (optionnel)
+usage: gallery    (optionnel, `gallery` par défaut, ou `cover`)
 ```
 
 **PATCH /:id/visibility**
@@ -328,7 +329,7 @@ Toutes les réponses suivent ce format :
 ```sql
 users (id, email, username, password, role, image_url, created_at, updated_at)
 posts (id, title, slug, content, excerpt, author_id, published, created_at, updated_at)
-files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public, created_at)
+files (id, filename, original_name, legend, usage, mimetype, size, uploader_id, is_public, created_at)
 sermons (id, titre, verset, description, chemin, image_url, date, auteur, categorie, created_at, updated_at)
 events (id, titre, lieu, description, image_url, categorie, heure, date, created_at, updated_at)
 refresh_tokens (id, user_id, token, expires_at, created_at)

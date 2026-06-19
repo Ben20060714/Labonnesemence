@@ -54,7 +54,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
         definirEvenements(evenementsApi);
         definirPhotosAccueil(
           fichiersApi
-            .filter((fichier) => fichier.mimetype.startsWith('image/'))
+            .filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery')
             .slice(0, 4)
             .map((fichier) => ({
               titre: fichier.legend?.trim() || fichier.original_name,

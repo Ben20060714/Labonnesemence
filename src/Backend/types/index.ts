@@ -47,6 +47,7 @@ export interface FileRecord {
   filename: string;
   original_name: string;
   legend?: string | null;
+  usage?: 'gallery' | 'cover';
   mimetype: string;
   size: number;
   uploader_id: string;

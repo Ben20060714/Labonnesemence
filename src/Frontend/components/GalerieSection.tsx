@@ -26,7 +26,7 @@ export default function GalerieSection() {
     api.listerFichiersPublics()
       .then((fichiers) => {
         const images = fichiers
-          .filter((fichier) => fichier.mimetype.startsWith('image/'))
+          .filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery')
           .map((fichier): PhotoGalerie => ({
             titre: fichier.legend?.trim() || fichier.original_name,
             image: obtenirUrlFichier(fichier.id),

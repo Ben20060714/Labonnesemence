@@ -52,6 +52,7 @@ export interface FichierBackend {
   filename: string;
   original_name: string;
   legend?: string | null;
+  usage?: 'gallery' | 'cover';
   mimetype: string;
   size: number;
   is_public: number | boolean;
@@ -335,11 +336,12 @@ export const api = {
     return donnees.items;
   },
 
-  async envoyerFichier(file: File, options: { legend?: string; isPublic?: boolean } = {}): Promise<FichierBackend> {
-    const { legend, isPublic = true } = options;
+  async envoyerFichier(file: File, options: { legend?: string; isPublic?: boolean; usage?: 'gallery' | 'cover' } = {}): Promise<FichierBackend> {
+    const { legend, isPublic = true, usage = 'gallery' } = options;
     const donnees = new FormData();
     donnees.append('file', file);
     donnees.append('is_public', String(isPublic));
+    donnees.append('usage', usage);
 
     if (legend?.trim()) {
       donnees.append('legend', legend.trim());
