@@ -12,13 +12,13 @@ export const getAll = (req: Request, res: Response) => {
 };
 
 export const create = (req: Request, res: Response) => {
-    const { titre, verset, description, chemin, date, auteur, categorie } = req.body;
+    const { titre, verset, description, chemin, date, auteur, categorie, image_url } = req.body;
     try {
         const stmt = db.prepare(`
-      INSERT INTO sermons (titre, verset, description, chemin, date, auteur, categorie)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO sermons (titre, verset, description, chemin, image_url, date, auteur, categorie)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
-        const result = stmt.run(titre, verset, description, chemin, date, auteur, categorie);
+        const result = stmt.run(titre, verset, description, chemin, image_url ?? null, date, auteur, categorie);
         sendSuccess(res, { id: result.lastInsertRowid }, 'Enseignement ajouté', 201);
     } catch (error: any) {
         sendError(res, error.message);
@@ -26,14 +26,14 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const update = (req: Request, res: Response) => {
-    const { titre, verset, description, chemin, date, auteur, categorie } = req.body;
+    const { titre, verset, description, chemin, date, auteur, categorie, image_url } = req.body;
     try {
         const stmt = db.prepare(`
       UPDATE sermons 
-      SET titre = ?, verset = ?, description = ?, chemin = ?, date = ?, auteur = ?, categorie = ?, updated_at = CURRENT_TIMESTAMP
+      SET titre = ?, verset = ?, description = ?, chemin = ?, image_url = ?, date = ?, auteur = ?, categorie = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
-        const result = stmt.run(titre, verset, description, chemin, date, auteur, categorie, req.params.id);
+        const result = stmt.run(titre, verset, description, chemin, image_url ?? null, date, auteur, categorie, req.params.id);
         if (result.changes === 0) return sendError(res, 'Enseignement non trouvé', 404);
         sendSuccess(res, null, 'Enseignement mis à jour');
     } catch (error: any) {

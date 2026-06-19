@@ -8,6 +8,7 @@ export interface User {
   password: string;
   username: string;
   role: Role;
+  image_url?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -17,6 +18,7 @@ export interface PublicUser {
   email: string;
   username: string;
   role: Role;
+  image_url?: string | null;
   created_at: string;
   updated_at?: string;
 }

@@ -9,7 +9,7 @@ export function getAllUsers(req: AuthRequest, res: Response): void {
 
   const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
   const users = db.prepare(
-    'SELECT id, email, username, role, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
+    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
   ).all(limit, offset) as PublicUser[];
 
   const response: PaginatedResponse<PublicUser> = {
@@ -28,7 +28,7 @@ export function getPublicUsers(req: AuthRequest, res: Response): void {
 
   const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
   const users = db.prepare(
-    'SELECT id, email, username, role, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
+    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
   ).all(limit, offset) as PublicUser[];
 
   const response: PaginatedResponse<PublicUser> = {
@@ -46,7 +46,7 @@ export function getUserById(req: AuthRequest, res: Response): void {
   const { id } = req.params;
 
   const user = db.prepare(
-    'SELECT id, email, username, role, created_at FROM users WHERE id = ?'
+    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
   ).get(id) as PublicUser | undefined;
 
   if (!user) {
@@ -71,10 +71,11 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
     return;
   }
 
-  const { username, email, role } = req.body as {
+  const { username, email, role, image_url } = req.body as {
     username?: string;
     email?: string;
     role?: string;
+    image_url?: string | null;
   };
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined;
@@ -90,12 +91,12 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
 
   try {
     db.prepare(`
-      UPDATE users SET username = ?, email = ?, role = ?, updated_at = datetime('now')
+      UPDATE users SET username = ?, email = ?, role = ?, image_url = ?, updated_at = datetime('now')
       WHERE id = ?
-    `).run(newUsername, newEmail, newRole, id);
+    `).run(newUsername, newEmail, newRole, image_url ?? user.image_url ?? null, id);
 
     const updated = db.prepare(
-      'SELECT id, email, username, role, created_at FROM users WHERE id = ?'
+      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
     ).get(id) as PublicUser;
 
     sendSuccess(res, updated, 'User updated');
@@ -130,11 +131,12 @@ export function deleteUser(req: AuthRequest, res: Response): void {
 }
 
 export async function adminCreateUser(req: AuthRequest, res: Response): Promise<void> {
-  const { email, username, password, role } = req.body as {
+  const { email, username, password, role, image_url } = req.body as {
     email?: string;
     username?: string;
     password?: string;
     role?: string;
+    image_url?: string | null;
   };
 
   if (!email || !username || !password) {
@@ -156,12 +158,12 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
     const id = uuidv4();
 
     db.prepare(`
-      INSERT INTO users (id, email, username, password, role)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(id, email.toLowerCase(), username, hashedPassword, userRole);
+      INSERT INTO users (id, email, username, password, role, image_url)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(id, email.toLowerCase(), username, hashedPassword, userRole, image_url ?? null);
 
     const user = db.prepare(
-      'SELECT id, email, username, role, created_at FROM users WHERE id = ?'
+      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
     ).get(id) as PublicUser;
 
     sendSuccess(res, user, 'User created by admin', 201);

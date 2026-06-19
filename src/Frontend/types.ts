@@ -13,6 +13,7 @@ export interface Sermon {
   resume: string;
   audioEstJoue?: boolean;
   urlAudio: string;
+  imageUrl?: string;
 }
 
 export interface Evenement {
@@ -24,6 +25,7 @@ export interface Evenement {
   lieu: string;
   categorie: 'Culte' | 'Jeunesse' | 'Prière' | 'Social';
   placesDisponibles?: number;
+  imageUrl?: string;
 }
 
 export interface MembreEquipe {
@@ -34,6 +36,7 @@ export interface MembreEquipe {
   telephone?: string;
   biographie: string;
   initiales: string;
+  imageUrl?: string;
 }
 
 export interface DevEquipe {

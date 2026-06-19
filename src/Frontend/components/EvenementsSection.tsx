@@ -151,7 +151,7 @@ export default function EvenementsSection() {
                 {/* Image d'événement thématique */}
                 <div className="relative h-48 overflow-hidden bg-slate-100">
                   <img
-                    src={obtenirImageEvenement(evt.identifiant)}
+                    src={evt.imageUrl || obtenirImageEvenement(evt.identifiant)}
                     alt={evt.titre}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     referrerPolicy="no-referrer"

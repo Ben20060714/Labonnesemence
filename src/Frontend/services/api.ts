@@ -21,6 +21,7 @@ interface SermonBackend {
   verset?: string;
   description?: string;
   chemin?: string;
+  image_url?: string | null;
   date?: string;
   auteur?: string;
   categorie?: string;
@@ -31,6 +32,7 @@ interface EvenementBackend {
   titre: string;
   lieu?: string;
   description?: string;
+  image_url?: string | null;
   categorie?: string;
   heure?: string;
   date?: string;
@@ -41,6 +43,7 @@ interface UtilisateurBackend {
   email: string;
   username: string;
   role: string;
+  image_url?: string | null;
   created_at?: string;
 }
 
@@ -133,6 +136,7 @@ const convertirSermon = (sermon: SermonBackend): Sermon => ({
   categorie: normaliserCategorieSermon(sermon.categorie),
   resume: sermon.description || '',
   urlAudio: sermon.chemin || '',
+  imageUrl: sermon.image_url || undefined,
 });
 
 const convertirEvenement = (evenement: EvenementBackend): Evenement => ({
@@ -144,6 +148,7 @@ const convertirEvenement = (evenement: EvenementBackend): Evenement => ({
   lieu: evenement.lieu || '',
   categorie: normaliserCategorieEvenement(evenement.categorie),
   placesDisponibles: 100,
+  imageUrl: evenement.image_url || undefined,
 });
 
 const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEquipe => {
@@ -162,6 +167,7 @@ const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEq
     email: utilisateur.email,
     biographie: `Compte ${utilisateur.role}`,
     initiales,
+    imageUrl: utilisateur.image_url || undefined,
   };
 };
 
@@ -248,6 +254,7 @@ export const api = {
         verset: sermon.passageBiblique,
         description: sermon.resume,
         chemin: sermon.urlAudio,
+        image_url: sermon.imageUrl || null,
         date: sermon.date,
         auteur: sermon.orateur,
         categorie: sermon.categorie,
@@ -273,6 +280,7 @@ export const api = {
         titre: evenement.titre,
         lieu: evenement.lieu,
         description: evenement.description,
+        image_url: evenement.imageUrl || null,
         categorie: evenement.categorie,
         heure: evenement.heure,
         date: evenement.date,
@@ -306,10 +314,11 @@ export const api = {
         email,
         password: 'ChangeMe123',
         role: membre.role.toLowerCase().includes('admin') ? 'admin' : 'user',
+        image_url: membre.imageUrl || null,
       }),
     }, true);
 
-    return { ...membre, identifiant: utilisateur.id, email: utilisateur.email };
+    return { ...membre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
   },
 
   async supprimerMembre(id: string): Promise<void> {

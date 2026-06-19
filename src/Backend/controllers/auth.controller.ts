@@ -58,7 +58,7 @@ export async function register(req: Request, res: Response): Promise<void> {
       VALUES (?, ?, ?, ?, ?)
     `).run(id, email.toLowerCase(), username, hashedPassword, userRole);
 
-    const user = db.prepare('SELECT id, email, username, role, created_at FROM users WHERE id = ?').get(id) as PublicUser;
+    const user = db.prepare('SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?').get(id) as PublicUser;
 
     const accessToken = generateAccessToken(user.id, user.email, user.role);
     const refreshToken = generateRefreshToken(user.id);
@@ -100,6 +100,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       email: user.email,
       username: user.username,
       role: user.role,
+      image_url: user.image_url ?? null,
       created_at: user.created_at,
     };
 
@@ -162,6 +163,7 @@ export function heartbeat(req: Request, res: Response): void {
       email: user.email,
       username: user.username,
       role: user.role,
+      image_url: user.image_url ?? null,
       created_at: user.created_at,
     };
 
@@ -213,7 +215,7 @@ export function getMe(req: AuthRequest, res: Response): void {
   }
 
   const user = db.prepare(
-    'SELECT id, email, username, role, created_at FROM users WHERE id = ?'
+    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
   ).get(req.user.userId) as PublicUser | undefined;
 
   if (!user) {

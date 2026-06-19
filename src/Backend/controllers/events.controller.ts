@@ -12,13 +12,13 @@ export const getAll = (req: Request, res: Response) => {
 };
 
 export const create = (req: Request, res: Response) => {
-    const { titre, lieu, description, categorie, heure, date } = req.body;
+    const { titre, lieu, description, categorie, heure, date, image_url } = req.body;
     try {
         const stmt = db.prepare(`
-      INSERT INTO events (titre, lieu, description, categorie, heure, date)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO events (titre, lieu, description, image_url, categorie, heure, date)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
-        const result = stmt.run(titre, lieu, description, categorie, heure, date);
+        const result = stmt.run(titre, lieu, description, image_url ?? null, categorie, heure, date);
         sendSuccess(res, { id: result.lastInsertRowid }, 'Activité créée', 201);
     } catch (error: any) {
         sendError(res, error.message);
@@ -26,14 +26,14 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const update = (req: Request, res: Response) => {
-    const { titre, lieu, description, categorie, heure, date } = req.body;
+    const { titre, lieu, description, categorie, heure, date, image_url } = req.body;
     try {
         const stmt = db.prepare(`
       UPDATE events 
-      SET titre = ?, lieu = ?, description = ?, categorie = ?, heure = ?, date = ?, updated_at = CURRENT_TIMESTAMP
+      SET titre = ?, lieu = ?, description = ?, image_url = ?, categorie = ?, heure = ?, date = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
-        const result = stmt.run(titre, lieu, description, categorie, heure, date, req.params.id);
+        const result = stmt.run(titre, lieu, description, image_url ?? null, categorie, heure, date, req.params.id);
         if (result.changes === 0) return sendError(res, 'Activité non trouvée', 404);
         sendSuccess(res, null, 'Activité mise à jour');
     } catch (error: any) {

@@ -23,13 +23,14 @@ export class UserModel {
     password: string;
     username: string;
     role?: Role;
+    image_url?: string | null;
   }): User {
     const db = getDb();
     const role = data.role ?? 'user';
     db.prepare(`
-      INSERT INTO users (id, email, password, username, role)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(data.id, data.email, data.password, data.username, role);
+      INSERT INTO users (id, email, password, username, role, image_url)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(data.id, data.email, data.password, data.username, role, data.image_url ?? null);
 
     return this.findById(data.id)!;
   }
@@ -39,7 +40,7 @@ export class UserModel {
     const offset = (page - 1) * limit;
     const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
     const users = db.prepare(`
-      SELECT id, email, username, role, created_at, updated_at
+      SELECT id, email, username, role, image_url, created_at, updated_at
       FROM users
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?

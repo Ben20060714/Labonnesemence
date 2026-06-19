@@ -253,7 +253,7 @@ export default function SermonsSection() {
                 {/* Illustration thématique du sermon */}
                 <div className="relative h-44 overflow-hidden bg-slate-100">
                   <img
-                    src={obtenirImageSermon(sermon.identifiant)}
+                    src={sermon.imageUrl || obtenirImageSermon(sermon.identifiant)}
                     alt={sermon.titre}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     referrerPolicy="no-referrer"

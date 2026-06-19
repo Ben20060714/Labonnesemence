@@ -50,6 +50,9 @@ export default function AdminSection() {
   const [donations, definirDonations] = useState<DonationBackend[]>([]);
   const [notif, definirNotif] = useState<string | null>(null);
   const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
+  const [fichierImageSermon, definirFichierImageSermon] = useState<File | null>(null);
+  const [fichierImageEvenement, definirFichierImageEvenement] = useState<File | null>(null);
+  const [fichierImageMembre, definirFichierImageMembre] = useState<File | null>(null);
   const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
   const [legendeGalerie, definirLegendeGalerie] = useState('');
 
@@ -130,6 +133,12 @@ export default function AdminSection() {
     setTimeout(() => definirNotif(null), 3000);
   };
 
+  const televerserImageEtObtenirUrl = async (fichier: File | null): Promise<string | undefined> => {
+    if (!fichier) return undefined;
+    const televerse = await api.envoyerFichier(fichier);
+    return obtenirUrlFichier(televerse.id);
+  };
+
   // --- Logique d'ajout d'éléments ---
   const ajouterEvenement = async (e: FormEvent) => {
     e.preventDefault();
@@ -138,14 +147,17 @@ export default function AdminSection() {
       return;
     }
     try {
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageEvenement);
       const nouvelEvenement = await api.creerEvenement({
         date: dateSelectionnee,
         ...nouveauEvt,
-        placesDisponibles: Number(nouveauEvt.placesDisponibles)
+        placesDisponibles: Number(nouveauEvt.placesDisponibles),
+        imageUrl,
       });
       definirEvenements(prev => [...prev, nouvelEvenement]);
       definirNouveauEvt({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
       definirDateSelectionnee('');
+      definirFichierImageEvenement(null);
       afficherNotification("Événement ajouté avec succès !");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible d'ajouter l'événement.");
@@ -160,6 +172,7 @@ export default function AdminSection() {
     }
     try {
       let urlAudio = nouveauSermon.urlAudio;
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageSermon);
 
       if (fichierAudioSermon) {
         const fichierTeleverse = await api.envoyerFichier(fichierAudioSermon);
@@ -169,10 +182,12 @@ export default function AdminSection() {
       const nouveau = await api.creerSermon({
         ...nouveauSermon,
         urlAudio,
+        imageUrl,
       });
       definirSermons(prev => [...prev, nouveau]);
       definirNouveauSermon({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
       definirFichierAudioSermon(null);
+      definirFichierImageSermon(null);
       afficherNotification("Sermon publié avec succès !");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de publier le sermon.");
@@ -186,9 +201,14 @@ export default function AdminSection() {
       return;
     }
     try {
-      const nouveau = await api.creerMembre(nouveauMembre);
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre);
+      const nouveau = await api.creerMembre({
+        ...nouveauMembre,
+        imageUrl,
+      });
       definirMembres(prev => [...prev, nouveau]);
       definirNouveauMembre({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
+      definirFichierImageMembre(null);
       afficherNotification("Membre ajouté à l'équipe !");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible d'ajouter le membre.");
@@ -395,6 +415,20 @@ export default function AdminSection() {
                         <Users className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
                         <input type="number" placeholder="Places disponibles" value={nouveauEvt.placesDisponibles} onChange={e => definirNouveauEvt({ ...nouveauEvt, placesDisponibles: Number(e.target.value) })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
                       </div>
+                      <div className="space-y-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/40 p-3">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Image de l'événement</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={e => definirFichierImageEvenement(e.target.files?.[0] || null)}
+                          className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                        />
+                        {fichierImageEvenement && (
+                          <p className="text-[10px] font-mono text-[#af894d] truncate">
+                            Sélectionnée : {fichierImageEvenement.name}
+                          </p>
+                        )}
+                      </div>
                       <select value={nouveauEvt.categorie} onChange={e => definirNouveauEvt({ ...nouveauEvt, categorie: e.target.value as Evenement['categorie'] })} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
                         <option value="Culte">Culte</option>
                         <option value="Jeunesse">Jeunesse</option>
@@ -416,6 +450,7 @@ export default function AdminSection() {
                     <table className="w-full text-left text-sm border-collapse">
                       <thead>
                         <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 text-[10px] uppercase font-mono">
+                          <th className="py-3 px-2">Visuel</th>
                           <th className="py-3 px-2">Date / Heure</th>
                           <th className="py-3 px-2">Titre</th>
                           <th className="py-3 px-2">Lieu</th>
@@ -425,6 +460,15 @@ export default function AdminSection() {
                       <tbody className="divide-y divide-slate-50 dark:divide-slate-850">
                         {evenements.map(e => (
                           <tr key={e.identifiant} className="hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                            <td className="py-3 px-2">
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                {e.imageUrl ? (
+                                  <img src={e.imageUrl} alt={e.titre} className="w-full h-full object-cover" />
+                                ) : (
+                                  <ImageIcon className="w-5 h-5 text-slate-400" />
+                                )}
+                              </div>
+                            </td>
                             <td className="py-3 px-2 font-mono text-[11px]">{e.date} • {e.heure}</td>
                             <td className="py-3 px-2 font-semibold">{e.titre}</td>
                             <td className="py-3 px-2 text-slate-500">{e.lieu}</td>
@@ -495,6 +539,22 @@ export default function AdminSection() {
                         </p>
                       )}
                     </div>
+                    <div className="space-y-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/40 p-3">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Image de couverture
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => definirFichierImageSermon(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      {fichierImageSermon && (
+                        <p className="text-[10px] font-mono text-[#af894d] truncate">
+                          Sélectionnée : {fichierImageSermon.name}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-3 flex flex-col">
                     <input
@@ -523,7 +583,13 @@ export default function AdminSection() {
                     {sermons.map(s => (
                       <div key={s.identifiant} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex items-center justify-between group hover:border-[#af894d] transition-all">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-[#af894d] rounded-lg"><Mic className="w-5 h-5" /></div>
+                          <div className="w-14 h-14 overflow-hidden rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-[#af894d] shrink-0">
+                            {s.imageUrl ? (
+                              <img src={s.imageUrl} alt={s.titre} className="w-full h-full object-cover" />
+                            ) : (
+                              <Mic className="w-5 h-5" />
+                            )}
+                          </div>
                           <div>
                             <h4 className="font-bold text-sm">{s.titre}</h4>
                             <p className="text-xs text-slate-500 font-mono">{s.orateur} • {s.date}</p>
@@ -602,6 +668,18 @@ export default function AdminSection() {
                         value={nouveauMembre.biographie}
                         onChange={e => definirNouveauMembre({ ...nouveauMembre, biographie: e.target.value })}
                         className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"></textarea>
+                      <label className="text-[10px] font-bold uppercase text-slate-400">Photo de profil</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => definirFichierImageMembre(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      {fichierImageMembre && (
+                        <p className="text-[10px] font-mono text-[#af894d] truncate">
+                          Sélectionnée : {fichierImageMembre.name}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="pt-4 flex justify-end">
@@ -614,7 +692,13 @@ export default function AdminSection() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {membres.map(m => (
                     <div key={m.identifiant} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-4 relative group">
-                      <div className="w-12 h-12 bg-[#af894d] rounded-full flex items-center justify-center text-white font-bold">{m.initiales}</div>
+                      <div className="w-12 h-12 bg-[#af894d] rounded-full flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                        {m.imageUrl ? (
+                          <img src={m.imageUrl} alt={m.nom} className="w-full h-full object-cover" />
+                        ) : (
+                          m.initiales
+                        )}
+                      </div>
                       <div className="flex-1">
                         <h4 className="text-sm font-bold">{m.nom}</h4>
                         <p className="text-[11px] text-[#af894d] uppercase font-mono">{m.role}</p>

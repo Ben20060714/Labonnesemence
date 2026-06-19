@@ -234,8 +234,12 @@ export default function AProposSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {membresEquipe.map((membre) => (
             <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
-              <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm">
-                {membre.initiales}
+              <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm overflow-hidden">
+                {membre.imageUrl ? (
+                  <img src={membre.imageUrl} alt={membre.nom} className="w-full h-full object-cover" />
+                ) : (
+                  membre.initiales
+                )}
               </div>
               <div className="space-y-1">
                 <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -283,8 +287,12 @@ export default function AProposSection() {
               </button>
 
               <div className="text-center space-y-4">
-                <div className="w-24 h-24 bg-gradient-to-tr from-[#af894d]/20 to-[#c29f63]/25 border-2 border-[#af894d] rounded-full mx-auto flex items-center justify-center text-[#af894d] text-3xl font-serif font-bold dark:text-[#c29f63]">
-                  {membreSelectionne.initiales}
+                <div className="w-24 h-24 bg-gradient-to-tr from-[#af894d]/20 to-[#c29f63]/25 border-2 border-[#af894d] rounded-full mx-auto flex items-center justify-center text-[#af894d] text-3xl font-serif font-bold dark:text-[#c29f63] overflow-hidden">
+                  {membreSelectionne.imageUrl ? (
+                    <img src={membreSelectionne.imageUrl} alt={membreSelectionne.nom} className="w-full h-full object-cover" />
+                  ) : (
+                    membreSelectionne.initiales
+                  )}
                 </div>
 
                 <div className="space-y-1">

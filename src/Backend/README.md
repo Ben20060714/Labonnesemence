@@ -326,11 +326,11 @@ Toutes les réponses suivent ce format :
 ## Schéma de base de données
 
 ```sql
-users (id, email, username, password, role, created_at, updated_at)
+users (id, email, username, password, role, image_url, created_at, updated_at)
 posts (id, title, slug, content, excerpt, author_id, published, created_at, updated_at)
 files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public, created_at)
-sermons (id, titre, verset, description, chemin, date, auteur, categorie, created_at, updated_at)
-events (id, titre, lieu, description, categorie, heure, date, created_at, updated_at)
+sermons (id, titre, verset, description, chemin, image_url, date, auteur, categorie, created_at, updated_at)
+events (id, titre, lieu, description, image_url, categorie, heure, date, created_at, updated_at)
 refresh_tokens (id, user_id, token, expires_at, created_at)
 ```
 

@@ -32,6 +32,7 @@ export function initializeDatabase(): void {
       password TEXT NOT NULL,
       username TEXT UNIQUE NOT NULL,
       role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
+      image_url TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -42,6 +43,7 @@ export function initializeDatabase(): void {
       slug TEXT UNIQUE NOT NULL,
       content TEXT NOT NULL,
       excerpt TEXT,
+      image_url TEXT,
       author_id TEXT NOT NULL,
       published INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -77,6 +79,7 @@ export function initializeDatabase(): void {
       verset TEXT,
       description TEXT,
       chemin TEXT,
+      image_url TEXT,
       date TEXT,
       auteur TEXT,
       categorie TEXT,
@@ -89,6 +92,7 @@ export function initializeDatabase(): void {
       titre TEXT NOT NULL,
       lieu TEXT,
       description TEXT,
+      image_url TEXT,
       categorie TEXT,
       heure TEXT,
       date TEXT,
@@ -135,19 +139,27 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_donations_created ON donations(created_at);
   `);
 
+  ensureColumnExists('users', 'image_url', 'TEXT');
+  ensureColumnExists('posts', 'image_url', 'TEXT');
+  ensureColumnExists('sermons', 'image_url', 'TEXT');
+  ensureColumnExists('events', 'image_url', 'TEXT');
   ensureFilesLegendColumn();
   ensureDefaultAdmin();
   migrateUploadsIntoTypedFolders();
   console.log('# Database initialized at:', DB_PATH);
 }
 
-function ensureFilesLegendColumn(): void {
-  const columns = db.prepare('PRAGMA table_info(files)').all() as { name: string }[];
-  const hasLegendColumn = columns.some((column) => column.name === 'legend');
+function ensureColumnExists(tableName: string, columnName: string, definition: string): void {
+  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all() as { name: string }[];
+  const hasColumn = columns.some((column) => column.name === columnName);
 
-  if (!hasLegendColumn) {
-    db.exec('ALTER TABLE files ADD COLUMN legend TEXT');
+  if (!hasColumn) {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
   }
+}
+
+function ensureFilesLegendColumn(): void {
+  ensureColumnExists('files', 'legend', 'TEXT');
 }
 
 function getUploadCategory(mimetype: string): string {
