@@ -138,6 +138,50 @@ export function refresh(req: Request, res: Response): void {
   }
 }
 
+export function heartbeat(req: Request, res: Response): void {
+  const { refreshToken } = req.body as { refreshToken?: string };
+
+  if (!refreshToken) {
+    sendError(res, 'Refresh token required');
+    return;
+  }
+
+  try {
+    const { userId } = verifyRefreshToken(refreshToken);
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as User | undefined;
+    if (!user) {
+      sendError(res, 'User not found', 404);
+      return;
+    }
+
+    revokeRefreshToken(refreshToken);
+
+    const publicUser: PublicUser = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      created_at: user.created_at,
+    };
+
+    const accessToken = generateAccessToken(user.id, user.email, user.role);
+    const newRefreshToken = generateRefreshToken(user.id);
+
+    sendSuccess(
+      res,
+      {
+        user: publicUser,
+        accessToken,
+        refreshToken: newRefreshToken,
+      },
+      'Session refreshed'
+    );
+  } catch {
+    sendError(res, 'Invalid or expired refresh token', 401);
+  }
+}
+
 export function logout(req: AuthRequest, res: Response): void {
   const { refreshToken } = req.body as { refreshToken?: string };
 

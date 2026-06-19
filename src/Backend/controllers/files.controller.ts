@@ -22,18 +22,20 @@ export function uploadFile(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const { is_public } = req.body as { is_public?: string };
+  const { is_public, legend } = req.body as { is_public?: string; legend?: string };
   const isPublic = is_public === 'true' ? 1 : 0;
+  const cleanedLegend = legend?.trim() || null;
 
   try {
     const id = uuidv4();
     db.prepare(`
-      INSERT INTO files (id, filename, original_name, mimetype, size, uploader_id, is_public)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       getStoredFilename(req.file),
       req.file.originalname,
+      cleanedLegend,
       req.file.mimetype,
       req.file.size,
       req.user.userId,
@@ -69,17 +71,18 @@ export function uploadMultipleFiles(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const { is_public } = req.body as { is_public?: string };
+  const { is_public, legend } = req.body as { is_public?: string; legend?: string };
   const isPublic = is_public === 'true' ? 1 : 0;
+  const cleanedLegend = legend?.trim() || null;
 
   const insertMany = db.transaction((filesToInsert: Express.Multer.File[]) => {
     const results: string[] = [];
     for (const file of filesToInsert) {
       const id = uuidv4();
       db.prepare(`
-        INSERT INTO files (id, filename, original_name, mimetype, size, uploader_id, is_public)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(id, getStoredFilename(file), file.originalname, file.mimetype, file.size, req.user!.userId, isPublic);
+        INSERT INTO files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, getStoredFilename(file), file.originalname, cleanedLegend, file.mimetype, file.size, req.user!.userId, isPublic);
       results.push(id);
     }
     return results;

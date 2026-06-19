@@ -30,8 +30,8 @@ export default function EnTete({
     { cle: 'sermons', libelle: 'Enseignements' },
     { cle: 'evenements', libelle: 'Calendrier' },
     { cle: 'galerie', libelle: 'Galerie' },
-    { cle: 'communaute', libelle: 'Qui sommes-nous ?' },
-    { cle: 'contact-dons', libelle: 'Contact & Dons' },
+    { cle: 'communaute', libelle: 'A propos' },
+    { cle: 'contact-dons', libelle: 'Contact' },
     ...(utilisateur?.role === 'admin' ? [{ cle: 'administration', libelle: 'Administration' }] : []),
     { cle: utilisateur ? 'mon-compte' : 'login', libelle: utilisateur ? 'Mon compte' : 'Connexion' },
   ];
@@ -85,7 +85,7 @@ export default function EnTete({
 
           <div className="md:hidden flex items-center gap-3">
             <button id="bouton-theme-mobile" onClick={alternerTheme} className="p-2 rounded-full border border-slate-200 text-slate-500 cursor-pointer dark:border-slate-800 dark:text-slate-400">
-              {modeSombre ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {modeSombre ? <Sun className="w-4 h-4"/> : <Moon className="w-4 h-4" />}
             </button>
             <button id="bouton-burger-mobile" onClick={() => definirMenuMobileOuvert(!menuMobileOuvert)} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer dark:text-slate-300 dark:hover:bg-slate-800">
               {menuMobileOuvert ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -95,13 +95,7 @@ export default function EnTete({
       </div>
 
       {menuMobileOuvert && (
-        <motion.div
-          id="conteneur-menu-mobile"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden border-t border-[#f4ebd9] bg-white text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100"
-        >
+        <motion.div id="conteneur-menu-mobile" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden border-t border-[#f4ebd9] bg-white text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100">
           <div className="px-3 py-4 space-y-1.5">
             {ongletsNavigation.map((onglet) => {
               const estActif = pageActive === onglet.cle;

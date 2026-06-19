@@ -89,6 +89,7 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/auth/register`);
   console.log(`  POST   /api/auth/login`);
   console.log(`  POST   /api/auth/refresh`);
+  console.log(`  POST   /api/auth/heartbeat`);
   console.log(`  POST   /api/auth/logout`);
   console.log(`  GET    /api/auth/me`);
   console.log(`  PATCH  /api/auth/password`);

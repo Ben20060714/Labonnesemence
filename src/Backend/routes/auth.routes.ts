@@ -3,6 +3,7 @@ import {
   register,
   login,
   refresh,
+  heartbeat,
   logout,
   logoutAll,
   getMe,
@@ -32,6 +33,13 @@ router.post('/login', login);
  * @access Public
  */
 router.post('/refresh', refresh);
+
+/**
+ * @route  POST /api/auth/heartbeat
+ * @desc   Keep a mobile session alive by rotating tokens
+ * @access Public
+ */
+router.post('/heartbeat', heartbeat);
 
 /**
  * @route  POST /api/auth/logout

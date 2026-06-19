@@ -69,7 +69,8 @@ src/
 1. POST /api/auth/register  →  accessToken (15min) + refreshToken (7j)
 2. POST /api/auth/login     →  accessToken (15min) + refreshToken (7j)
 3. POST /api/auth/refresh   →  rotation: nouveau accessToken + refreshToken
-4. POST /api/auth/logout    →  révoque le refreshToken
+4. POST /api/auth/heartbeat →  rotation: maintient une session active
+5. POST /api/auth/logout    →  révoque le refreshToken
 ```
 
 Les refresh tokens sont stockés en base (révocation possible). La rotation automatique évite la réutilisation.
@@ -90,6 +91,7 @@ Authorization: Bearer <accessToken>
 | POST | `/register` | Public | Créer un compte |
 | POST | `/login` | Public | Se connecter |
 | POST | `/refresh` | Public | Renouveler les tokens |
+| POST | `/heartbeat` | Public | Garder une session mobile active |
 | POST | `/logout` | Privé | Déconnecter (révoque le refresh token) |
 | POST | `/logout-all` | Privé | Déconnecter tous les appareils |
 | GET | `/me` | Privé | Profil de l'utilisateur courant |
@@ -116,6 +118,13 @@ Authorization: Bearer <accessToken>
 ```json
 { "refreshToken": "eyJ..." }
 ```
+
+**POST /heartbeat**
+```json
+{ "refreshToken": "eyJ..." }
+```
+
+Le heartbeat est utile pour les applications mobiles qui veulent prolonger la session pendant une utilisation active. Le serveur vérifie le `refreshToken`, le révoque, puis renvoie de nouveaux tokens.
 
 **PATCH /password**
 ```json
@@ -235,6 +244,7 @@ Le `slug` est généré automatiquement depuis le titre (unicité garantie).
 ```
 file: <fichier>
 is_public: true   (optionnel, défaut: false)
+legend: "Légende de l'image"   (optionnel)
 ```
 
 **PATCH /:id/visibility**
@@ -318,7 +328,7 @@ Toutes les réponses suivent ce format :
 ```sql
 users (id, email, username, password, role, created_at, updated_at)
 posts (id, title, slug, content, excerpt, author_id, published, created_at, updated_at)
-files (id, filename, original_name, mimetype, size, uploader_id, is_public, created_at)
+files (id, filename, original_name, legend, mimetype, size, uploader_id, is_public, created_at)
 sermons (id, titre, verset, description, chemin, date, auteur, categorie, created_at, updated_at)
 events (id, titre, lieu, description, categorie, heure, date, created_at, updated_at)
 refresh_tokens (id, user_id, token, expires_at, created_at)

@@ -28,7 +28,7 @@ export default function GalerieSection() {
         const images = fichiers
           .filter((fichier) => fichier.mimetype.startsWith('image/'))
           .map((fichier): PhotoGalerie => ({
-            titre: fichier.original_name,
+            titre: fichier.legend?.trim() || fichier.original_name,
             image: obtenirUrlFichier(fichier.id),
             categorie: 'Galerie',
             descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
@@ -39,7 +39,7 @@ export default function GalerieSection() {
         }
       })
       .catch((erreur) => {
-        console.error('Chargement de la galerie depuis API impossible:', erreur);
+        console.error('Chargement de la galerie impossible:', erreur);
       });
 
     return () => {

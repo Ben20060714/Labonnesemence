@@ -53,6 +53,7 @@ export function initializeDatabase(): void {
       id TEXT PRIMARY KEY,
       filename TEXT NOT NULL,
       original_name TEXT NOT NULL,
+      legend TEXT,
       mimetype TEXT NOT NULL,
       size INTEGER NOT NULL,
       uploader_id TEXT NOT NULL,
@@ -134,9 +135,19 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_donations_created ON donations(created_at);
   `);
 
+  ensureFilesLegendColumn();
   ensureDefaultAdmin();
   migrateUploadsIntoTypedFolders();
   console.log('# Database initialized at:', DB_PATH);
+}
+
+function ensureFilesLegendColumn(): void {
+  const columns = db.prepare('PRAGMA table_info(files)').all() as { name: string }[];
+  const hasLegendColumn = columns.some((column) => column.name === 'legend');
+
+  if (!hasLegendColumn) {
+    db.exec('ALTER TABLE files ADD COLUMN legend TEXT');
+  }
 }
 
 function getUploadCategory(mimetype: string): string {

@@ -48,6 +48,7 @@ export interface FichierBackend {
   id: string;
   filename: string;
   original_name: string;
+  legend?: string | null;
   mimetype: string;
   size: number;
   is_public: number | boolean;
@@ -325,10 +326,15 @@ export const api = {
     return donnees.items;
   },
 
-  async envoyerFichier(file: File): Promise<FichierBackend> {
+  async envoyerFichier(file: File, options: { legend?: string; isPublic?: boolean } = {}): Promise<FichierBackend> {
+    const { legend, isPublic = true } = options;
     const donnees = new FormData();
     donnees.append('file', file);
-    donnees.append('is_public', 'true');
+    donnees.append('is_public', String(isPublic));
+
+    if (legend?.trim()) {
+      donnees.append('legend', legend.trim());
+    }
 
     return requeteApi<FichierBackend>('/files/upload', {
       method: 'POST',

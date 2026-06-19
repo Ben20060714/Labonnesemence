@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import {
   Calendar as CalendarIcon,
   Mic,
@@ -52,7 +52,6 @@ export default function AdminSection() {
   const [fichierGalerie, definirFichierGalerie] = useState<File | null>(null);
   const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
   const [legendeGalerie, definirLegendeGalerie] = useState('');
-  const [legendesGalerie, definirLegendesGalerie] = useState<Record<string, string>>({});
 
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
   const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
@@ -132,7 +131,7 @@ export default function AdminSection() {
   };
 
   // --- Logique d'ajout d'éléments ---
-  const ajouterEvenement = async (e: React.FormEvent) => {
+  const ajouterEvenement = async (e: FormEvent) => {
     e.preventDefault();
     if (!nouveauEvt.titre || !dateSelectionnee || !nouveauEvt.heure || !nouveauEvt.lieu) {
       afficherNotification("Veuillez remplir tous les champs obligatoires de l'événement.");
@@ -153,7 +152,7 @@ export default function AdminSection() {
     }
   };
 
-  const ajouterSermon = async (e: React.FormEvent) => {
+  const ajouterSermon = async (e: FormEvent) => {
     e.preventDefault();
     if (!nouveauSermon.titre || !nouveauSermon.orateur || (!nouveauSermon.urlAudio && !fichierAudioSermon)) {
       afficherNotification("Veuillez remplir tous les champs obligatoires du sermon.");
@@ -180,7 +179,7 @@ export default function AdminSection() {
     }
   };
 
-  const ajouterMembre = async (e: React.FormEvent) => {
+  const ajouterMembre = async (e: FormEvent) => {
     e.preventDefault();
     if (!nouveauMembre.nom || !nouveauMembre.role || !nouveauMembre.initiales) {
       afficherNotification("Veuillez remplir au moins le nom, le rôle et les initiales du membre.");
@@ -229,24 +228,18 @@ export default function AdminSection() {
 
   const envoyerPhotoGalerie = async () => {
     if (!fichierGalerie) {
-      afficherNotification("Veuillez choisir une image à envoyer.");
+      afficherNotification("Veuillez choisir une image à publier.");
       return;
     }
 
     try {
-      const fichier = await api.envoyerFichier(fichierGalerie);
+      const fichier = await api.envoyerFichier(fichierGalerie, { legend: legendeGalerie });
       definirFichiers(prev => [fichier, ...prev]);
       definirFichierGalerie(null);
-      if (legendeGalerie.trim()) {
-        definirLegendesGalerie(prev => ({
-          ...prev,
-          [fichier.id]: legendeGalerie.trim(),
-        }));
-      }
       definirLegendeGalerie('');
       afficherNotification("Photo ajoutée à la galerie.");
     } catch (erreur) {
-      afficherNotification(erreur instanceof Error ? erreur.message : "Upload impossible.");
+      afficherNotification(erreur instanceof Error ? erreur.message : "Chargement impossible.");
     }
   };
 
@@ -757,27 +750,12 @@ export default function AdminSection() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-bold">Ajouter une photo</p>
-                      <p className="text-xs text-slate-500">Les images sont envoyées vers /api/files/upload</p>
+                      <p className="text-xs text-slate-500">Les images sont directement publiées sur le site</p>
                     </div>
                     <div className="pt-2 space-y-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)}
-                        className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
-                      />
-                      <input
-                        type="text"
-                        value={legendeGalerie}
-                        onChange={(e) => definirLegendeGalerie(e.target.value)}
-                        placeholder="Légende de l'image"
-                        className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
-                      />
-                      <button
-                        type="button"
-                        onClick={envoyerPhotoGalerie}
-                        className="w-full py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer"
-                      >
+                      <input type="file" accept="image/*" onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)} className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
+                      <input type="text" value={legendeGalerie} onChange={(e) => definirLegendeGalerie(e.target.value)} placeholder="Légende de l'image" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
+                      <button type="button" onClick={envoyerPhotoGalerie} className="w-full py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer">
                         Envoyer la photo
                       </button>
                     </div>
@@ -787,13 +765,16 @@ export default function AdminSection() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/')).map((fichier) => (
                     <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
-                      <img src={obtenirUrlFichier(fichier.id)} alt={fichier.original_name} className="w-full h-36 object-cover" />
+                      <img
+                        src={obtenirUrlFichier(fichier.id)}
+                        alt={fichier.legend || fichier.original_name}
+                        className="w-full h-36 object-cover"
+                      />
                       <div className="p-4 flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">{fichier.original_name}</p>
-                          {legendesGalerie[fichier.id] && (
-                            <p className="text-[11px] text-slate-500 truncate">{legendesGalerie[fichier.id]}</p>
-                          )}
+                          <p className="text-sm font-semibold truncate">
+                            {fichier.legend?.trim() || fichier.original_name}
+                          </p>
                           <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
                         </div>
                         <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">

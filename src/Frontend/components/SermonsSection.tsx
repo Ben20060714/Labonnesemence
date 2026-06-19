@@ -331,7 +331,7 @@ export default function SermonsSection() {
           <div className="col-span-full py-16 text-center space-y-3 bg-slate-50 rounded-xl border border-dashed border-[#e7d4b0] dark:bg-slate-900/20 dark:border-slate-800">
             <Compass className="w-10 h-10 text-slate-400 mx-auto" />
             <p className="text-slate-500 text-sm font-light">
-              Aucun sermon ne correspond à vos critères de recherche.
+              Aucun enseignement ne correspond à vos critères de recherche ou il n'y a tout simplement pas d'enseignements disponibles.
             </p>
             <button
               id="bouton-reinitialiser-recherche-sermon"

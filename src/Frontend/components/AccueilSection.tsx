@@ -57,7 +57,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             .filter((fichier) => fichier.mimetype.startsWith('image/'))
             .slice(0, 4)
             .map((fichier) => ({
-              titre: fichier.original_name,
+              titre: fichier.legend?.trim() || fichier.original_name,
               image: obtenirUrlFichier(fichier.id),
               descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
             }))
