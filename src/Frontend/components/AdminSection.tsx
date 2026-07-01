@@ -486,7 +486,7 @@ export default function AdminSection() {
               </motion.div>
             )}
 
-            {/* 3. ENSEIGNEMENTS (SERMONS) */}
+            {/* 3. ENSEIGNEMENTS */}
             {sectionActive === 'sermons' && (
               <motion.div key="sermons" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <h2 className="font-serif text-xl font-bold">Gestion des Enseignements</h2>
@@ -531,7 +531,7 @@ export default function AdminSection() {
                         className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       />
                       <p className="text-[10px] text-slate-500">
-                        Sélectionnez un fichier audio depuis votre ordinateur. L’URL sera générée automatiquement après l’envoi.
+                        Sélectionnez un fichier audio depuis votre appareil.
                       </p>
                       {fichierAudioSermon && (
                         <p className="text-[10px] font-mono text-[#af894d] truncate">

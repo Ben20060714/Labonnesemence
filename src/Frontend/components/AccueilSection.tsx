@@ -125,7 +125,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
               La bonne semence <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e7d4b0] via-[#c29f63] to-[#e7d4b0] bg-300% animate-pulse">
-                Unie dans la foi et le service
+                Unie dans la foi
               </span>
             </h1>
           </motion.div>

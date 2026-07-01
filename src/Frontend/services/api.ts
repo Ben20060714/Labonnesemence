@@ -1,4 +1,5 @@
 import { Evenement, MembreEquipe, Sermon } from '../types';
+import { effacerSessionAuth, obtenirAccessToken, rafraichirSessionAuth } from './auth.ts';
 
 interface ReponseApi<T> {
   success: boolean;
@@ -111,11 +112,6 @@ export const obtenirUrlFichier = (id: string, mode: 'stream' | 'download' = 'str
   return `${obtenirBaseApi()}/files/${id}/${mode}`;
 };
 
-const obtenirToken = () => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth-access-token');
-};
-
 const normaliserCategorieSermon = (categorie?: string): Sermon['categorie'] => {
   return categoriesSermon.includes(categorie as Sermon['categorie'])
     ? (categorie as Sermon['categorie'])
@@ -172,9 +168,14 @@ const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEq
   };
 };
 
-async function requeteApi<T>(chemin: string, options: RequestInit = {}, authentifie = false): Promise<T> {
+async function executerRequeteApi<T>(
+  chemin: string,
+  options: RequestInit = {},
+  authentifie = false,
+  dejaReessayee = false
+): Promise<T> {
   const headers = new Headers(options.headers);
-  const token = obtenirToken();
+  const token = obtenirAccessToken();
 
   if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
@@ -190,6 +191,15 @@ async function requeteApi<T>(chemin: string, options: RequestInit = {}, authenti
   });
   const payload = (await reponse.json().catch(() => null)) as ReponseApi<T> | null;
 
+  if (reponse.status === 401 && authentifie && !dejaReessayee) {
+    const sessionRenouvelee = await rafraichirSessionAuth();
+    if (sessionRenouvelee?.accessToken) {
+      return executerRequeteApi<T>(chemin, options, authentifie, true);
+    }
+
+    effacerSessionAuth();
+  }
+
   if (!reponse.ok || !payload?.success) {
     throw new Error(payload?.error || 'Erreur de communication avec le serveur.');
   }
@@ -199,7 +209,7 @@ async function requeteApi<T>(chemin: string, options: RequestInit = {}, authenti
 
 export const api = {
   async obtenirConfigurationMonetbil(): Promise<MonetbilConfig> {
-    return requeteApi<MonetbilConfig>('/donations/monetbil/config');
+    return executerRequeteApi<MonetbilConfig>('/donations/monetbil/config');
   },
 
   async preparerDonation(donation: {
@@ -210,45 +220,45 @@ export const api = {
     designation: string;
     description: string;
   }): Promise<DonationBackend> {
-    return requeteApi<DonationBackend>('/donations', {
+    return executerRequeteApi<DonationBackend>('/donations', {
       method: 'POST',
       body: JSON.stringify(donation),
     });
   },
 
   async listerDonations(): Promise<DonationBackend[]> {
-    return requeteApi<DonationBackend[]>('/donations', {}, true);
+    return executerRequeteApi<DonationBackend[]>('/donations', {}, true);
   },
 
   async mettreAJourStatutDonation(id: string, status: StatutDonation): Promise<DonationBackend> {
-    return requeteApi<DonationBackend>(`/donations/${id}/status`, {
+    return executerRequeteApi<DonationBackend>(`/donations/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }, true);
   },
 
   async envoyerMessageContact(message: Omit<MessageContact, 'id' | 'created_at'>): Promise<MessageContact> {
-    return requeteApi<MessageContact>('/contacts', {
+    return executerRequeteApi<MessageContact>('/contacts', {
       method: 'POST',
       body: JSON.stringify(message),
     });
   },
 
   async listerMessagesContact(): Promise<MessageContact[]> {
-    return requeteApi<MessageContact[]>('/contacts', {}, true);
+    return executerRequeteApi<MessageContact[]>('/contacts', {}, true);
   },
 
   async supprimerMessageContact(id: string): Promise<void> {
-    await requeteApi<null>(`/contacts/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/contacts/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerSermons(): Promise<Sermon[]> {
-    const donnees = await requeteApi<SermonBackend[]>('/sermons');
+    const donnees = await executerRequeteApi<SermonBackend[]>('/sermons');
     return donnees.map(convertirSermon);
   },
 
   async creerSermon(sermon: Omit<Sermon, 'identifiant'>): Promise<Sermon> {
-    const resultat = await requeteApi<{ id: number | string }>('/sermons', {
+    const resultat = await executerRequeteApi<{ id: number | string }>('/sermons', {
       method: 'POST',
       body: JSON.stringify({
         titre: sermon.titre,
@@ -266,16 +276,16 @@ export const api = {
   },
 
   async supprimerSermon(id: string): Promise<void> {
-    await requeteApi<null>(`/sermons/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/sermons/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerEvenements(): Promise<Evenement[]> {
-    const donnees = await requeteApi<EvenementBackend[]>('/events');
+    const donnees = await executerRequeteApi<EvenementBackend[]>('/events');
     return donnees.map(convertirEvenement);
   },
 
   async creerEvenement(evenement: Omit<Evenement, 'identifiant'>): Promise<Evenement> {
-    const resultat = await requeteApi<{ id: number | string }>('/events', {
+    const resultat = await executerRequeteApi<{ id: number | string }>('/events', {
       method: 'POST',
       body: JSON.stringify({
         titre: evenement.titre,
@@ -292,23 +302,23 @@ export const api = {
   },
 
   async supprimerEvenement(id: string): Promise<void> {
-    await requeteApi<null>(`/events/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/events/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerMembres(): Promise<MembreEquipe[]> {
-    const donnees = await requeteApi<ReponsePaginee<UtilisateurBackend>>('/users?limit=100', {}, true);
+    const donnees = await executerRequeteApi<ReponsePaginee<UtilisateurBackend>>('/users?limit=100', {}, true);
     return donnees.items.map(convertirUtilisateurEnMembre);
   },
 
   async listerMembresPublics(): Promise<MembreEquipe[]> {
-    const donnees = await requeteApi<ReponsePaginee<UtilisateurBackend>>('/users/public?limit=100');
+    const donnees = await executerRequeteApi<ReponsePaginee<UtilisateurBackend>>('/users/public?limit=100');
     return donnees.items.map(convertirUtilisateurEnMembre);
   },
 
   async creerMembre(membre: Omit<MembreEquipe, 'identifiant'>): Promise<MembreEquipe> {
     const username = membre.nom.trim();
     const email = membre.email?.trim() || `${username.toLowerCase().replace(/\s+/g, '.')}@labonnesemence.local`;
-    const utilisateur = await requeteApi<UtilisateurBackend>('/users', {
+    const utilisateur = await executerRequeteApi<UtilisateurBackend>('/users', {
       method: 'POST',
       body: JSON.stringify({
         username,
@@ -323,16 +333,16 @@ export const api = {
   },
 
   async supprimerMembre(id: string): Promise<void> {
-    await requeteApi<null>(`/users/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/users/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerFichiers(): Promise<FichierBackend[]> {
-    const donnees = await requeteApi<ReponsePaginee<FichierBackend>>('/files?limit=100', {}, true);
+    const donnees = await executerRequeteApi<ReponsePaginee<FichierBackend>>('/files?limit=100', {}, true);
     return donnees.items;
   },
 
   async listerFichiersPublics(): Promise<FichierBackend[]> {
-    const donnees = await requeteApi<ReponsePaginee<FichierBackend>>('/files/public?limit=100');
+    const donnees = await executerRequeteApi<ReponsePaginee<FichierBackend>>('/files/public?limit=100');
     return donnees.items;
   },
 
@@ -347,13 +357,13 @@ export const api = {
       donnees.append('legend', legend.trim());
     }
 
-    return requeteApi<FichierBackend>('/files/upload', {
+    return executerRequeteApi<FichierBackend>('/files/upload', {
       method: 'POST',
       body: donnees,
     }, true);
   },
 
   async supprimerFichier(id: string): Promise<void> {
-    await requeteApi<null>(`/files/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/files/${id}`, { method: 'DELETE' }, true);
   },
 };

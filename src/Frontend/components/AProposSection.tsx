@@ -38,7 +38,7 @@ const DEVELOPPEUR: DevEquipe[] = [
     telephone : '+243 851750631',
     email : 'Aureliokitenge@gmail.com',
     description : 'Dev junior specialise en web et IoT',
-    accomplissement : 'Backend de l app Afrique Demain'
+    accomplissement : 'Backend de l\'app Afrique Demain'
   }
 ];
 
