@@ -54,6 +54,7 @@ export interface FichierBackend {
   original_name: string;
   legend?: string | null;
   usage?: 'gallery' | 'cover';
+  categorie?: string | null;
   mimetype: string;
   size: number;
   is_public: number | boolean;
@@ -124,6 +125,35 @@ const normaliserCategorieEvenement = (categorie?: string): Evenement['categorie'
     : 'Culte';
 };
 
+export const calculerInitiales = (prenom?: string, nom?: string): string => {
+  const premiereLettre = prenom?.trim().charAt(0) || '';
+  const secondeLettre = nom?.trim().charAt(0) || '';
+  const initiales = `${premiereLettre}${secondeLettre}`.toUpperCase();
+
+  if (initiales) {
+    return initiales;
+  }
+
+  return 'UT';
+};
+
+export const decomposerNomComplet = (nomComplet: string): { prenom: string; nom: string } => {
+  const parties = nomComplet.trim().split(/\s+/).filter(Boolean);
+
+  if (parties.length === 0) {
+    return { prenom: '', nom: '' };
+  }
+
+  if (parties.length === 1) {
+    return { prenom: parties[0], nom: '' };
+  }
+
+  return {
+    prenom: parties[0],
+    nom: parties.slice(1).join(' '),
+  };
+};
+
 const convertirSermon = (sermon: SermonBackend): Sermon => ({
   identifiant: String(sermon.id),
   titre: sermon.titre || 'Enseignement sans titre',
@@ -149,21 +179,16 @@ const convertirEvenement = (evenement: EvenementBackend): Evenement => ({
 });
 
 const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEquipe => {
-  const nom = utilisateur.username || utilisateur.email;
-  const initiales = nom
-    .split(/[.\s_-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((partie) => partie[0]?.toUpperCase())
-    .join('') || 'UT';
+  const nomComplet = utilisateur.username || utilisateur.email.split('@')[0];
+  const { prenom, nom } = decomposerNomComplet(nomComplet);
 
   return {
     identifiant: utilisateur.id,
+    prenom,
     nom,
     role: utilisateur.role === 'admin' ? 'Administrateur' : 'Membre',
     email: utilisateur.email,
     biographie: `Compte ${utilisateur.role}`,
-    initiales,
     imageUrl: utilisateur.image_url || undefined,
   };
 };
@@ -315,9 +340,18 @@ export const api = {
     return donnees.items.map(convertirUtilisateurEnMembre);
   },
 
-  async creerMembre(membre: Omit<MembreEquipe, 'identifiant'>): Promise<MembreEquipe> {
-    const username = membre.nom.trim();
-    const email = membre.email?.trim() || `${username.toLowerCase().replace(/\s+/g, '.')}@labonnesemence.local`;
+  async creerMembre(membre: Omit<MembreEquipe, 'identifiant'> & { username?: string }): Promise<MembreEquipe> {
+    const username = (membre.username || `${membre.prenom} ${membre.nom}`).trim();
+    const pseudoEmail = username
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '.')
+      .replace(/\.{2,}/g, '.')
+      .replace(/^\./, '')
+      .replace(/\.$/, '') || 'membre';
+    const email = membre.email?.trim() || `${pseudoEmail}@labonnesemence.local`;
+    const { username: _username, ...payloadMembre } = membre;
     const utilisateur = await executerRequeteApi<UtilisateurBackend>('/users', {
       method: 'POST',
       body: JSON.stringify({
@@ -329,7 +363,7 @@ export const api = {
       }),
     }, true);
 
-    return { ...membre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
+    return { ...payloadMembre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
   },
 
   async supprimerMembre(id: string): Promise<void> {
@@ -341,13 +375,20 @@ export const api = {
     return donnees.items;
   },
 
-  async listerFichiersPublics(): Promise<FichierBackend[]> {
-    const donnees = await executerRequeteApi<ReponsePaginee<FichierBackend>>('/files/public?limit=100');
+  async listerFichiersPublics(usage?: 'gallery' | 'cover' | 'all'): Promise<FichierBackend[]> {
+    const parametres = new URLSearchParams({ limit: '100' });
+    if (usage && usage !== 'all') {
+      parametres.set('usage', usage);
+    } else if (usage === 'all') {
+      parametres.set('usage', 'all');
+    }
+
+    const donnees = await executerRequeteApi<ReponsePaginee<FichierBackend>>(`/files/public?${parametres.toString()}`);
     return donnees.items;
   },
 
-  async envoyerFichier(file: File, options: { legend?: string; isPublic?: boolean; usage?: 'gallery' | 'cover' } = {}): Promise<FichierBackend> {
-    const { legend, isPublic = true, usage = 'gallery' } = options;
+  async envoyerFichier(file: File, options: { legend?: string; isPublic?: boolean; usage?: 'gallery' | 'cover'; categorie?: string } = {}): Promise<FichierBackend> {
+    const { legend, isPublic = true, usage = 'gallery', categorie } = options;
     const donnees = new FormData();
     donnees.append('file', file);
     donnees.append('is_public', String(isPublic));
@@ -355,6 +396,10 @@ export const api = {
 
     if (legend?.trim()) {
       donnees.append('legend', legend.trim());
+    }
+
+    if (categorie?.trim()) {
+      donnees.append('categorie', categorie.trim());
     }
 
     return executerRequeteApi<FichierBackend>('/files/upload', {

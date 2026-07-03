@@ -35,7 +35,7 @@ export function verifyRefreshToken(token: string): { userId: string } {
 
   const record = db.prepare(`
     SELECT * FROM refresh_tokens
-    WHERE token = ? AND expires_at > datetime('now')
+    WHERE token = ? AND datetime(expires_at) > datetime('now')
   `).get(token);
 
   if (!record) {
@@ -54,5 +54,5 @@ export function revokeAllUserRefreshTokens(userId: string): void {
 }
 
 export function cleanExpiredRefreshTokens(): void {
-  db.prepare("DELETE FROM refresh_tokens WHERE expires_at <= datetime('now')").run();
+  db.prepare("DELETE FROM refresh_tokens WHERE datetime(expires_at) <= datetime('now')").run();
 }
