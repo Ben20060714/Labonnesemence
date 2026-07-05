@@ -17,15 +17,15 @@ const DEVELOPPEUR: DevEquipe[] = [
     role : 'Developpeur Front-End',
     telephone : '+243 82 043 3981',
     email : 'Benkailazad8@gmail.com',
-    description : 'Je suis developpeur web FrontEnd aussi passionne par la securite informatique.',
+    description : 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
     accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
   },
   {
     identifiant : 'Dev-2',
     initiales : 'DB',
     nom : 'Djeef Bulabula',
-    role : 'Developpeur',
-    telephone : '+243 83 888 983',
+    role : 'Developpeur web',
+    telephone : '+243 830 888 983',
     email : 'Djeefjason@gmail.com',
     description : 'Je suis disponible pour apprendre avec vous.',
     accomplissement : 'En cours'
@@ -138,7 +138,7 @@ export default function AProposSection() {
                 En 1992, il reçut la vision de bâtir trois édifices pour le seigneur, d'où la naissance de l'église la Bonne Semence.
               </p>
               <p>
-                En 2015 débuta la grande vision de la naissance de la communauté des assemblées Bonne Semence, CABCS.
+                En 2015 débuta la grande vision de la naissance de la communauté des assemblées Bonne Semence, CABSC.
               </p>
             </div>
             <div>

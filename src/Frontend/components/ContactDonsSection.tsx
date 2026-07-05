@@ -360,7 +360,7 @@ export default function ContactDonsSection() {
                 <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500">
                   Votre don :
                 </span>
-                <p id="phrase-impact-dest-don" className="text-sm text-slate-700 font-light leading-relaxed italic dark:text-slate-350">
+                <p id="phrase-impact-dest-don" className="text-sm text-slate-400 font-light leading-relaxed italic dark:text-slate-350">
                   « {determinerImpactDon(montantDon)} »
                 </p>
               </div>
