@@ -9,6 +9,8 @@ export interface User {
   username: string;
   role: Role;
   image_url?: string | null;
+  church_role?: string | null;
+  biography?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +21,8 @@ export interface PublicUser {
   username: string;
   role: Role;
   image_url?: string | null;
+  church_role?: string | null;
+  biography?: string | null;
   created_at: string;
   updated_at?: string;
 }

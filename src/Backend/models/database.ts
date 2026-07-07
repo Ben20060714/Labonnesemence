@@ -33,6 +33,8 @@ export function initializeDatabase(): void {
       username TEXT UNIQUE NOT NULL,
       role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
       image_url TEXT,
+      church_role TEXT,
+      biography TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -142,6 +144,8 @@ export function initializeDatabase(): void {
   `);
 
   ensureColumnExists('users', 'image_url', 'TEXT');
+  ensureColumnExists('users', 'church_role', 'TEXT');
+  ensureColumnExists('users', 'biography', 'TEXT');
   ensureColumnExists('posts', 'image_url', 'TEXT');
   ensureColumnExists('sermons', 'image_url', 'TEXT');
   ensureColumnExists('events', 'image_url', 'TEXT');
@@ -220,17 +224,17 @@ function ensureDefaultAdmin(): void {
   if (existingId) {
     db.prepare(`
       UPDATE users
-      SET email = ?, username = ?, password = ?, role = ?, updated_at = datetime('now')
+      SET email = ?, username = ?, password = ?, role = ?, church_role = ?, biography = ?, updated_at = datetime('now')
       WHERE id = ?
-    `).run(DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role, existingId);
+    `).run(DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role, null, null, existingId);
     console.log(`# Default admin ensured: ${DEFAULT_ADMIN.email}`);
     return;
   }
 
   db.prepare(`
-    INSERT INTO users (id, email, username, password, role)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(uuidv4(), DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role);
+    INSERT INTO users (id, email, username, password, role, church_role, biography)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(uuidv4(), DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role, null, null);
 
   console.log(`# Default admin created: ${DEFAULT_ADMIN.email}`);
 }

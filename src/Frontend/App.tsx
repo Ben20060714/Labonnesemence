@@ -28,6 +28,13 @@ import {
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
   const [utilisateur, definirUtilisateur] = useState<UtilisateurAuthentifie | null>(null);
+
+  // Scroll to top when changing page to ensure user lands at the top of the section
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [pageActive]);
   const margeRafraichissementMs = 60_000;
   const [modeSombre, definirModeSombre] = useState<boolean>(() => {
     // Restitution locale du theme

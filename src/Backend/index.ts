@@ -23,6 +23,9 @@ const projectRoot = path.resolve(dir, '..', '..');
 const distDir = path.join(projectRoot, 'dist');
 const indexHtmlPath = path.join(distDir, 'index.html');
 
+// Expose top-level img folder so backend-served site can access static images (hero, etc.)
+app.use('/img', express.static(path.join(projectRoot, 'img')));
+
 // ─── Middleware ─────────────────────────────────────────────────────────────
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',

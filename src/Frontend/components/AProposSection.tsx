@@ -46,7 +46,7 @@ export default function AProposSection() {
   const [membresEquipe, definirMembresEquipe] = useState<MembreEquipe[]>([]);
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
-  const [imageHistorique, definirImageHistorique] = useState<string>('../../img/MM_5.jpg');
+  const [imageHistorique, definirImageHistorique] = useState<string>('/img/MM_5.jpg');
 
   useEffect(() => {
     let composantActif = true;
@@ -76,6 +76,13 @@ export default function AProposSection() {
   const formaterNomComplet = (membre: Pick<MembreEquipe, 'prenom' | 'nom'>) => {
     return [membre.prenom, membre.nom].filter(Boolean).join(' ').trim() || 'Membre';
   };
+
+  // Afficher uniquement le corps pastoral (Pasteur, Représentant, Anciens, Diacres)
+  const rolesAutorises = ['pasteur', 'représentant', 'representant', 'ancien', 'anciens', 'diacre', 'diacres'];
+  const corpsPastoral = membresEquipe.filter((m) => {
+    const r = (m.role || '').toLowerCase();
+    return rolesAutorises.some((autorise) => r.includes(autorise));
+  });
 
   const croyancesFondatrices = [
     {
@@ -246,7 +253,7 @@ export default function AProposSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {membresEquipe.map((membre) => (
+          {corpsPastoral.map((membre) => (
             <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm overflow-hidden">
                 {membre.imageUrl ? (
@@ -272,9 +279,9 @@ export default function AProposSection() {
             </motion.div>
           ))}
         </div>
-        {membresEquipe.length === 0 && (
+        {corpsPastoral.length === 0 && (
           <div className="py-12 text-center text-sm text-slate-500 border border-dashed border-[#f4ebd9] rounded-xl dark:border-slate-800">
-            Aucun membre n'est encore enregistré en base.
+            Aucun membre pastoral n'est encore enregistré en base.
           </div>
         )}
       </div>

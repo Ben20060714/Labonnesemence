@@ -45,6 +45,8 @@ interface UtilisateurBackend {
   username: string;
   role: string;
   image_url?: string | null;
+  church_role?: string | null;
+  biography?: string | null;
   created_at?: string;
 }
 
@@ -182,13 +184,16 @@ const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEq
   const nomComplet = utilisateur.username || utilisateur.email.split('@')[0];
   const { prenom, nom } = decomposerNomComplet(nomComplet);
 
+  const roleAffiche = utilisateur.church_role || (utilisateur.role === 'admin' ? 'Administrateur' : 'Membre');
+  const biographie = utilisateur.biography || `Compte ${utilisateur.role}`;
+
   return {
     identifiant: utilisateur.id,
     prenom,
     nom,
-    role: utilisateur.role === 'admin' ? 'Administrateur' : 'Membre',
+    role: roleAffiche,
     email: utilisateur.email,
-    biographie: `Compte ${utilisateur.role}`,
+    biographie,
     imageUrl: utilisateur.image_url || undefined,
   };
 };
@@ -360,11 +365,13 @@ export const api = {
         password: 'ChangeMe123',
         role: membre.role.toLowerCase().includes('admin') ? 'admin' : 'user',
         image_url: membre.imageUrl || null,
-      }),
-    }, true);
+          church_role: membre.role || null,
+          biography: membre.biographie || null,
+        }),
+      }, true);
 
-    return { ...payloadMembre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
-  },
+      return { ...payloadMembre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
+    },
 
   async supprimerMembre(id: string): Promise<void> {
     await executerRequeteApi<null>(`/users/${id}`, { method: 'DELETE' }, true);

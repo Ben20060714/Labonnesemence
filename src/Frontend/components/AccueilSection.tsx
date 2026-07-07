@@ -42,7 +42,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   const [sermons, definirSermons] = useState<Sermon[]>([]);
   const [evenements, definirEvenements] = useState<Evenement[]>([]);
   const [photosAccueil, definirPhotosAccueil] = useState<PhotoAccueil[]>([]);
-  const [imageHero, definirImageHero] = useState<string>('../../img/Hero_pic.jpg');
+  const [imageHero, definirImageHero] = useState<string>('/img/Hero_pic.jpg');
   const dernierSermon = sermons[0];
   const prochainEvenement = evenements[0];
 
