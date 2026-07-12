@@ -11,34 +11,34 @@ import { api, calculerInitiales, obtenirUrlFichier } from '../services/api';
 
 const DEVELOPPEUR: DevEquipe[] = [
   {
-    identifiant : 'Dev-1',
-    initiales : 'BM',
-    nom : 'Benjamin Mwaku',
-    role : 'Developpeur Front-End',
-    telephone : '+243 82 043 3981',
-    email : 'Benkailazad8@gmail.com',
-    description : 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
-    accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
+    identifiant: 'Dev-1',
+    initiales: 'BM',
+    nom: 'Benjamin Mwaku',
+    role: 'Developpeur Front-End',
+    telephone: '+243 82 043 3981',
+    email: 'Benkailazad8@gmail.com',
+    description: 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
+    accomplissement: 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
   },
   {
-    identifiant : 'Dev-2',
-    initiales : 'DB',
-    nom : 'Djeef Bulabula',
-    role : 'Developpeur web',
-    telephone : '+243 830 888 983',
-    email : 'Djeefjason@gmail.com',
-    description : 'Je suis disponible pour apprendre avec vous.',
-    accomplissement : 'En cours'
+    identifiant: 'Dev-2',
+    initiales: 'DB',
+    nom: 'Djeef Bulabula',
+    role: 'Developpeur web',
+    telephone: '+243 830 888 983',
+    email: 'Djeefjason@gmail.com',
+    description: 'Je suis disponible pour apprendre avec vous.',
+    accomplissement: 'En cours'
   },
   {
-    identifiant : 'Dev-3',
-    initiales : 'AK',
-    nom : 'Aurelio Kitenge',
-    role : 'Developpeur Back-End',
-    telephone : '+243 851750631',
-    email : 'Aureliokitenge@gmail.com',
-    description : 'Dev junior specialise en web et IoT',
-    accomplissement : 'Backend de l\'app Afrique Demain'
+    identifiant: 'Dev-3',
+    initiales: 'AK',
+    nom: 'Aurelio Kitenge',
+    role: 'Developpeur Back-End',
+    telephone: '+243 851750631',
+    email: 'Aureliokitenge@gmail.com',
+    description: 'Dev junior specialise en web et IoT',
+    accomplissement: 'Backend de l\'app Afrique Demain'
   }
 ];
 
@@ -47,6 +47,8 @@ export default function AProposSection() {
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
   const [imageHistorique, definirImageHistorique] = useState<string>('/img/MM_5.jpg');
+  const [imagePatri, definirImagePatri] = useState<string>('/img/MM_6.jpg');
+  const [imagePstEtGinane, definirImagePstEtGinane] = useState<string>('/img/MM_3.jpg');
 
   useEffect(() => {
     let composantActif = true;
@@ -103,11 +105,21 @@ export default function AProposSection() {
     }
   ];
 
+  const extensionsCommunautaies = [
+    { nom: 'BONNE SEMENCE', temple: 'TEMPLE DE GLOIRE', lieu: 'GOLF LIDO LUBUMBASHI', pasteur: 'PST DJOE' },
+    { nom: 'BONNE SEMENCE', temple: 'PAROLE DE VIE', lieu: 'GOLF METEO', pasteur: 'PST JEAN JACQUES' },
+    { nom: 'BONNE SEMENCE', temple: 'PAIN DE VIE', lieu: 'GOLD FAUSTIN', pasteur: 'PST NGONGO' },
+    { nom: 'BONNE SEMENCE', temple: 'CITÉ D\'ESPÉRANCE', lieu: 'KATUBA', pasteur: 'PST BARTHÉLÉMY' },
+    { nom: 'BONNE SEMENCE KOLWEZI', temple: '', lieu: '', pasteur: 'PST BOBO' },
+    { nom: 'BONNE SEMENCE', temple: 'TORRENT DE VIE', lieu: '', pasteur: 'PST PAUL' },
+    { nom: 'BONNE SEMENCE KASUMBALESSA', temple: '', lieu: '', pasteur: 'PST JOSÉ' }
+  ];
+
   return (
     <section id="qui-sommes-nous-screen" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-20">
 
       {/* 1. Notre Histoire et Vision */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="items-center">
 
         <div className="lg:col-span-7 space-y-6 text-left">
           <span className="font-mono text-xs uppercase tracking-widest text-[#af894d] dark:text-[#c29f63] block">
@@ -122,14 +134,14 @@ export default function AProposSection() {
             <div>
               <h2 className="text-2xl font-bold">INTRODUCTION</h2>
               <p>
-                La bonne semence est cette église qui a vu le jour en 1992 avec son grand visionnaire, <strong>le patriarche Jean Médard Kalonda Bin Baruani</strong>.
+                LA BONNE SEMENCE est cette église qui a vu le jour en 1992 avec son grand visionnaire, <strong>le patriarche Jean Médard Kalonda Bin Baruani</strong>.
               </p>
               <p>
-                La bonne semence croit et enseigne que Jesus-christ est le seul Sauveur et Seigneur du monde.
+                LA BONNE SEMENCE croit et enseigne que Jesus-christ est le seul Sauveur et Seigneur du monde.
               </p>
               <p>
                 Jean 3 : 16 « Car Dieu a tant aimé le monde qu'il a donné son fils unique afin que quiconque croit en lui ne périsse point mais qu'il ait la vie éternelle. »<br />
-                Le salut des âmes est le premier objectif que poursuit la bonne semence.
+                Le salut des âmes est le premier objectif que poursuit LA BONNE SEMENCE.
               </p>
               <p>
                 Matthieu 28 : 19 « Allez, faites de toutes les nations des disciples les baptisants au nom du Père, du Fils et du Saint-Esprit. »<br />
@@ -142,64 +154,74 @@ export default function AProposSection() {
                 Après avoir renoncé à l'islam en 1980, il crut à l'évangile du pasteur Jean Momu. Sous la conduite de ce dernier, le patriarche devient un grand sauveur d'âmes ainsi que le président du département de l'évangelisation à l'église viens et vois.
               </p>
               <p>
-                En 1992, il reçut la vision de bâtir trois édifices pour le seigneur, d'où la naissance de l'église la Bonne Semence.
+                En 1992, il reçut la vision de bâtir trois édifices pour le seigneur, d'où la naissance de l'église LA BONNE SEMENCE.
               </p>
               <p>
                 En 2015 débuta la grande vision de la naissance de la communauté des assemblées Bonne Semence, CABSC.
               </p>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
-              <p>
-                Depuis la mort de son Bishop en Septembre 2020, la Bonne Semence est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
-              </p>
-              <ul>
-                <li>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit,</li>
-                <li>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></li>
-              </ul>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
+              </div>
+              <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
+                <div className="space-y-3 text-sm sm:text-base">
+                  <p>
+                    Depuis la mort de son Bishop en Septembre 2020, LA BONNE SEMENCE est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
+                  </p>
+                  <p><i>Le pasteur Djoe Baruani est pere de trois enfants et marie a madame Ginane Baruani.</i></p>
+                  <p>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit.</p>
+                  <p>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></p>
+                  <p className="font-bold"><i>« Voici les miracles qui accompagneront ceux qui auront cru : en mon nom, ils chasseront les demons ; ils parleront de nouvelles langues ; ils saisiront des serpents ; s'ils boivent quelque breuvage mortel, il ne leur fera point de mal ; ils imposeront les mains auxmalades, et les malades seront guéris. »</i></p>
+                </div>
+                <div className="overflow-hidden rounded-3xl bg-slate-50 shadow-sm dark:bg-slate-900/70">
+                  <img src={imagePstEtGinane} alt="Pst. Djoe et Ginane" className="h-[520px] w-full rounded-[1.1rem] object-center" />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold">LA SUCCESSION</h2>
+                <p>Un succès sans successeur ne sera jamais considéré comme un véritable succès.</p>
+                <p>En l'an 2000, une succession se préparait déjà selon le plan divin de Dieu. Sur cette photo, nous voyons le Patriarche Jean Medard Kalonda Bin Baruani et son fils biologique Jean Djoe Kalonda Bin Baruani.</p>
+              </div>
+              <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+                <div className="overflow-hidden rounded-3xl bg-slate-50 shadow-sm dark:bg-slate-900/70">
+                  <img src={imagePatri} alt="Le patriarche Jean-médard et son fils" className="h-[300px] w-full rounded-[1.1rem] object-cover object-center" />
+                </div>
+                <div className="rounded-2xl border border-[#f4ebd9]/40 bg-white/70 p-5 shadow-sm dark:bg-slate-900/60">
+                  <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                    Cette image rappelle l’héritage spirituel transmis de génération en génération, avec une continuité forte dans la vision et l’engagement pour l’église.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-gradient-to-br from-[#fcfaf5] to-[#f8f1e1] p-6 shadow-sm dark:from-slate-900/80 dark:to-slate-900/60">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold">LA COMMUNAUTÉ DES ASSEMBLÉES BONNE SEMENCE</h2>
+                  <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                    La communauté des assemblées Bonne Semence s’étend à plusieurs endroits au Congo avec des centres d’accueil, de prédication et d’encadrement spirituel.
+                  </p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {extensionsCommunautaies.map((extension, index) => (
+                    <div key={index} className="rounded-2xl border border-[#e7d4b0]/70 bg-white/90 p-4 shadow-xs dark:bg-slate-900/70">
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-[#af894d] dark:text-[#c29f63]">Extension {index + 1}</p>
+                      <div className="mt-2 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                        <p className="font-semibold uppercase">{extension.nom}</p>
+                        {extension.temple ? <p>{extension.temple}</p> : null}
+                        {extension.lieu ? <p>{extension.lieu}</p> : null}
+                        <p className="font-medium text-slate-800 dark:text-slate-200">{extension.pasteur}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Bloc graphique de la vision (Stained Glass Photo with Overlay & Simulation) */}
-        <div className="lg:col-span-5 relative h-[360px] rounded-2xl overflow-hidden bg-slate-950 p-6 flex flex-col justify-end text-white border border-[#c29f63]/30">
-
-          {/* Image de fond : Vitrail d'église */}
-          <div className="absolute inset-0 z-0">
-            <img src={imageHistorique} alt="Photo ancienne de l'église" className="w-full h-full object-cover brightness-45 contrast-125" referrerPolicy="no-referrer" />
-            <div className="absolute inset-0 bg-slate-950/40" />
-          </div>
-
-          {/* Vitrail simulé en SVG par-dessus l'image */}
-          <div className="absolute inset-0 opacity-30 mix-blend-overlay z-0">
-            <svg className="w-full h-full text-[#c29f63]" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Des motifs géométriques comme un portail de la cathédrale */}
-              <circle cx="200" cy="200" r="150" stroke="currentColor" strokeWidth="4" />
-              <polygon points="200,50 350,200 200,350 50,200" stroke="currentColor" strokeWidth="2" />
-              <line x1="200" y1="50" x2="200" y2="550" stroke="currentColor" strokeWidth="2" />
-              <line x1="50" y1="200" x2="350" y2="200" stroke="currentColor" strokeWidth="2" />
-              <circle cx="200" cy="200" r="80" stroke="currentColor" strokeWidth="2" />
-              <path d="M 50 200 C 150 50 250 50 350 200" stroke="currentColor" strokeWidth="3" />
-            </svg>
-          </div>
-
-          <div className="absolute top-0 right-0 p-6">
-            <History className="w-10 h-10 text-[#c29f63]/80" />
-          </div>
-
-          <div className="relative space-y-3 z-10 text-left">
-            <span className="text-[10px] uppercase font-mono tracking-widest text-[#c29f63] font-bold">
-              Objectif de l'église
-            </span>
-            <blockquote className="font-serif text-lg italic text-[#e7d4b0]">
-              « Car Dieu a tant aimé le monde qu'il a donné son fils unique afin que quiconque croit en lui ne périsse point mais qu'il ait la vie éternelle. »
-            </blockquote>
-            <p className="text-[11px] font-mono text-slate-400">
-              — Jean 3 : 16
-            </p>
-          </div>
-
-        </div>
+        </div>       
 
       </div>
 
@@ -210,7 +232,7 @@ export default function AProposSection() {
             Notre Église
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
-            La bonne semence S’ancre sur Quatre bases
+            LA BONNE SEMENCE S’ancre sur Quatre bases
           </h2>
           <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
         </div>
@@ -234,6 +256,32 @@ export default function AProposSection() {
               </div>
             </div>
           ))}
+        </div>
+        {/* Bloc graphique de la vision (Stained Glass Photo with Overlay) */}
+        <div className="lg:col-span-5 relative h-[360px] rounded-2xl overflow-hidden bg-slate-950 p-6 flex flex-col justify-end text-white border border-[#c29f63]/30">
+
+          {/* Image de fond : Vitrail d'église */}
+          <div className="absolute inset-0 z-0">
+            <img src={imageHistorique} alt="Photo ancienne de l'église" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            <div className="absolute inset-0 bg-slate-950/40" />
+          </div>
+
+          <div className="absolute top-0 right-0 p-6">
+            <History className="w-10 h-10 text-[#c29f63]/80" />
+          </div>
+
+          <div className="relative space-y-3 z-10 text-left">
+            <span className="text-[10px] uppercase font-mono tracking-widest text-[#c29f63] font-bold">
+              Objectif de l'église
+            </span>
+            <blockquote className="font-serif text-lg italic text-[#e7d4b0]">
+              « Car Dieu a tant aimé le monde qu'il a donné son fils unique afin que quiconque croit en lui ne périsse point mais qu'il ait la vie éternelle. »
+            </blockquote>
+            <p className="text-[11px] font-mono text-slate-400">
+              — Jean 3 : 16
+            </p>
+          </div>
+
         </div>
       </div>
 
@@ -349,9 +397,9 @@ export default function AProposSection() {
                       <Phone className="w-3.5 h-3.5 text-[#af894d]" />
                       <span>{membreSelectionne.telephone}</span>
                     </a>
-                    <a 
-                      href={`https://wa.me/${membreSelectionne.telephone.replace(/\D/g, '')}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://wa.me/${membreSelectionne.telephone.replace(/\D/g, '')}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                     >
@@ -362,7 +410,7 @@ export default function AProposSection() {
                 )}
                 <div className="flex items-center gap-2">
                   <Award className="w-3.5 h-3.5 text-[#af894d]" />
-                  <span>Membre de la bonne semence depuis 2020</span>
+                  <span>Membre de LA BONNE SEMENCE depuis 2020</span>
                 </div>
               </div>
 
@@ -459,9 +507,9 @@ export default function AProposSection() {
                     <Phone className="w-3.5 h-3.5 text-[#af894d]" />
                     <span>{devSelectionne.telephone}</span>
                   </a>
-                  <a 
-                    href={`https://wa.me/${devSelectionne.telephone.replace(/\D/g, '')}`} 
-                    target="_blank" 
+                  <a
+                    href={`https://wa.me/${devSelectionne.telephone.replace(/\D/g, '')}`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                   >
