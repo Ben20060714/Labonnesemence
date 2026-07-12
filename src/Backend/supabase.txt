@@ -1,0 +1,5 @@
+URL du projet: https://mrbaovkaguzirvutgnhg.supabase.co
+Chaine de connection à la DB: postgresql://postgres:[YOUR-PASSWORD]@db.mrbaovkaguzirvutgnhg.supabase.co:5432/postgres
+clé publiable: sb_publishable_SBuxTzmA-2AezELzBzwntg_hGPE4klN
+Mot de pase: Labonnesemence
+Bucket: Fichiers
