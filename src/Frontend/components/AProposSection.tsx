@@ -47,6 +47,7 @@ export default function AProposSection() {
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
   const [imageHistorique, definirImageHistorique] = useState<string>('../../img/MM_5.jpg');
+  const [imgPstEtGinane, definirImgPstEtGinane] = useState<string>('../../img/MM_4.jpg');
 
   useEffect(() => {
     let composantActif = true;
@@ -156,13 +157,25 @@ export default function AProposSection() {
               <p>
                 Depuis la mort de son Bishop en Septembre 2020, la Bonne Semence est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
               </p>
-              <ul>
-                <li>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit,</li>
-                <li>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></li>
-              </ul>
+              <p>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit,</p>
+              <p>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></p>
+              <p className="italic font-bold"><i>« Voici les miracles qui accompagneront ceux qui auront cru : en mon nom, ils chasseront les demons ; ils parleront de nouvelles langues ; ils saisiront des serpents ; s'ils boivent quelque breuvage mortel, il ne leur fera point de mal ; ils imposeront les mains aux malades, et les malades seront guéris. »</i></p>
+              <p>Les guerisons miraculeuses, les delivrances ainsi que les manifestations de la puissance du Saint-Esprit accompagnent son ministère.</p>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">LA SUCCESSION</h2>
+              <div className="flex flex-col md:flex-row gap-4 items-center">
+                <div>
+                  <p>Un succes sans successeur ne sera jamais considere comme un veritable succès.</p>
+                  <p>En l'an 2000, une succession se préparait déjà selon le plan divin de Dieu. Sur cette photo, nous voyons le Patriarche Jean Medard Kalonda Bin Baruani et son fils biologique Jean Djoe Kalonda Bin Baruani.</p>
+                </div>
+                <div>
+                  <img src={imgPstEtGinane} alt="Le Pst. Djoe et Ginane" className="rounded-lg shadow-md lg:w-full" />
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-3xl border border-[#f4ebd9]/60 bg-gradient-to-br from-[#fcfaf5] to-[#f8f1e1] p-6 shadow-sm dark:from-slate-900/80 dark:to-slate-900/60">
+            <div className="rounded-3xl border border-gold-600 dark:border-slate-600 bg-gradient-to-br from-[#fcfaf5] to-[#f8f1e1] p-6 shadow-sm dark:from-slate-900/80 dark:to-slate-900/60">
               <div className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-bold">LA COMMUNAUTÉ DES ASSEMBLÉES BONNE SEMENCE</h2>
@@ -172,7 +185,7 @@ export default function AProposSection() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   {extensionsCommunautaies.map((extension, index) => (
-                    <div key={index} className="rounded-2xl border border-[#e7d4b0]/70 bg-white/90 p-4 shadow-xs dark:bg-slate-900/70">
+                    <div key={index} className="rounded-2xl border border-gold-600 dark:border-slate-600 bg-white/90 p-4 shadow-xs dark:bg-slate-900/70">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-[#af894d] dark:text-[#c29f63]">Extension {index + 1}</p>
                       <div className="mt-2 space-y-1 text-sm text-slate-700 dark:text-slate-300">
                         <p className="font-semibold uppercase">{extension.nom}</p>
