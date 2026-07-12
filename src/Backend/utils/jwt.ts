@@ -13,15 +13,17 @@ export function generateAccessToken(userId: string, email: string, role: Role): 
   return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
 }
 
-export function generateRefreshToken(userId: string): string {
+export async function generateRefreshToken(userId: string): Promise<string> {
   const token = jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_MS).toISOString();
 
-  const stmt = db.prepare(`
-    INSERT INTO refresh_tokens (id, user_id, token, expires_at)
-    VALUES (?, ?, ?, ?)
-  `);
-  stmt.run(uuidv4(), userId, token, expiresAt);
+  await db.query(
+    `
+      INSERT INTO refresh_tokens (id, user_id, token, expires_at)
+      VALUES ($1, $2, $3, $4)
+    `,
+    [uuidv4(), userId, token, expiresAt]
+  );
 
   return token;
 }
@@ -30,13 +32,16 @@ export function verifyAccessToken(token: string): JwtPayload {
   return jwt.verify(token, JWT_SECRET) as JwtPayload;
 }
 
-export function verifyRefreshToken(token: string): { userId: string } {
+export async function verifyRefreshToken(token: string): Promise<{ userId: string }> {
   const payload = jwt.verify(token, JWT_REFRESH_SECRET) as { userId: string };
 
-  const record = db.prepare(`
-    SELECT * FROM refresh_tokens
-    WHERE token = ? AND datetime(expires_at) > datetime('now')
-  `).get(token);
+  const record = await db.maybeOne(
+    `
+      SELECT * FROM refresh_tokens
+      WHERE token = $1 AND expires_at > now()
+    `,
+    [token]
+  );
 
   if (!record) {
     throw new Error('Refresh token invalid or expired');
@@ -45,14 +50,14 @@ export function verifyRefreshToken(token: string): { userId: string } {
   return payload;
 }
 
-export function revokeRefreshToken(token: string): void {
-  db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(token);
+export async function revokeRefreshToken(token: string): Promise<void> {
+  await db.query('DELETE FROM refresh_tokens WHERE token = $1', [token]);
 }
 
-export function revokeAllUserRefreshTokens(userId: string): void {
-  db.prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(userId);
+export async function revokeAllUserRefreshTokens(userId: string): Promise<void> {
+  await db.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
 }
 
-export function cleanExpiredRefreshTokens(): void {
-  db.prepare("DELETE FROM refresh_tokens WHERE datetime(expires_at) <= datetime('now')").run();
+export async function cleanExpiredRefreshTokens(): Promise<void> {
+  await db.query('DELETE FROM refresh_tokens WHERE expires_at <= now()');
 }

@@ -54,7 +54,7 @@ export const getMonetbilConfig = (_req: Request, res: Response) => {
   });
 };
 
-export const create = (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   const { donorName, donorEmail, donorPhone, amount, designation, description } = req.body as {
     donorName?: string;
     donorEmail?: string;
@@ -74,7 +74,7 @@ export const create = (req: Request, res: Response) => {
   };
 
   if (!donnees.donorName || !donnees.donorEmail || !donnees.donorPhone) {
-    sendError(res, 'Nom, email et téléphone du donateur sont requis.');
+    sendError(res, 'Nom, email et telephone du donateur sont requis.');
     return;
   }
 
@@ -92,54 +92,55 @@ export const create = (req: Request, res: Response) => {
     const id = uuidv4();
     const reference = `DON-${Date.now()}-${id.slice(0, 8).toUpperCase()}`;
 
-    db.prepare(`
-      INSERT INTO donations (
-        id, reference, donor_name, donor_email, donor_phone, amount, designation, description
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      reference,
-      donnees.donorName,
-      donnees.donorEmail,
-      donnees.donorPhone,
-      donnees.amount,
-      donnees.designation,
-      donnees.description
+    await db.query(
+      `
+        INSERT INTO donations (
+          id, reference, donor_name, donor_email, donor_phone, amount, designation, description
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `,
+      [
+        id,
+        reference,
+        donnees.donorName,
+        donnees.donorEmail,
+        donnees.donorPhone,
+        donnees.amount,
+        donnees.designation,
+        donnees.description,
+      ]
     );
 
-    const donation = db.prepare('SELECT * FROM donations WHERE id = ?').get(id);
-    sendSuccess(res, donation, 'Don préparé.', 201);
+    const donation = await db.one('SELECT * FROM donations WHERE id = $1', [id]);
+    sendSuccess(res, donation, 'Don prepare.', 201);
   } catch (error: any) {
     sendError(res, error.message, 500);
   }
 };
 
-export const notifyMonetbil = (req: Request, res: Response) => {
+export const notifyMonetbil = async (req: Request, res: Response) => {
   const payload = { ...req.query, ...req.body } as Record<string, unknown>;
   const reference = trouverReference(payload);
 
   if (!reference) {
-    sendError(res, 'Référence de paiement manquante.');
+    sendError(res, 'Reference de paiement manquante.');
     return;
   }
 
   try {
-    const donation = db.prepare('SELECT id FROM donations WHERE reference = ?').get(reference) as { id: string } | undefined;
+    const donation = await db.maybeOne<{ id: string }>('SELECT id FROM donations WHERE reference = $1', [reference]);
     if (!donation) {
       sendError(res, 'Don introuvable.', 404);
       return;
     }
 
-    db.prepare(`
-      UPDATE donations
-      SET status = ?, provider_transaction_id = ?, provider_payload = ?, updated_at = datetime('now')
-      WHERE reference = ?
-    `).run(
-      normaliserStatutMonetbil(payload),
-      trouverTransactionProvider(payload),
-      JSON.stringify(payload),
-      reference
+    await db.query(
+      `
+        UPDATE donations
+        SET status = $1, provider_transaction_id = $2, provider_payload = $3, updated_at = now()
+        WHERE reference = $4
+      `,
+      [normaliserStatutMonetbil(payload), trouverTransactionProvider(payload), JSON.stringify(payload), reference]
     );
 
     sendSuccess(res, { received: true });
@@ -148,16 +149,16 @@ export const notifyMonetbil = (req: Request, res: Response) => {
   }
 };
 
-export const getAll = (_req: Request, res: Response) => {
+export const getAll = async (_req: Request, res: Response) => {
   try {
-    const rows = db.prepare('SELECT * FROM donations ORDER BY created_at DESC').all();
-    sendSuccess(res, rows, 'Dons récupérés.');
+    const rows = await db.many('SELECT * FROM donations ORDER BY created_at DESC');
+    sendSuccess(res, rows, 'Dons recuperes.');
   } catch (error: any) {
     sendError(res, error.message, 500);
   }
 };
 
-export const updateStatus = (req: Request, res: Response) => {
+export const updateStatus = async (req: Request, res: Response) => {
   const { status } = req.body as { status?: DonationStatus };
 
   if (!status || !statutsValides.includes(status)) {
@@ -166,19 +167,22 @@ export const updateStatus = (req: Request, res: Response) => {
   }
 
   try {
-    const result = db.prepare(`
-      UPDATE donations
-      SET status = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(status, req.params.id);
+    const result = await db.run(
+      `
+        UPDATE donations
+        SET status = $1, updated_at = now()
+        WHERE id = $2
+      `,
+      [status, req.params.id]
+    );
 
     if (result.changes === 0) {
       sendError(res, 'Don introuvable.', 404);
       return;
     }
 
-    const donation = db.prepare('SELECT * FROM donations WHERE id = ?').get(req.params.id);
-    sendSuccess(res, donation, 'Statut du don mis à jour.');
+    const donation = await db.one('SELECT * FROM donations WHERE id = $1', [req.params.id]);
+    sendSuccess(res, donation, 'Statut du don mis a jour.');
   } catch (error: any) {
     sendError(res, error.message, 500);
   }

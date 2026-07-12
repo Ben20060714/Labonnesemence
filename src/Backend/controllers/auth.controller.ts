@@ -46,7 +46,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   const userRole = 'user';
 
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(normalizedEmail, username);
+    const existing = await db.maybeOne('SELECT id FROM users WHERE email = $1 OR username = $2', [normalizedEmail, username]);
     if (existing) {
       sendError(res, 'Email or username already in use', 409);
       return;
@@ -55,15 +55,18 @@ export async function register(req: Request, res: Response): Promise<void> {
     const hashedPassword = await bcrypt.hash(password, 12);
     const id = uuidv4();
 
-    db.prepare(`
-      INSERT INTO users (id, email, username, password, role)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(id, normalizedEmail, username, hashedPassword, userRole);
+    await db.query(
+      `
+        INSERT INTO users (id, email, username, password, role)
+        VALUES ($1, $2, $3, $4, $5)
+      `,
+      [id, normalizedEmail, username, hashedPassword, userRole]
+    );
 
-    const user = db.prepare('SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?').get(id) as PublicUser;
+    const user = await db.one<PublicUser>('SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1', [id]);
 
     const accessToken = generateAccessToken(user.id, user.email, user.role);
-    const refreshToken = generateRefreshToken(user.id);
+    const refreshToken = await generateRefreshToken(user.id);
 
     sendSuccess(res, { user, accessToken, refreshToken }, 'Account created successfully', 201);
   } catch (error) {
@@ -82,7 +85,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(normalizedEmail) as User | undefined;
+    const user = await db.maybeOne<User>('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
 
     if (!user) {
       sendError(res, 'Invalid credentials', 401);
@@ -96,7 +99,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     }
 
     const accessToken = generateAccessToken(user.id, user.email, user.role);
-    const refreshToken = generateRefreshToken(user.id);
+    const refreshToken = await generateRefreshToken(user.id);
 
     const publicUser: PublicUser = {
       id: user.id,
@@ -114,7 +117,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   }
 }
 
-export function refresh(req: Request, res: Response): void {
+export async function refresh(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (!refreshToken) {
@@ -123,18 +126,18 @@ export function refresh(req: Request, res: Response): void {
   }
 
   try {
-    const { userId } = verifyRefreshToken(refreshToken);
+    const { userId } = await verifyRefreshToken(refreshToken);
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as User | undefined;
+    const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
       sendError(res, 'User not found', 404);
       return;
     }
 
-    revokeRefreshToken(refreshToken);
+    await revokeRefreshToken(refreshToken);
 
     const newAccessToken = generateAccessToken(user.id, user.email, user.role);
-    const newRefreshToken = generateRefreshToken(user.id);
+    const newRefreshToken = await generateRefreshToken(user.id);
 
     sendSuccess(res, { accessToken: newAccessToken, refreshToken: newRefreshToken }, 'Tokens refreshed');
   } catch {
@@ -142,7 +145,7 @@ export function refresh(req: Request, res: Response): void {
   }
 }
 
-export function heartbeat(req: Request, res: Response): void {
+export async function heartbeat(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (!refreshToken) {
@@ -151,15 +154,15 @@ export function heartbeat(req: Request, res: Response): void {
   }
 
   try {
-    const { userId } = verifyRefreshToken(refreshToken);
+    const { userId } = await verifyRefreshToken(refreshToken);
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as User | undefined;
+    const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
       sendError(res, 'User not found', 404);
       return;
     }
 
-    revokeRefreshToken(refreshToken);
+    await revokeRefreshToken(refreshToken);
 
     const publicUser: PublicUser = {
       id: user.id,
@@ -171,7 +174,7 @@ export function heartbeat(req: Request, res: Response): void {
     };
 
     const accessToken = generateAccessToken(user.id, user.email, user.role);
-    const newRefreshToken = generateRefreshToken(user.id);
+    const newRefreshToken = await generateRefreshToken(user.id);
 
     sendSuccess(
       res,
@@ -187,12 +190,12 @@ export function heartbeat(req: Request, res: Response): void {
   }
 }
 
-export function logout(req: AuthRequest, res: Response): void {
+export async function logout(req: AuthRequest, res: Response): Promise<void> {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (refreshToken) {
     try {
-      revokeRefreshToken(refreshToken);
+      await revokeRefreshToken(refreshToken);
     } catch {
       // ignore errors on logout
     }
@@ -201,25 +204,26 @@ export function logout(req: AuthRequest, res: Response): void {
   sendSuccess(res, null, 'Logged out successfully');
 }
 
-export function logoutAll(req: AuthRequest, res: Response): void {
+export async function logoutAll(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
     sendError(res, 'Unauthorized', 401);
     return;
   }
 
-  revokeAllUserRefreshTokens(req.user.userId);
+  await revokeAllUserRefreshTokens(req.user.userId);
   sendSuccess(res, null, 'Logged out from all devices');
 }
 
-export function getMe(req: AuthRequest, res: Response): void {
+export async function getMe(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
     sendError(res, 'Unauthorized', 401);
     return;
   }
 
-  const user = db.prepare(
-    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
-  ).get(req.user.userId) as PublicUser | undefined;
+  const user = await db.maybeOne<PublicUser>(
+    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1',
+    [req.user.userId]
+  );
 
   if (!user) {
     sendError(res, 'User not found', 404);
@@ -251,7 +255,7 @@ export async function updatePassword(req: AuthRequest, res: Response): Promise<v
   }
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.userId) as User | undefined;
+    const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [req.user.userId]);
     if (!user) {
       sendError(res, 'User not found', 404);
       return;
@@ -264,9 +268,9 @@ export async function updatePassword(req: AuthRequest, res: Response): Promise<v
     }
 
     const hashed = await bcrypt.hash(newPassword, 12);
-    db.prepare("UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?").run(hashed, user.id);
+    await db.query('UPDATE users SET password = $1, updated_at = now() WHERE id = $2', [hashed, user.id]);
 
-    revokeAllUserRefreshTokens(user.id);
+    await revokeAllUserRefreshTokens(user.id);
 
     sendSuccess(res, null, 'Password updated. Please log in again.');
   } catch (error) {

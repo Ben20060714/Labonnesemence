@@ -1,14 +1,5 @@
 import multer, { FileFilterCallback } from 'multer';
-import path from 'path';
-import fs from 'fs';
 import { Request } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
 
 const ALLOWED_MIMETYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
@@ -37,21 +28,6 @@ const getUploadCategory = (mimetype: string): string => {
   return 'others';
 };
 
-const storage = multer.diskStorage({
-  destination: (_req, file, cb) => {
-    const category = getUploadCategory(file.mimetype);
-    const destination = path.join(UPLOAD_DIR, category);
-
-    fs.mkdirSync(destination, { recursive: true });
-    cb(null, destination);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const uniqueName = `${uuidv4()}${ext}`;
-    cb(null, uniqueName);
-  },
-});
-
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   if (ALLOWED_MIMETYPES.includes(file.mimetype)) {
     cb(null, true);
@@ -61,10 +37,9 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
 };
 
 export const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-export const UPLOAD_PATH = UPLOAD_DIR;
-export const getUploadFilePath = (filename: string) => path.join(UPLOAD_DIR, filename);
+export const getUploadCategoryForFile = getUploadCategory;

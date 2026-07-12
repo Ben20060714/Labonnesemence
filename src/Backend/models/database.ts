@@ -1,17 +1,8 @@
-import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import bcrypt from 'bcryptjs';
+import { Pool, QueryResultRow } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
-
-const DB_DIR = path.join(process.cwd(), 'data');
-const DB_PATH = path.join(DB_DIR, 'database.sqlite');
-
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
-}
-
-const db = new Database(DB_PATH);
 
 const DEFAULT_ADMIN = {
   username: 'Havi',
@@ -20,12 +11,69 @@ const DEFAULT_ADMIN = {
   role: 'admin',
 };
 
-// Enable WAL mode for better performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const readSupabaseConfig = () => {
+  const configPath = path.join(process.cwd(), 'src', 'Backend', 'supabase.txt');
+  if (!fs.existsSync(configPath)) return {};
 
-export function initializeDatabase(): void {
-  db.exec(`
+  const content = fs.readFileSync(configPath, 'utf8');
+  const projectUrl = content.match(/URL du projet:\s*(.+)/i)?.[1]?.trim();
+  const connectionTemplate = content.match(/Chaine de connection.*?:\s*(.+)/i)?.[1]?.trim();
+  const poolerTemplate = content.match(/pooler:\s*(.+)/i)?.[1]?.trim();
+  const password = content.match(/Mot de pase:\s*(.+)/i)?.[1]?.trim();
+
+  return {
+    projectUrl,
+    connectionString: (poolerTemplate || connectionTemplate) && password
+      ? (poolerTemplate || connectionTemplate)!.replace('[YOUR-PASSWORD]', encodeURIComponent(password))
+      : (poolerTemplate || connectionTemplate),
+  };
+};
+
+const supabaseConfig = readSupabaseConfig();
+const connectionString = process.env.SUPABASE_DATABASE_URL || supabaseConfig.connectionString || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is missing and src/Backend/supabase.txt has no connection string.');
+}
+
+const pool = new Pool({
+  connectionString,
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+});
+
+export const db = {
+  async query<T extends QueryResultRow = QueryResultRow>(sql: string, params: unknown[] = []) {
+    const result = await pool.query<T>(sql, params);
+    return result;
+  },
+
+  async one<T extends QueryResultRow = QueryResultRow>(sql: string, params: unknown[] = []) {
+    const result = await pool.query<T>(sql, params);
+    if (!result.rows[0]) throw new Error('Expected one row, got none.');
+    return result.rows[0];
+  },
+
+  async maybeOne<T extends QueryResultRow = QueryResultRow>(sql: string, params: unknown[] = []) {
+    const result = await pool.query<T>(sql, params);
+    return result.rows[0] as T | undefined;
+  },
+
+  async many<T extends QueryResultRow = QueryResultRow>(sql: string, params: unknown[] = []) {
+    const result = await pool.query<T>(sql, params);
+    return result.rows;
+  },
+
+  async run(sql: string, params: unknown[] = []) {
+    const result = await pool.query(sql, params);
+    return {
+      changes: result.rowCount ?? 0,
+      lastInsertRowid: result.rows[0]?.id,
+    };
+  },
+};
+
+export async function initializeDatabase(): Promise<void> {
+  await db.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -33,8 +81,8 @@ export function initializeDatabase(): void {
       username TEXT UNIQUE NOT NULL,
       role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
       image_url TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS posts (
@@ -44,11 +92,10 @@ export function initializeDatabase(): void {
       content TEXT NOT NULL,
       excerpt TEXT,
       image_url TEXT,
-      author_id TEXT NOT NULL,
-      published INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+      author_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      published BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS files (
@@ -60,23 +107,21 @@ export function initializeDatabase(): void {
       categorie TEXT,
       mimetype TEXT NOT NULL,
       size INTEGER NOT NULL,
-      uploader_id TEXT NOT NULL,
-      is_public INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (uploader_id) REFERENCES users(id) ON DELETE CASCADE
+      uploader_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      is_public BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       token TEXT UNIQUE NOT NULL,
-      expires_at TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS sermons (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
       titre TEXT NOT NULL,
       verset TEXT,
       description TEXT,
@@ -85,12 +130,12 @@ export function initializeDatabase(): void {
       date TEXT,
       auteur TEXT,
       categorie TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS events (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
       titre TEXT NOT NULL,
       lieu TEXT,
       description TEXT,
@@ -98,8 +143,8 @@ export function initializeDatabase(): void {
       categorie TEXT,
       heure TEXT,
       date TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS contact_messages (
@@ -108,7 +153,7 @@ export function initializeDatabase(): void {
       email TEXT NOT NULL,
       sujet TEXT NOT NULL,
       contenu TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE TABLE IF NOT EXISTS donations (
@@ -125,8 +170,8 @@ export function initializeDatabase(): void {
       provider TEXT NOT NULL DEFAULT 'monetbil',
       provider_transaction_id TEXT,
       provider_payload TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
@@ -141,101 +186,66 @@ export function initializeDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_donations_created ON donations(created_at);
   `);
 
-  ensureColumnExists('users', 'image_url', 'TEXT');
-  ensureColumnExists('posts', 'image_url', 'TEXT');
-  ensureColumnExists('sermons', 'image_url', 'TEXT');
-  ensureColumnExists('events', 'image_url', 'TEXT');
-  ensureFilesLegendColumn();
-  ensureFilesUsageColumn();
-  ensureFilesCategoryColumn();
-  ensureDefaultAdmin();
-  migrateUploadsIntoTypedFolders();
-  console.log('# Database initialized at:', DB_PATH);
+  await ensureColumnExists('users', 'image_url', 'TEXT');
+  await ensureColumnExists('posts', 'image_url', 'TEXT');
+  await ensureColumnExists('sermons', 'image_url', 'TEXT');
+  await ensureColumnExists('events', 'image_url', 'TEXT');
+  await ensureColumnExists('files', 'legend', 'TEXT');
+  await ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
+  await ensureColumnExists('files', 'categorie', 'TEXT');
+  await db.query("UPDATE files SET usage = 'gallery' WHERE usage IS NULL OR usage = ''");
+  await ensureDefaultAdmin();
+
+  console.log('# Supabase/Postgres database initialized');
 }
 
-function ensureColumnExists(tableName: string, columnName: string, definition: string): void {
-  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all() as { name: string }[];
-  const hasColumn = columns.some((column) => column.name === columnName);
+async function ensureColumnExists(tableName: string, columnName: string, definition: string): Promise<void> {
+  const column = await db.maybeOne(
+    `
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2
+    `,
+    [tableName, columnName]
+  );
 
-  if (!hasColumn) {
-    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  if (!column) {
+    await db.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
   }
 }
 
-function ensureFilesLegendColumn(): void {
-  ensureColumnExists('files', 'legend', 'TEXT');
-}
+async function ensureDefaultAdmin(): Promise<void> {
+  const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 12);
+  const existing = await db.maybeOne<{ id: string }>(
+    'SELECT id FROM users WHERE email = $1 OR username = $2',
+    [DEFAULT_ADMIN.email, DEFAULT_ADMIN.username]
+  );
 
-function ensureFilesUsageColumn(): void {
-  ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
-  db.prepare("UPDATE files SET usage = 'gallery' WHERE usage IS NULL OR usage = ''").run();
-}
-
-function ensureFilesCategoryColumn(): void {
-  ensureColumnExists('files', 'categorie', 'TEXT');
-}
-
-function getUploadCategory(mimetype: string): string {
-  if (mimetype.startsWith('image/')) return 'images';
-  if (mimetype.startsWith('audio/')) return 'audio';
-  if (mimetype.startsWith('video/')) return 'videos';
-  if (mimetype === 'application/pdf') return 'pdf';
-  if (mimetype.startsWith('text/') || mimetype === 'application/json') return 'documents';
-  if (mimetype.includes('word') || mimetype.includes('excel') || mimetype.includes('spreadsheet')) return 'documents';
-  if (mimetype.includes('zip')) return 'archives';
-  return 'others';
-}
-
-function migrateUploadsIntoTypedFolders(): void {
-  const uploadsDir = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) return;
-
-  const files = db.prepare(`
-    SELECT id, filename, mimetype
-    FROM files
-    WHERE filename NOT LIKE '%/%'
-  `).all() as { id: string; filename: string; mimetype: string }[];
-
-  for (const file of files) {
-    const source = path.join(uploadsDir, file.filename);
-    if (!fs.existsSync(source)) continue;
-
-    const category = getUploadCategory(file.mimetype);
-    const targetDir = path.join(uploadsDir, category);
-    const relativeTarget = `${category}/${file.filename}`;
-    const target = path.join(uploadsDir, relativeTarget);
-
-    fs.mkdirSync(targetDir, { recursive: true });
-    fs.renameSync(source, target);
-    db.prepare('UPDATE files SET filename = ? WHERE id = ?').run(relativeTarget, file.id);
-  }
-}
-
-function ensureDefaultAdmin(): void {
-  const hashedPassword = bcrypt.hashSync(DEFAULT_ADMIN.password, 12);
-  const existingByEmail = db.prepare('SELECT id FROM users WHERE email = ?').get(DEFAULT_ADMIN.email) as { id: string } | undefined;
-  const existingByUsername = db.prepare('SELECT id FROM users WHERE username = ?').get(DEFAULT_ADMIN.username) as { id: string } | undefined;
-  const existingId = existingByEmail?.id || existingByUsername?.id;
-
-  if (existingId) {
-    db.prepare(`
-      UPDATE users
-      SET email = ?, username = ?, password = ?, role = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role, existingId);
+  if (existing) {
+    await db.query(
+      `
+        UPDATE users
+        SET email = $1, username = $2, password = $3, role = $4, updated_at = now()
+        WHERE id = $5
+      `,
+      [DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role, existing.id]
+    );
     console.log(`# Default admin ensured: ${DEFAULT_ADMIN.email}`);
     return;
   }
 
-  db.prepare(`
-    INSERT INTO users (id, email, username, password, role)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(uuidv4(), DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role);
+  await db.query(
+    `
+      INSERT INTO users (id, email, username, password, role)
+      VALUES ($1, $2, $3, $4, $5)
+    `,
+    [uuidv4(), DEFAULT_ADMIN.email, DEFAULT_ADMIN.username, hashedPassword, DEFAULT_ADMIN.role]
+  );
 
   console.log(`# Default admin created: ${DEFAULT_ADMIN.email}`);
 }
 
-export function getDb(): Database.Database {
+export function getDb() {
   return db;
 }
 

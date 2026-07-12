@@ -3,3 +3,4 @@ Chaine de connection à la DB: postgresql://postgres:[YOUR-PASSWORD]@db.mrbaovka
 clé publiable: sb_publishable_SBuxTzmA-2AezELzBzwntg_hGPE4klN
 Mot de pase: Labonnesemence
 Bucket: Fichiers
+pooler: postgresql://postgres.mrbaovkaguzirvutgnhg:[YOUR-PASSWORD]@aws-0-eu-west-3.pooler.supabase.com:6543/postgres

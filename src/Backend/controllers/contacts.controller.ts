@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import db from '../models/database.ts';
 import { isValidEmail, sendError, sendSuccess } from '../utils/helpers.ts';
 
-export const create = (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   const { nom, email, sujet, contenu } = req.body as {
     nom?: string;
     email?: string;
@@ -30,36 +30,39 @@ export const create = (req: Request, res: Response) => {
 
   try {
     const id = uuidv4();
-    db.prepare(`
-      INSERT INTO contact_messages (id, nom, email, sujet, contenu)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(id, valeurs.nom, valeurs.email, valeurs.sujet, valeurs.contenu);
+    await db.query(
+      `
+        INSERT INTO contact_messages (id, nom, email, sujet, contenu)
+        VALUES ($1, $2, $3, $4, $5)
+      `,
+      [id, valeurs.nom, valeurs.email, valeurs.sujet, valeurs.contenu]
+    );
 
-    const message = db.prepare('SELECT * FROM contact_messages WHERE id = ?').get(id);
-    sendSuccess(res, message, 'Message de contact enregistré.', 201);
+    const message = await db.one('SELECT * FROM contact_messages WHERE id = $1', [id]);
+    sendSuccess(res, message, 'Message de contact enregistre.', 201);
   } catch (error: any) {
     sendError(res, error.message, 500);
   }
 };
 
-export const getAll = (_req: Request, res: Response) => {
+export const getAll = async (_req: Request, res: Response) => {
   try {
-    const rows = db.prepare('SELECT * FROM contact_messages ORDER BY created_at DESC').all();
-    sendSuccess(res, rows, 'Messages de contact récupérés.');
+    const rows = await db.many('SELECT * FROM contact_messages ORDER BY created_at DESC');
+    sendSuccess(res, rows, 'Messages de contact recuperes.');
   } catch (error: any) {
     sendError(res, error.message, 500);
   }
 };
 
-export const remove = (req: Request, res: Response) => {
+export const remove = async (req: Request, res: Response) => {
   try {
-    const result = db.prepare('DELETE FROM contact_messages WHERE id = ?').run(req.params.id);
+    const result = await db.run('DELETE FROM contact_messages WHERE id = $1', [req.params.id]);
     if (result.changes === 0) {
       sendError(res, 'Message de contact introuvable.', 404);
       return;
     }
 
-    sendSuccess(res, null, 'Message de contact supprimé.');
+    sendSuccess(res, null, 'Message de contact supprime.');
   } catch (error: any) {
     sendError(res, error.message, 500);
   }

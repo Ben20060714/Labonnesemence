@@ -4,7 +4,7 @@ import db from '../models/database';
 import { sendSuccess, sendError, slugify, parsePagination } from '../utils/helpers';
 import { AuthRequest, Post, PostWithAuthor, PaginatedResponse, PaginationQuery } from '../types';
 
-export function getPosts(req: Request, res: Response): void {
+export async function getPosts(req: Request, res: Response): Promise<void> {
   const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
   const { author, search } = req.query as { author?: string; search?: string };
 
@@ -12,12 +12,12 @@ export function getPosts(req: Request, res: Response): void {
   const params: (string | number)[] = [];
 
   if (author) {
-    where += ' AND u.username = ?';
+    where += ` AND u.username = $${params.length + 1}`;
     params.push(author);
   }
 
   if (search) {
-    where += ' AND (p.title LIKE ? OR p.content LIKE ?)';
+    where += ` AND (p.title ILIKE $${params.length + 1} OR p.content ILIKE $${params.length + 2})`;
     params.push(`%${search}%`, `%${search}%`);
   }
 
@@ -27,16 +27,16 @@ export function getPosts(req: Request, res: Response): void {
     JOIN users u ON p.author_id = u.id
     ${where}
   `;
-  const total = (db.prepare(countQuery).get(...params) as { count: number }).count;
+  const total = Number((await db.one<{ count: string }>(countQuery, params)).count);
 
-  const posts = db.prepare(`
+  const posts = await db.many<PostWithAuthor>(`
     SELECT p.*, u.username as author_username, u.email as author_email
     FROM posts p
     JOIN users u ON p.author_id = u.id
     ${where}
     ORDER BY p.created_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset) as PostWithAuthor[];
+    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+  `, [...params, limit, offset]);
 
   const response: PaginatedResponse<PostWithAuthor> = {
     items: posts,
@@ -49,15 +49,15 @@ export function getPosts(req: Request, res: Response): void {
   sendSuccess(res, response);
 }
 
-export function getPostBySlug(req: Request, res: Response): void {
+export async function getPostBySlug(req: Request, res: Response): Promise<void> {
   const { slug } = req.params;
 
-  const post = db.prepare(`
+  const post = await db.maybeOne<PostWithAuthor>(`
     SELECT p.*, u.username as author_username, u.email as author_email
     FROM posts p
     JOIN users u ON p.author_id = u.id
-    WHERE p.slug = ? AND p.published = 1
-  `).get(slug) as PostWithAuthor | undefined;
+    WHERE p.slug = $1 AND p.published = true
+  `, [slug]);
 
   if (!post) {
     sendError(res, 'Post not found', 404);
@@ -67,7 +67,7 @@ export function getPostBySlug(req: Request, res: Response): void {
   sendSuccess(res, post);
 }
 
-export function getAllPostsAdmin(req: AuthRequest, res: Response): void {
+export async function getAllPostsAdmin(req: AuthRequest, res: Response): Promise<void> {
   const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
   const { published } = req.query as { published?: string };
 
@@ -76,23 +76,23 @@ export function getAllPostsAdmin(req: AuthRequest, res: Response): void {
 
   // Admins see all posts; regular users see only their own
   if (req.user?.role !== 'admin') {
-    where = 'WHERE p.author_id = ?';
+    where = 'WHERE p.author_id = $1';
     params.push(req.user!.userId);
   } else if (published !== undefined) {
-    where = `WHERE p.published = ?`;
+    where = `WHERE p.published = $1`;
     params.push(published === 'true' ? 1 : 0);
   }
 
-  const total = (db.prepare(`SELECT COUNT(*) as count FROM posts p ${where}`).get(...params) as { count: number }).count;
+  const total = Number((await db.one<{ count: string }>(`SELECT COUNT(*) as count FROM posts p ${where}`, params)).count);
 
-  const posts = db.prepare(`
+  const posts = await db.many<PostWithAuthor>(`
     SELECT p.*, u.username as author_username, u.email as author_email
     FROM posts p
     JOIN users u ON p.author_id = u.id
     ${where}
     ORDER BY p.created_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset) as PostWithAuthor[];
+    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+  `, [...params, limit, offset]);
 
   const response: PaginatedResponse<PostWithAuthor> = {
     items: posts,
@@ -105,7 +105,7 @@ export function getAllPostsAdmin(req: AuthRequest, res: Response): void {
   sendSuccess(res, response);
 }
 
-export function createPost(req: AuthRequest, res: Response): void {
+export async function createPost(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
     sendError(res, 'Unauthorized', 401);
     return;
@@ -132,23 +132,26 @@ export function createPost(req: AuthRequest, res: Response): void {
   let slug = slugify(title);
 
   // Ensure unique slug
-  const existing = db.prepare('SELECT id FROM posts WHERE slug = ?').get(slug);
+  const existing = await db.maybeOne('SELECT id FROM posts WHERE slug = $1', [slug]);
   if (existing) {
     slug = `${slug}-${Date.now()}`;
   }
 
   try {
-    db.prepare(`
-      INSERT INTO posts (id, title, slug, content, excerpt, author_id, published)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(id, title, slug, content, excerpt || null, req.user.userId, published ? 1 : 0);
+    await db.query(
+      `
+        INSERT INTO posts (id, title, slug, content, excerpt, author_id, published)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `,
+      [id, title, slug, content, excerpt || null, req.user.userId, !!published]
+    );
 
-    const post = db.prepare(`
+    const post = await db.one<PostWithAuthor>(`
       SELECT p.*, u.username as author_username, u.email as author_email
       FROM posts p
       JOIN users u ON p.author_id = u.id
-      WHERE p.id = ?
-    `).get(id) as PostWithAuthor;
+      WHERE p.id = $1
+    `, [id]);
 
     sendSuccess(res, post, 'Post created', 201);
   } catch (error) {
@@ -157,7 +160,7 @@ export function createPost(req: AuthRequest, res: Response): void {
   }
 }
 
-export function updatePost(req: AuthRequest, res: Response): void {
+export async function updatePost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -165,7 +168,7 @@ export function updatePost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id) as Post | undefined;
+  const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
     sendError(res, 'Post not found', 404);
     return;
@@ -187,29 +190,32 @@ export function updatePost(req: AuthRequest, res: Response): void {
   const newTitle = title || post.title;
   const newContent = content || post.content;
   const newExcerpt = excerpt !== undefined ? excerpt : post.excerpt;
-  const newPublished = published !== undefined ? (published ? 1 : 0) : (post.published ? 1 : 0);
+  const newPublished = published !== undefined ? !!published : !!post.published;
 
   let newSlug = post.slug;
   if (title && title !== post.title) {
     newSlug = slugify(title);
-    const slugExists = db.prepare('SELECT id FROM posts WHERE slug = ? AND id != ?').get(newSlug, id);
+    const slugExists = await db.maybeOne('SELECT id FROM posts WHERE slug = $1 AND id != $2', [newSlug, id]);
     if (slugExists) {
       newSlug = `${newSlug}-${Date.now()}`;
     }
   }
 
   try {
-    db.prepare(`
-      UPDATE posts
-      SET title = ?, slug = ?, content = ?, excerpt = ?, published = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(newTitle, newSlug, newContent, newExcerpt, newPublished, id);
+    await db.query(
+      `
+        UPDATE posts
+        SET title = $1, slug = $2, content = $3, excerpt = $4, published = $5, updated_at = now()
+        WHERE id = $6
+      `,
+      [newTitle, newSlug, newContent, newExcerpt, newPublished, id]
+    );
 
-    const updated = db.prepare(`
+    const updated = await db.one<PostWithAuthor>(`
       SELECT p.*, u.username as author_username, u.email as author_email
       FROM posts p JOIN users u ON p.author_id = u.id
-      WHERE p.id = ?
-    `).get(id) as PostWithAuthor;
+      WHERE p.id = $1
+    `, [id]);
 
     sendSuccess(res, updated, 'Post updated');
   } catch (error) {
@@ -218,7 +224,7 @@ export function updatePost(req: AuthRequest, res: Response): void {
   }
 }
 
-export function deletePost(req: AuthRequest, res: Response): void {
+export async function deletePost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -226,7 +232,7 @@ export function deletePost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id) as Post | undefined;
+  const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
     sendError(res, 'Post not found', 404);
     return;
@@ -237,11 +243,11 @@ export function deletePost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  db.prepare('DELETE FROM posts WHERE id = ?').run(id);
+  await db.query('DELETE FROM posts WHERE id = $1', [id]);
   sendSuccess(res, null, 'Post deleted');
 }
 
-export function publishPost(req: AuthRequest, res: Response): void {
+export async function publishPost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -249,7 +255,7 @@ export function publishPost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id) as Post | undefined;
+  const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
     sendError(res, 'Post not found', 404);
     return;
@@ -260,11 +266,11 @@ export function publishPost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  db.prepare("UPDATE posts SET published = 1, updated_at = datetime('now') WHERE id = ?").run(id);
+  await db.query('UPDATE posts SET published = true, updated_at = now() WHERE id = $1', [id]);
   sendSuccess(res, null, 'Post published');
 }
 
-export function unpublishPost(req: AuthRequest, res: Response): void {
+export async function unpublishPost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -272,7 +278,7 @@ export function unpublishPost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id) as Post | undefined;
+  const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
     sendError(res, 'Post not found', 404);
     return;
@@ -283,6 +289,6 @@ export function unpublishPost(req: AuthRequest, res: Response): void {
     return;
   }
 
-  db.prepare("UPDATE posts SET published = 0, updated_at = datetime('now') WHERE id = ?").run(id);
+  await db.query('UPDATE posts SET published = false, updated_at = now() WHERE id = $1', [id]);
   sendSuccess(res, null, 'Post unpublished');
 }

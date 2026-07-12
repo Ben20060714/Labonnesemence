@@ -4,13 +4,14 @@ import db from '../models/database';
 import { sendSuccess, sendError, parsePagination } from '../utils/helpers';
 import { AuthRequest, User, PublicUser, PaginatedResponse, PaginationQuery } from '../types';
 
-export function getAllUsers(req: AuthRequest, res: Response): void {
+export async function getAllUsers(req: AuthRequest, res: Response): Promise<void> {
   const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
 
-  const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
-  const users = db.prepare(
-    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
-  ).all(limit, offset) as PublicUser[];
+  const total = Number((await db.one<{ count: string }>('SELECT COUNT(*) as count FROM users')).count);
+  const users = await db.many<PublicUser>(
+    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+    [limit, offset]
+  );
 
   const response: PaginatedResponse<PublicUser> = {
     items: users,
@@ -23,13 +24,14 @@ export function getAllUsers(req: AuthRequest, res: Response): void {
   sendSuccess(res, response);
 }
 
-export function getPublicUsers(req: AuthRequest, res: Response): void {
+export async function getPublicUsers(req: AuthRequest, res: Response): Promise<void> {
   const { page, limit, offset } = parsePagination(req.query as PaginationQuery);
 
-  const total = (db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }).count;
-  const users = db.prepare(
-    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?'
-  ).all(limit, offset) as PublicUser[];
+  const total = Number((await db.one<{ count: string }>('SELECT COUNT(*) as count FROM users')).count);
+  const users = await db.many<PublicUser>(
+    'SELECT id, email, username, role, image_url, created_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+    [limit, offset]
+  );
 
   const response: PaginatedResponse<PublicUser> = {
     items: users,
@@ -42,7 +44,7 @@ export function getPublicUsers(req: AuthRequest, res: Response): void {
   sendSuccess(res, response);
 }
 
-export function getUserById(req: AuthRequest, res: Response): void {
+export async function getUserById(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -55,9 +57,10 @@ export function getUserById(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const user = db.prepare(
-    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
-  ).get(id) as PublicUser | undefined;
+  const user = await db.maybeOne<PublicUser>(
+    'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1',
+    [id]
+  );
 
   if (!user) {
     sendError(res, 'User not found', 404);
@@ -89,7 +92,7 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   };
   const normalizedEmail = email?.trim().toLowerCase();
 
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined;
+  const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [id]);
   if (!user) {
     sendError(res, 'User not found', 404);
     return;
@@ -100,9 +103,10 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   // Only admins can change roles
   const newRole = (req.user.role === 'admin' && role) ? role : user.role;
 
-  const existingConflict = db.prepare(
-    'SELECT id FROM users WHERE (email = ? OR username = ?) AND id != ?'
-  ).get(newEmail, newUsername, id) as { id: string } | undefined;
+  const existingConflict = await db.maybeOne<{ id: string }>(
+    'SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3',
+    [newEmail, newUsername, id]
+  );
 
   if (existingConflict) {
     sendError(res, 'Email or username already in use', 409);
@@ -110,14 +114,18 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   }
 
   try {
-    db.prepare(`
-      UPDATE users SET username = ?, email = ?, role = ?, image_url = ?, updated_at = datetime('now')
-      WHERE id = ?
-    `).run(newUsername, newEmail, newRole, image_url ?? user.image_url ?? null, id);
+    await db.query(
+      `
+        UPDATE users SET username = $1, email = $2, role = $3, image_url = $4, updated_at = now()
+        WHERE id = $5
+      `,
+      [newUsername, newEmail, newRole, image_url ?? user.image_url ?? null, id]
+    );
 
-    const updated = db.prepare(
-      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
-    ).get(id) as PublicUser;
+    const updated = await db.one<PublicUser>(
+      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1',
+      [id]
+    );
 
     sendSuccess(res, updated, 'User updated');
   } catch (error) {
@@ -126,7 +134,7 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   }
 }
 
-export function deleteUser(req: AuthRequest, res: Response): void {
+export async function deleteUser(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
@@ -140,13 +148,13 @@ export function deleteUser(req: AuthRequest, res: Response): void {
     return;
   }
 
-  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(id);
+  const user = await db.maybeOne('SELECT id FROM users WHERE id = $1', [id]);
   if (!user) {
     sendError(res, 'User not found', 404);
     return;
   }
 
-  db.prepare('DELETE FROM users WHERE id = ?').run(id);
+  await db.query('DELETE FROM users WHERE id = $1', [id]);
   sendSuccess(res, null, 'User deleted');
 }
 
@@ -168,7 +176,7 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
   const userRole = role === 'admin' ? 'admin' : 'user';
 
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(normalizedEmail, username);
+    const existing = await db.maybeOne('SELECT id FROM users WHERE email = $1 OR username = $2', [normalizedEmail, username]);
     if (existing) {
       sendError(res, 'Email or username already in use', 409);
       return;
@@ -178,14 +186,18 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
     const hashedPassword = await bcrypt.hash(password, 12);
     const id = uuidv4();
 
-    db.prepare(`
-      INSERT INTO users (id, email, username, password, role, image_url)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(id, normalizedEmail, username, hashedPassword, userRole, image_url ?? null);
+    await db.query(
+      `
+        INSERT INTO users (id, email, username, password, role, image_url)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `,
+      [id, normalizedEmail, username, hashedPassword, userRole, image_url ?? null]
+    );
 
-    const user = db.prepare(
-      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
-    ).get(id) as PublicUser;
+    const user = await db.one<PublicUser>(
+      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1',
+      [id]
+    );
 
     sendSuccess(res, user, 'User created by admin', 201);
   } catch (error) {

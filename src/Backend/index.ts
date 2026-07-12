@@ -34,10 +34,14 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ─── Initialize DB ──────────────────────────────────────────────────────────
-initializeDatabase();
+await initializeDatabase();
 
 // ─── Clean expired tokens every hour ────────────────────────────────────────
-setInterval(cleanExpiredRefreshTokens, 60 * 60 * 1000);
+setInterval(() => {
+  cleanExpiredRefreshTokens().catch((error) => {
+    console.error('Failed to clean expired refresh tokens:', error);
+  });
+}, 60 * 60 * 1000);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/health', (_req: any, res: any) => {
