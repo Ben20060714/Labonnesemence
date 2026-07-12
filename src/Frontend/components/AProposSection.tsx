@@ -11,34 +11,34 @@ import { api, calculerInitiales, obtenirUrlFichier } from '../services/api';
 
 const DEVELOPPEUR: DevEquipe[] = [
   {
-    identifiant : 'Dev-1',
-    initiales : 'BM',
-    nom : 'Benjamin Mwaku',
-    role : 'Developpeur Front-End',
-    telephone : '+243 82 043 3981',
-    email : 'Benkailazad8@gmail.com',
-    description : 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
-    accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
+    identifiant: 'Dev-1',
+    initiales: 'BM',
+    nom: 'Benjamin Mwaku',
+    role: 'Developpeur Front-End',
+    telephone: '+243 82 043 3981',
+    email: 'Benkailazad8@gmail.com',
+    description: 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
+    accomplissement: 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
   },
   {
-    identifiant : 'Dev-2',
-    initiales : 'DB',
-    nom : 'Djeef Bulabula',
-    role : 'Developpeur web',
-    telephone : '+243 830 888 983',
-    email : 'Djeefjason@gmail.com',
-    description : 'Je suis disponible pour apprendre avec vous.',
-    accomplissement : 'En cours'
+    identifiant: 'Dev-2',
+    initiales: 'DB',
+    nom: 'Djeef Bulabula',
+    role: 'Developpeur web',
+    telephone: '+243 830 888 983',
+    email: 'Djeefjason@gmail.com',
+    description: 'Je suis disponible pour apprendre avec vous.',
+    accomplissement: 'En cours'
   },
   {
-    identifiant : 'Dev-3',
-    initiales : 'AK',
-    nom : 'Aurelio Kitenge',
-    role : 'Developpeur Back-End',
-    telephone : '+243 851750631',
-    email : 'Aureliokitenge@gmail.com',
-    description : 'Dev junior specialise en web et IoT',
-    accomplissement : 'Backend de l\'app Afrique Demain'
+    identifiant: 'Dev-3',
+    initiales: 'AK',
+    nom: 'Aurelio Kitenge',
+    role: 'Developpeur Back-End',
+    telephone: '+243 851750631',
+    email: 'Aureliokitenge@gmail.com',
+    description: 'Dev junior specialise en web et IoT',
+    accomplissement: 'Backend de l\'app Afrique Demain'
   }
 ];
 
@@ -96,11 +96,21 @@ export default function AProposSection() {
     }
   ];
 
+  const extensionsCommunautaies = [
+    { nom: 'BONNE SEMENCE', temple: 'TEMPLE DE GLOIRE', lieu: 'GOLF LIDO LUBUMBASHI', pasteur: 'PST DJOE' },
+    { nom: 'BONNE SEMENCE', temple: 'PAROLE DE VIE', lieu: 'GOLF METEO', pasteur: 'PST JEAN JACQUES' },
+    { nom: 'BONNE SEMENCE', temple: 'PAIN DE VIE', lieu: 'GOLD FAUSTIN', pasteur: 'PST NGONGO' },
+    { nom: 'BONNE SEMENCE', temple: 'CITÉ D\'ESPÉRANCE', lieu: 'KATUBA', pasteur: 'PST BARTHÉLÉMY' },
+    { nom: 'BONNE SEMENCE KOLWEZI', temple: '', lieu: '', pasteur: 'PST BOBO' },
+    { nom: 'BONNE SEMENCE', temple: 'TORRENT DE VIE', lieu: '', pasteur: 'PST PAUL' },
+    { nom: 'BONNE SEMENCE KASUMBALESSA', temple: '', lieu: '', pasteur: 'PST JOSÉ' }
+  ];
+
   return (
     <section id="qui-sommes-nous-screen" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-20">
 
       {/* 1. Notre Histoire et Vision */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="items-center">
 
         <div className="lg:col-span-7 space-y-6 text-left">
           <span className="font-mono text-xs uppercase tracking-widest text-[#af894d] dark:text-[#c29f63] block">
@@ -151,9 +161,66 @@ export default function AProposSection() {
                 <li>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></li>
               </ul>
             </div>
+
+            <div className="rounded-3xl border border-[#f4ebd9]/60 bg-gradient-to-br from-[#fcfaf5] to-[#f8f1e1] p-6 shadow-sm dark:from-slate-900/80 dark:to-slate-900/60">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold">LA COMMUNAUTÉ DES ASSEMBLÉES BONNE SEMENCE</h2>
+                  <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                    La communauté des assemblées Bonne Semence s’étend à plusieurs endroits au Congo avec des centres d’accueil, de prédication et d’encadrement spirituel.
+                  </p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {extensionsCommunautaies.map((extension, index) => (
+                    <div key={index} className="rounded-2xl border border-[#e7d4b0]/70 bg-white/90 p-4 shadow-xs dark:bg-slate-900/70">
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-[#af894d] dark:text-[#c29f63]">Extension {index + 1}</p>
+                      <div className="mt-2 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                        <p className="font-semibold uppercase">{extension.nom}</p>
+                        {extension.temple ? <p>{extension.temple}</p> : null}
+                        {extension.lieu ? <p>{extension.lieu}</p> : null}
+                        <p className="font-medium text-slate-800 dark:text-slate-200">{extension.pasteur}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* 2. Ce en quoi nous croyons */}
+      <div id="bloc-valeurs-credo" className="space-y-12">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <span className="text-xs uppercase font-mono tracking-widest text-[#af894d] dark:text-[#c29f63]">
+            Notre Église
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
+            La bonne semence S’ancre sur Quatre bases
+          </h2>
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {croyancesFondatrices.map((credo, index) => (
+            <div
+              key={index}
+              className="flex gap-4 p-6 bg-slate-50 border border-[#f4ebd9]/40 rounded-xl dark:bg-slate-900 dark:border-slate-800"
+            >
+              <div className="p-3 bg-white text-[#af894d] rounded-lg h-fit shadow-xs dark:bg-slate-800 dark:text-[#c29f63]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="space-y-1.5 text-left">
+                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {credo.titre}
+                </h3>
+                <p className="text-sm text-slate-600 font-light leading-relaxed dark:text-slate-400">
+                  {credo.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
         {/* Bloc graphique de la vision (Stained Glass Photo with Overlay & Simulation) */}
         <div className="lg:col-span-5 relative h-[360px] rounded-2xl overflow-hidden bg-slate-950 p-6 flex flex-col justify-end text-white border border-[#c29f63]/30">
 
@@ -192,41 +259,6 @@ export default function AProposSection() {
             </p>
           </div>
 
-        </div>
-
-      </div>
-
-      {/* 2. Ce en quoi nous croyons */}
-      <div id="bloc-valeurs-credo" className="space-y-12">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs uppercase font-mono tracking-widest text-[#af894d] dark:text-[#c29f63]">
-            Notre Église
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
-            La bonne semence S’ancre sur Quatre bases
-          </h2>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {croyancesFondatrices.map((credo, index) => (
-            <div
-              key={index}
-              className="flex gap-4 p-6 bg-slate-50 border border-[#f4ebd9]/40 rounded-xl dark:bg-slate-900 dark:border-slate-800"
-            >
-              <div className="p-3 bg-white text-[#af894d] rounded-lg h-fit shadow-xs dark:bg-slate-800 dark:text-[#c29f63]">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="space-y-1.5 text-left">
-                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">
-                  {credo.titre}
-                </h3>
-                <p className="text-sm text-slate-600 font-light leading-relaxed dark:text-slate-400">
-                  {credo.description}
-                </p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -342,9 +374,9 @@ export default function AProposSection() {
                       <Phone className="w-3.5 h-3.5 text-[#af894d]" />
                       <span>{membreSelectionne.telephone}</span>
                     </a>
-                    <a 
-                      href={`https://wa.me/${membreSelectionne.telephone.replace(/\D/g, '')}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://wa.me/${membreSelectionne.telephone.replace(/\D/g, '')}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                     >
@@ -452,9 +484,9 @@ export default function AProposSection() {
                     <Phone className="w-3.5 h-3.5 text-[#af894d]" />
                     <span>{devSelectionne.telephone}</span>
                   </a>
-                  <a 
-                    href={`https://wa.me/${devSelectionne.telephone.replace(/\D/g, '')}`} 
-                    target="_blank" 
+                  <a
+                    href={`https://wa.me/${devSelectionne.telephone.replace(/\D/g, '')}`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                   >
