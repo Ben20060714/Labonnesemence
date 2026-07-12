@@ -19,13 +19,14 @@ export async function register(req: Request, res: Response): Promise<void> {
     password?: string;
     role?: string;
   };
+  const normalizedEmail = email?.trim().toLowerCase();
 
-  if (!email || !username || !password) {
+  if (!normalizedEmail || !username || !password) {
     sendError(res, 'Email, username and password are required');
     return;
   }
 
-  if (!isValidEmail(email)) {
+  if (!isValidEmail(normalizedEmail)) {
     sendError(res, 'Invalid email format');
     return;
   }
@@ -40,11 +41,12 @@ export async function register(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  // Only allow admin role if explicitly set and first user, or by another admin
-  const userRole = role === 'admin' ? 'admin' : 'user';
+  // Public registration always creates a standard user.
+  // Administrative accounts must be created from the admin users route.
+  const userRole = 'user';
 
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(email, username);
+    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(normalizedEmail, username);
     if (existing) {
       sendError(res, 'Email or username already in use', 409);
       return;
@@ -56,7 +58,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     db.prepare(`
       INSERT INTO users (id, email, username, password, role)
       VALUES (?, ?, ?, ?, ?)
-    `).run(id, email.toLowerCase(), username, hashedPassword, userRole);
+    `).run(id, normalizedEmail, username, hashedPassword, userRole);
 
     const user = db.prepare('SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?').get(id) as PublicUser;
 
@@ -72,14 +74,15 @@ export async function register(req: Request, res: Response): Promise<void> {
 
 export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body as { email?: string; password?: string };
+  const normalizedEmail = email?.trim().toLowerCase();
 
-  if (!email || !password) {
+  if (!normalizedEmail || !password) {
     sendError(res, 'Email and password are required');
     return;
   }
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()) as User | undefined;
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(normalizedEmail) as User | undefined;
 
     if (!user) {
       sendError(res, 'Invalid credentials', 401);

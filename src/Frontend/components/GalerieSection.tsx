@@ -21,18 +21,18 @@ export default function GalerieSection() {
   const [photos, definirPhotos] = useState<PhotoGalerie[]>([]);
 
   useEffect(() => {
-    let composantActif = true;
+      let composantActif = true;
 
-    api.listerFichiersPublics()
+    api.listerFichiersPublics('gallery')
       .then((fichiers) => {
         const images = fichiers
           .filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery')
           .map((fichier): PhotoGalerie => ({
-            titre: fichier.legend?.trim() || fichier.original_name,
-            image: obtenirUrlFichier(fichier.id),
-            categorie: 'Galerie',
-            descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
-          }));
+              titre: fichier.legend?.trim() || fichier.original_name,
+              image: obtenirUrlFichier(fichier.id),
+              categorie: fichier.categorie?.trim() || 'Galerie',
+              descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
+            }));
 
         if (composantActif) {
           definirPhotos(images);

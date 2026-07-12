@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import { useState, SyntheticEvent, useEffect } from 'react';
+import { useState, SyntheticEvent, useEffect, ChangeEvent } from 'react';
 import { Mail, ShieldCheck, Heart, User, Check, Send, Award, X, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api, DonationBackend, MonetbilConfig } from '../services/api';
@@ -78,7 +78,7 @@ export default function ContactDonsSection() {
   };
 
   // Gestionnaire de changement unique
-  const gererChangementChamp = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const gererChangementChamp = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     const correspondance: Record<string, string> = {
       'nom-expediteur': 'nom',
@@ -360,7 +360,7 @@ export default function ContactDonsSection() {
                 <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500">
                   Votre don :
                 </span>
-                <p id="phrase-impact-dest-don" className="text-sm text-slate-700 font-light leading-relaxed italic dark:text-slate-350">
+                <p id="phrase-impact-dest-don" className="text-sm text-slate-400 font-light leading-relaxed italic dark:text-slate-350">
                   « {determinerImpactDon(montantDon)} »
                 </p>
               </div>

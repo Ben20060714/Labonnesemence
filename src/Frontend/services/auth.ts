@@ -1,5 +1,9 @@
 type Role = 'admin' | 'user';
 
+const CLE_TOKEN_ACCES = 'auth-access-token';
+const CLE_TOKEN_RENOUVELLEMENT = 'auth-refresh-token';
+const CLE_UTILISATEUR = 'auth-user';
+
 export interface UtilisateurAuthentifie {
   id: string;
   email: string;
@@ -22,6 +26,15 @@ export interface SessionAuthentification {
   user: UtilisateurAuthentifie;
   accessToken: string;
   refreshToken: string;
+}
+
+interface SessionTokensRenouveles {
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface JwtPayloadExpire {
+  exp?: number;
 }
 
 const obtenirBaseAuth = () => {
@@ -62,15 +75,72 @@ export const inscrireUtilisateur = (username: string, email: string, password: s
 };
 
 export const enregistrerSessionAuth = (session: SessionAuthentification) => {
-  localStorage.setItem('auth-access-token', session.accessToken);
-  localStorage.setItem('auth-refresh-token', session.refreshToken);
-  localStorage.setItem('auth-user', JSON.stringify(session.user));
+  if (typeof window === 'undefined') return;
+
+  localStorage.setItem(CLE_TOKEN_ACCES, session.accessToken);
+  localStorage.setItem(CLE_TOKEN_RENOUVELLEMENT, session.refreshToken);
+  localStorage.setItem(CLE_UTILISATEUR, JSON.stringify(session.user));
 };
 
-export const obtenirUtilisateurCourant = async () => {
-  const token = localStorage.getItem('auth-access-token');
-  if (!token) return null;
+export const obtenirAccessToken = () => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(CLE_TOKEN_ACCES);
+};
 
+export const obtenirRefreshToken = () => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(CLE_TOKEN_RENOUVELLEMENT);
+};
+
+export const obtenirExpirationToken = (token: string): number | null => {
+  try {
+    const payloadBase64 = token.split('.')[1];
+    if (!payloadBase64) return null;
+
+    const normalise = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(normalise.padEnd(Math.ceil(normalise.length / 4) * 4, '='));
+    const payload = JSON.parse(decoded) as JwtPayloadExpire;
+
+    return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+};
+
+export const mettreAJourTokensAuth = (accessToken: string, refreshToken: string) => {
+  if (typeof window === 'undefined') return;
+
+  localStorage.setItem(CLE_TOKEN_ACCES, accessToken);
+  localStorage.setItem(CLE_TOKEN_RENOUVELLEMENT, refreshToken);
+};
+
+export const rafraichirSessionAuth = async (): Promise<SessionTokensRenouveles | null> => {
+  const refreshToken = obtenirRefreshToken();
+  if (!refreshToken) {
+    effacerSessionAuth();
+    return null;
+  }
+
+  const reponse = await fetch(`${obtenirBaseAuth()}/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  const payload = (await reponse.json().catch(() => null)) as ReponseApi<SessionTokensRenouveles> | null;
+
+  if (!reponse.ok || !payload?.success || !payload.data?.accessToken || !payload.data?.refreshToken) {
+    effacerSessionAuth();
+    return null;
+  }
+
+  mettreAJourTokensAuth(payload.data.accessToken, payload.data.refreshToken);
+  return payload.data;
+};
+
+const chargerUtilisateurCourant = async (token: string) => {
   const reponse = await fetch(`${obtenirBaseAuth()}/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -78,18 +148,43 @@ export const obtenirUtilisateurCourant = async () => {
   });
 
   const payload = (await reponse.json().catch(() => null)) as ReponseApi<UtilisateurAuthentifie> | null;
+  return { reponse, payload };
+};
 
-  if (!reponse.ok || !payload?.success || !payload.data) {
+export const obtenirUtilisateurCourant = async () => {
+  let token = obtenirAccessToken();
+
+  if (!token) {
+    const sessionRenouvelee = await rafraichirSessionAuth();
+    token = sessionRenouvelee?.accessToken ?? null;
+    if (!token) return null;
+  }
+
+  let resultat = await chargerUtilisateurCourant(token);
+
+  if (resultat.reponse.status === 401) {
+    const sessionRenouvelee = await rafraichirSessionAuth();
+    if (!sessionRenouvelee?.accessToken) return null;
+
+    resultat = await chargerUtilisateurCourant(sessionRenouvelee.accessToken);
+  }
+
+  if (!resultat.reponse.ok || !resultat.payload?.success || !resultat.payload.data) {
     effacerSessionAuth();
     return null;
   }
 
-  localStorage.setItem('auth-user', JSON.stringify(payload.data));
-  return payload.data;
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(CLE_UTILISATEUR, JSON.stringify(resultat.payload.data));
+  }
+
+  return resultat.payload.data;
 };
 
 export const effacerSessionAuth = () => {
-  localStorage.removeItem('auth-access-token');
-  localStorage.removeItem('auth-refresh-token');
-  localStorage.removeItem('auth-user');
+  if (typeof window === 'undefined') return;
+
+  localStorage.removeItem(CLE_TOKEN_ACCES);
+  localStorage.removeItem(CLE_TOKEN_RENOUVELLEMENT);
+  localStorage.removeItem(CLE_UTILISATEUR);
 };

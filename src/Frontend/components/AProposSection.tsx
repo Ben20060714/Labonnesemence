@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { ShieldCheck, History, X, Mail, Phone, Award, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MembreEquipe, DevEquipe } from '../types';
-import { api } from '../services/api';
+import { api, calculerInitiales, obtenirUrlFichier } from '../services/api';
 
 const DEVELOPPEUR: DevEquipe[] = [
   {
@@ -17,15 +17,15 @@ const DEVELOPPEUR: DevEquipe[] = [
     role : 'Developpeur Front-End',
     telephone : '+243 82 043 3981',
     email : 'Benkailazad8@gmail.com',
-    description : 'Je suis developpeur web FrontEnd aussi passionne par la securite informatique.',
+    description : 'Je suis developpeur web FrontEnd mais aussi passionne par la securite informatique.',
     accomplissement : 'Ben20060714.github.io/UP-Dealzone, Ben20060714.github.io/Benjamin-Mwaku'
   },
   {
     identifiant : 'Dev-2',
     initiales : 'DB',
     nom : 'Djeef Bulabula',
-    role : 'Developpeur',
-    telephone : '+243 83 888 983',
+    role : 'Developpeur web',
+    telephone : '+243 830 888 983',
     email : 'Djeefjason@gmail.com',
     description : 'Je suis disponible pour apprendre avec vous.',
     accomplissement : 'En cours'
@@ -38,7 +38,7 @@ const DEVELOPPEUR: DevEquipe[] = [
     telephone : '+243 851750631',
     email : 'Aureliokitenge@gmail.com',
     description : 'Dev junior specialise en web et IoT',
-    accomplissement : 'Backend de l app Afrique Demain'
+    accomplissement : 'Backend de l\'app Afrique Demain'
   }
 ];
 
@@ -46,13 +46,23 @@ export default function AProposSection() {
   const [membresEquipe, definirMembresEquipe] = useState<MembreEquipe[]>([]);
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
+  const [imageHistorique, definirImageHistorique] = useState<string>('../../img/MM_5.jpg');
 
   useEffect(() => {
     let composantActif = true;
 
-    api.listerMembresPublics()
-      .then((membres) => {
+    Promise.all([api.listerMembresPublics(), api.listerFichiersPublics('cover').catch(() => [])])
+      .then(([membres, fichiersBase]) => {
         if (composantActif) definirMembresEquipe(membres);
+
+        const imageHistoriqueBase = fichiersBase.find((fichier) => {
+          const categorie = (fichier.categorie || '').toLowerCase();
+          return fichier.mimetype.startsWith('image/') && (categorie.includes('histor') || categorie.includes('memoire'));
+        });
+
+        if (composantActif && imageHistoriqueBase) {
+          definirImageHistorique(obtenirUrlFichier(imageHistoriqueBase.id));
+        }
       })
       .catch((erreur) => {
         console.error('Chargement de l equipe depuis API impossible:', erreur);
@@ -62,6 +72,10 @@ export default function AProposSection() {
       composantActif = false;
     };
   }, []);
+
+  const formaterNomComplet = (membre: Pick<MembreEquipe, 'prenom' | 'nom'>) => {
+    return [membre.prenom, membre.nom].filter(Boolean).join(' ').trim() || 'Membre';
+  };
 
   const croyancesFondatrices = [
     {
@@ -124,7 +138,7 @@ export default function AProposSection() {
                 En 1992, il reçut la vision de bâtir trois édifices pour le seigneur, d'où la naissance de l'église la Bonne Semence.
               </p>
               <p>
-                En 2015 débuta la grande vision de la naissance de la communauté des assemblées Bonne Semence, CABCS.
+                En 2015 débuta la grande vision de la naissance de la communauté des assemblées Bonne Semence, CABSC.
               </p>
             </div>
             <div>
@@ -145,7 +159,7 @@ export default function AProposSection() {
 
           {/* Image de fond : Vitrail d'église */}
           <div className="absolute inset-0 z-0">
-            <img src="../../img/MM_5.jpg" alt="Photo ancienne de l'église" className="w-full h-full object-cover brightness-45 contrast-125" referrerPolicy="no-referrer" />
+            <img src={imageHistorique} alt="Photo ancienne de l'église" className="w-full h-full object-cover brightness-45 contrast-125" referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-slate-950/40" />
           </div>
 
@@ -236,14 +250,14 @@ export default function AProposSection() {
             <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm overflow-hidden">
                 {membre.imageUrl ? (
-                  <img src={membre.imageUrl} alt={membre.nom} className="w-full h-full object-cover" />
+                  <img src={membre.imageUrl} alt={formaterNomComplet(membre)} className="w-full h-full object-cover" />
                 ) : (
-                  membre.initiales
+                  calculerInitiales(membre.prenom, membre.nom)
                 )}
               </div>
               <div className="space-y-1">
                 <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
-                  {membre.nom}
+                  {formaterNomComplet(membre)}
                 </h3>
                 <p className="text-xs font-semibold text-[#c29f63] font-mono uppercase tracking-wider">
                   {membre.role}
@@ -289,15 +303,15 @@ export default function AProposSection() {
               <div className="text-center space-y-4">
                 <div className="w-24 h-24 bg-gradient-to-tr from-[#af894d]/20 to-[#c29f63]/25 border-2 border-[#af894d] rounded-full mx-auto flex items-center justify-center text-[#af894d] text-3xl font-serif font-bold dark:text-[#c29f63] overflow-hidden">
                   {membreSelectionne.imageUrl ? (
-                    <img src={membreSelectionne.imageUrl} alt={membreSelectionne.nom} className="w-full h-full object-cover" />
+                    <img src={membreSelectionne.imageUrl} alt={formaterNomComplet(membreSelectionne)} className="w-full h-full object-cover" />
                   ) : (
-                    membreSelectionne.initiales
+                    calculerInitiales(membreSelectionne.prenom, membreSelectionne.nom)
                   )}
                 </div>
 
                 <div className="space-y-1">
                   <h4 className="font-serif text-2xl font-bold">
-                    {membreSelectionne.nom}
+                    {formaterNomComplet(membreSelectionne)}
                   </h4>
                   <p className="text-xs font-mono font-bold uppercase tracking-wider text-[#c29f63]">
                     {membreSelectionne.role}

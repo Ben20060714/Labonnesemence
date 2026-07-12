@@ -29,12 +29,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sermon, Evenement, MembreEquipe } from '../types';
-import { api, DonationBackend, FichierBackend, MessageContact, obtenirUrlFichier, StatutDonation } from '../services/api';
+import { api, DonationBackend, FichierBackend, MessageContact, obtenirUrlFichier, StatutDonation, calculerInitiales } from '../services/api';
 
 type SectionAdmin = 'dashboard' | 'evenements' | 'sermons' | 'membres' | 'galerie' | 'messages' | 'dons';
 type FormulaireEvenement = Omit<Evenement, 'identifiant' | 'date'>;
 type FormulaireSermon = Omit<Sermon, 'identifiant'>;
 type FormulaireMembre = Omit<MembreEquipe, 'identifiant'>;
+type UsageFichier = 'gallery' | 'cover';
 
 const NOMS_MOIS = ["Janvier", "Février", "Mars", "Avril", "Mai", " Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const JOURS_SEMAINE = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
@@ -55,11 +56,13 @@ export default function AdminSection() {
   const [fichierImageMembre, definirFichierImageMembre] = useState<File | null>(null);
   const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
   const [legendeGalerie, definirLegendeGalerie] = useState('');
+  const [categorieGalerie, definirCategorieGalerie] = useState('Galerie');
+  const [usageGalerie, definirUsageGalerie] = useState<UsageFichier>('gallery');
 
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
   const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
   const [nouveauSermon, definirNouveauSermon] = useState<FormulaireSermon>({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
-  const [nouveauMembre, definirNouveauMembre] = useState<FormulaireMembre>({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
+  const [nouveauMembre, definirNouveauMembre] = useState<FormulaireMembre>({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '' });
 
   // --- Logique du Calendrier Interactif ---
   const [vueCalendrier, definirVueCalendrier] = useState(new Date());
@@ -78,7 +81,7 @@ export default function AdminSection() {
       .then((donnees) => {
         if (composantActif) definirSermons(donnees);
       })
-      .catch((erreur) => console.error('Chargement admin sermons impossible:', erreur));
+      .catch((erreur) => console.error('Chargement admin enseignements impossible:', erreur));
 
     api.listerMembres()
       .then((donnees) => {
@@ -133,9 +136,13 @@ export default function AdminSection() {
     setTimeout(() => definirNotif(null), 3000);
   };
 
-  const televerserImageEtObtenirUrl = async (fichier: File | null, usage: 'gallery' | 'cover' = 'gallery'): Promise<string | undefined> => {
+  const televerserImageEtObtenirUrl = async (
+    fichier: File | null,
+    usage: UsageFichier = 'gallery',
+    categorie?: string
+  ): Promise<string | undefined> => {
     if (!fichier) return undefined;
-    const televerse = await api.envoyerFichier(fichier, { usage });
+    const televerse = await api.envoyerFichier(fichier, { usage, categorie });
     return obtenirUrlFichier(televerse.id);
   };
 
@@ -167,7 +174,7 @@ export default function AdminSection() {
   const ajouterSermon = async (e: FormEvent) => {
     e.preventDefault();
     if (!nouveauSermon.titre || !nouveauSermon.orateur || (!nouveauSermon.urlAudio && !fichierAudioSermon)) {
-      afficherNotification("Veuillez remplir tous les champs obligatoires du sermon.");
+      afficherNotification("Veuillez remplir tous les champs obligatoires de l'enseignement.");
       return;
     }
     try {
@@ -188,26 +195,27 @@ export default function AdminSection() {
       definirNouveauSermon({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
       definirFichierAudioSermon(null);
       definirFichierImageSermon(null);
-      afficherNotification("Sermon publié avec succès !");
+      afficherNotification("Enseignement publié avec succès !");
     } catch (erreur) {
-      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de publier le sermon.");
+      afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de publier l'enseignement'.");
     }
   };
 
   const ajouterMembre = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nouveauMembre.nom || !nouveauMembre.role || !nouveauMembre.initiales) {
-      afficherNotification("Veuillez remplir au moins le nom, le rôle et les initiales du membre.");
+    if (!nouveauMembre.prenom || !nouveauMembre.nom || !nouveauMembre.role) {
+      afficherNotification("Veuillez remplir au moins le prénom, le nom et le rôle du membre.");
       return;
     }
     try {
-      const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre, 'cover');
+      const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre, 'cover', 'Membre');
       const nouveau = await api.creerMembre({
         ...nouveauMembre,
+        username: `${nouveauMembre.prenom} ${nouveauMembre.nom}`.trim(),
         imageUrl,
       });
       definirMembres(prev => [...prev, nouveau]);
-      definirNouveauMembre({ nom: '', role: '', initiales: '', biographie: '', email: '', telephone: '' });
+      definirNouveauMembre({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '' });
       definirFichierImageMembre(null);
       afficherNotification("Membre ajouté à l'équipe !");
     } catch (erreur) {
@@ -253,11 +261,17 @@ export default function AdminSection() {
     }
 
     try {
-      const fichier = await api.envoyerFichier(fichierGalerie, { legend: legendeGalerie, usage: 'gallery' });
+      const fichier = await api.envoyerFichier(fichierGalerie, {
+        legend: legendeGalerie,
+        usage: usageGalerie,
+        categorie: categorieGalerie,
+      });
       definirFichiers(prev => [fichier, ...prev]);
       definirFichierGalerie(null);
       definirLegendeGalerie('');
-      afficherNotification("Photo ajoutée à la galerie.");
+      definirCategorieGalerie('Galerie');
+      definirUsageGalerie('gallery');
+      afficherNotification(usageGalerie === 'cover' ? "Image de base ajoutée au site." : "Photo ajoutée à la galerie.");
     } catch (erreur) {
       afficherNotification(erreur instanceof Error ? erreur.message : "Chargement impossible.");
     }
@@ -272,6 +286,13 @@ export default function AdminSection() {
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible de mettre à jour le don.");
     }
   };
+
+  const formaterNomCompletMembre = (membre: Pick<MembreEquipe, 'prenom' | 'nom'>) => {
+    return [membre.prenom, membre.nom].filter(Boolean).join(' ').trim() || 'Membre';
+  };
+
+  const imagesGalerie = fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery');
+  const imagesBaseSite = fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'cover');
 
   return (
     <section id="admin-panel-screen" className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -295,8 +316,8 @@ export default function AdminSection() {
               key={item.id}
               onClick={() => definirSectionActive(item.id as SectionAdmin)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${sectionActive === item.id
-                  ? "bg-[#af894d] text-white shadow-md"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                ? "bg-[#af894d] text-white shadow-md"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 }`}
             >
               <item.icon className="w-4 h-4" />
@@ -319,7 +340,7 @@ export default function AdminSection() {
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{evenements.length}</p>
                   </div>
                   <div className="p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
-                    <span className="text-xs font-mono text-emerald-600 uppercase tracking-widest">Sermons</span>
+                    <span className="text-xs font-mono text-emerald-600 uppercase tracking-widest">Enseignements</span>
                     <p className="text-3xl font-serif font-bold text-slate-900 dark:text-slate-100">{sermons.length}</p>
                   </div>
                   <div className="p-6 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
@@ -339,10 +360,10 @@ export default function AdminSection() {
                 <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl space-y-4">
                   <h3 className="font-serif text-lg font-bold flex items-center gap-2">
                     <Info className="w-4 h-4 text-[#af894d]" />
-                    A modifier plus tard quand je vais me rassasier
+                    Info pour Administrateur
                   </h3>
                   <p className="text-sm  text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Pour le moment les modifications apportées ici sontinactives. Une intégration avec un backend (Firebase, Supabase ou Node.js) est peut-être nécessaire.
+                    Cette page vous donne toutes les autorisations pour l'ajout et suppression d'informations sur ce site. Certaines fonctionnalités sont en cours de développement.
                   </p>
                 </div>
               </motion.div>
@@ -383,12 +404,12 @@ export default function AdminSection() {
                         );
                       })}
                     </div>
-                    <p className="text-[10px] italic text-slate-500">Astuce : Sélectionnez un jour pour remplir automatiquement la date du formulaire.</p>
+                    <p className="text-[10px] italic text-red-500"># Sélectionnez un jour pour remplir automatiquement la date du formulaire.</p>
                   </div>
 
                   {/* Formulaire Ajout Événement */}
                   <form onSubmit={ajouterEvenement} className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#af894d]">Nouvel Événement</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#af894d]">Ajouter un nouvel Événement</h3>
                     <div className="space-y-3">
                       <input
                         type="text"
@@ -411,12 +432,12 @@ export default function AdminSection() {
                         <MapPin className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
                         <input type="text" placeholder="Lieu" value={nouveauEvt.lieu} onChange={e => definirNouveauEvt({ ...nouveauEvt, lieu: e.target.value })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
                       </div>
-                      <div className="relative">
+                      {/* <div className="relative hidden">
                         <Users className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
                         <input type="number" placeholder="Places disponibles" value={nouveauEvt.placesDisponibles} onChange={e => definirNouveauEvt({ ...nouveauEvt, placesDisponibles: Number(e.target.value) })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
-                      </div>
+                      </div> */}
                       <div className="space-y-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/40 p-3">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Image de l'événement</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Image de couverture de l'événement</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -425,7 +446,7 @@ export default function AdminSection() {
                         />
                         {fichierImageEvenement && (
                           <p className="text-[10px] font-mono text-[#af894d] truncate">
-                            Sélectionnée : {fichierImageEvenement.name}
+                            {fichierImageEvenement.name}
                           </p>
                         )}
                       </div>
@@ -437,7 +458,7 @@ export default function AdminSection() {
                       </select>
                       <textarea placeholder="Description courte..." value={nouveauEvt.description} onChange={e => definirNouveauEvt({ ...nouveauEvt, description: e.target.value })} rows={3} className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"></textarea>
                       <button type="submit" className="w-full py-2.5 bg-slate-400 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#af894d] transition-all cursor-pointer">
-                        Enregistrer
+                        Publier
                       </button>
                     </div>
                   </form>
@@ -486,7 +507,7 @@ export default function AdminSection() {
               </motion.div>
             )}
 
-            {/* 3. ENSEIGNEMENTS (SERMONS) */}
+            {/* 3. ENSEIGNEMENTS */}
             {sectionActive === 'sermons' && (
               <motion.div key="sermons" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <h2 className="font-serif text-xl font-bold">Gestion des Enseignements</h2>
@@ -504,7 +525,7 @@ export default function AdminSection() {
                       <User className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Orateur / Prédicateur"
+                        placeholder="Orateur"
                         value={nouveauSermon.orateur}
                         onChange={e => definirNouveauSermon({ ...nouveauSermon, orateur: e.target.value })}
                         className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
@@ -531,11 +552,11 @@ export default function AdminSection() {
                         className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       />
                       <p className="text-[10px] text-slate-500">
-                        Sélectionnez un fichier audio depuis votre ordinateur. L’URL sera générée automatiquement après l’envoi.
+                        Sélectionnez un fichier audio depuis votre appareil.
                       </p>
                       {fichierAudioSermon && (
                         <p className="text-[10px] font-mono text-[#af894d] truncate">
-                          Sélectionné : {fichierAudioSermon.name}
+                          {fichierAudioSermon.name}
                         </p>
                       )}
                     </div>
@@ -551,7 +572,7 @@ export default function AdminSection() {
                       />
                       {fichierImageSermon && (
                         <p className="text-[10px] font-mono text-[#af894d] truncate">
-                          Sélectionnée : {fichierImageSermon.name}
+                          {fichierImageSermon.name}
                         </p>
                       )}
                     </div>
@@ -618,10 +639,18 @@ export default function AdminSection() {
                 <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-dashed border-[#e7d4b0] text-center space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-3 text-left">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Nom Complet</label>
+                      <label className="text-[10px] font-bold uppercase text-slate-400">Prénom</label>
                       <input
                         type="text"
-                        placeholder="Ex: Pasteur Philippe"
+                        placeholder="Ex: Philippe"
+                        value={nouveauMembre.prenom}
+                        onChange={e => definirNouveauMembre({ ...nouveauMembre, prenom: e.target.value })}
+                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      <label className="text-[10px] font-bold uppercase text-slate-400">Nom</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: Kalonda"
                         value={nouveauMembre.nom}
                         onChange={e => definirNouveauMembre({ ...nouveauMembre, nom: e.target.value })}
                         className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
@@ -636,15 +665,6 @@ export default function AdminSection() {
                       />
                     </div>
                     <div className="space-y-3 text-left">
-                      <label className="text-[10px] font-bold uppercase text-slate-400">Initiales</label>
-                      <input
-                        type="text"
-                        placeholder="PP"
-                        maxLength={2}
-                        value={nouveauMembre.initiales}
-                        onChange={e => definirNouveauMembre({ ...nouveauMembre, initiales: e.target.value.toUpperCase() })}
-                        className="w-20 px-3 py-2 text-sm rounded bg-slate-300 border border-slate-200 dark:bg-slate-900 dark:border-slate-700 uppercase"
-                      />
                       <label className="text-[10px] font-bold uppercase text-slate-400">Contact</label>
                       <div className="relative"><Phone className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" /><input
                         type="text"
@@ -683,7 +703,7 @@ export default function AdminSection() {
                     </div>
                   </div>
                   <div className="pt-4 flex justify-end">
-                    <button type="submit" onClick={ajouterMembre} className="px-8 py-3 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer">
+                    <button type="submit" className="px-8 py-3 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer">
                       Ajouter à l'équipe
                     </button>
                   </div>
@@ -694,14 +714,17 @@ export default function AdminSection() {
                     <div key={m.identifiant} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-4 relative group">
                       <div className="w-12 h-12 bg-[#af894d] rounded-full flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                         {m.imageUrl ? (
-                          <img src={m.imageUrl} alt={m.nom} className="w-full h-full object-cover" />
+                          <img src={m.imageUrl} alt={formaterNomCompletMembre(m)} className="w-full h-full object-cover" />
                         ) : (
-                          m.initiales
+                          calculerInitiales(m.prenom, m.nom)
                         )}
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-sm font-bold">{m.nom}</h4>
+                        <h4 className="text-sm font-bold">{formaterNomCompletMembre(m)}</h4>
                         <p className="text-[11px] text-[#af894d] uppercase font-mono">{m.role}</p>
+                        <p className="mt-1 text-[11px] text-slate-500 line-clamp-2">
+                          {m.biographie}
+                        </p>
                       </div>
                       <button onClick={() => supprimerItem('membres', m.identifiant)} className="p-2 text-slate-300 hover:text-rose-500 transition-colors cursor-pointer">
                         <Trash2 className="w-4 h-4" />
@@ -790,15 +813,14 @@ export default function AdminSection() {
                             <select
                               value={donation.status}
                               onChange={(e) => changerStatutDonation(donation.id, e.target.value as StatutDonation)}
-                              className={`px-2 py-1 rounded text-[11px] font-bold uppercase border ${
-                                donation.status === 'paid'
+                              className={`px-2 py-1 rounded text-[11px] font-bold uppercase border ${donation.status === 'paid'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                                   : donation.status === 'failed'
                                     ? 'bg-rose-50 text-rose-700 border-rose-100'
                                     : donation.status === 'cancelled'
                                       ? 'bg-slate-100 text-slate-600 border-slate-200'
                                       : 'bg-amber-50 text-amber-700 border-amber-100'
-                              }`}
+                                }`}
                             >
                               <option value="pending">En attente</option>
                               <option value="paid">Payé</option>
@@ -825,7 +847,12 @@ export default function AdminSection() {
             {/* 5. GALERIE */}
             {sectionActive === 'galerie' && (
               <motion.div key="galerie" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
-                <h2 className="font-serif text-xl font-bold">Mise à jour de la Galerie</h2>
+                <div className="space-y-2">
+                  <h2 className="font-serif text-xl font-bold">Mise à jour de la Galerie</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Les images de base du site et les photos de la galerie sont gérées ici.
+                  </p>
+                </div>
 
                 <div className="bg-slate-100 dark:bg-slate-800 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
                   <div className="max-w-xs mx-auto space-y-4">
@@ -834,11 +861,28 @@ export default function AdminSection() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-bold">Ajouter une photo</p>
-                      <p className="text-xs text-slate-500">Les images sont directement publiées sur le site</p>
+                      <p className="text-xs text-slate-500">Choisissez la catégorie et si l'image sert à la galerie ou au site</p>
                     </div>
                     <div className="pt-2 space-y-3">
-                      <input type="file" accept="image/*" onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)} className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
-                      <input type="text" value={legendeGalerie} onChange={(e) => definirLegendeGalerie(e.target.value)} placeholder="Légende de l'image" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <select
+                          value={usageGalerie}
+                          onChange={(e) => definirUsageGalerie(e.target.value as UsageFichier)}
+                          className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                        >
+                          <option value="gallery">Galerie du site</option>
+                          <option value="cover">Image de base du site</option>
+                        </select>
+                        <input
+                          type="text"
+                          value={categorieGalerie}
+                          onChange={(e) => definirCategorieGalerie(e.target.value)}
+                          placeholder="Catégorie, ex: Hero accueil"
+                          className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                        />
+                      </div>
+                      <input type="file" accept="image/*" onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)} className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
+                      <input type="text" value={legendeGalerie} onChange={(e) => definirLegendeGalerie(e.target.value)} placeholder="Légende de l'image" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
                       <button type="button" onClick={envoyerPhotoGalerie} className="w-full py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer">
                         Envoyer la photo
                       </button>
@@ -846,32 +890,71 @@ export default function AdminSection() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery').map((fichier) => (
-                    <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
-                      <img
-                        src={obtenirUrlFichier(fichier.id)}
-                        alt={fichier.legend || fichier.original_name}
-                        className="w-full h-36 object-cover"
-                      />
-                      <div className="p-4 flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">
-                            {fichier.legend?.trim() || fichier.original_name}
-                          </p>
-                          <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#af894d]">Images de la galerie</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {imagesGalerie.map((fichier) => (
+                        <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
+                          <img
+                            src={obtenirUrlFichier(fichier.id)}
+                            alt={fichier.legend || fichier.original_name}
+                            className="w-full h-36 object-cover"
+                          />
+                          <div className="p-4 flex items-start justify-between gap-3">
+                            <div className="min-w-0 space-y-1">
+                              <span className="inline-flex px-2 py-0.5 rounded-full bg-amber-50 text-[#af894d] text-[10px] font-bold uppercase tracking-widest dark:bg-amber-950/30 dark:text-amber-400">
+                                {fichier.categorie?.trim() || 'Galerie'}
+                              </span>
+                              <p className="text-sm font-semibold truncate">
+                                {fichier.legend?.trim() || fichier.original_name}
+                              </p>
+                              <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
+                            </div>
+                            <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                    {imagesGalerie.length === 0 && (
+                      <p className="text-xs text-slate-500 text-center italic">Aucune image de galerie n'est encore enregistrée.</p>
+                    )}
+                  </div>
 
-                {fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery').length === 0 && (
-                  <p className="text-xs text-slate-500 text-center italic">Aucune image n'est encore enregistrée en base.</p>
-                )}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#af894d]">Images de base du site</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {imagesBaseSite.map((fichier) => (
+                        <div key={fichier.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden group">
+                          <img
+                            src={obtenirUrlFichier(fichier.id)}
+                            alt={fichier.legend || fichier.original_name}
+                            className="w-full h-36 object-cover"
+                          />
+                          <div className="p-4 flex items-start justify-between gap-3">
+                            <div className="min-w-0 space-y-1">
+                              <span className="inline-flex px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-widest dark:bg-slate-800 dark:text-slate-300">
+                                {fichier.categorie?.trim() || 'Image de base'}
+                              </span>
+                              <p className="text-sm font-semibold truncate">
+                                {fichier.legend?.trim() || fichier.original_name}
+                              </p>
+                              <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
+                            </div>
+                            <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {imagesBaseSite.length === 0 && (
+                      <p className="text-xs text-slate-500 text-center italic">Aucune image de base n'est encore enregistrée.</p>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             )}
 

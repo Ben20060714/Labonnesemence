@@ -45,6 +45,16 @@ export function getPublicUsers(req: AuthRequest, res: Response): void {
 export function getUserById(req: AuthRequest, res: Response): void {
   const { id } = req.params;
 
+  if (!req.user) {
+    sendError(res, 'Unauthorized', 401);
+    return;
+  }
+
+  if (req.user.role !== 'admin' && req.user.userId !== id) {
+    sendError(res, 'Forbidden', 403);
+    return;
+  }
+
   const user = db.prepare(
     'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'
   ).get(id) as PublicUser | undefined;
@@ -77,6 +87,7 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
     role?: string;
     image_url?: string | null;
   };
+  const normalizedEmail = email?.trim().toLowerCase();
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined;
   if (!user) {
@@ -84,10 +95,19 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
     return;
   }
 
-  const newUsername = username || user.username;
-  const newEmail = email ? email.toLowerCase() : user.email;
+  const newUsername = username?.trim() || user.username;
+  const newEmail = normalizedEmail || user.email;
   // Only admins can change roles
   const newRole = (req.user.role === 'admin' && role) ? role : user.role;
+
+  const existingConflict = db.prepare(
+    'SELECT id FROM users WHERE (email = ? OR username = ?) AND id != ?'
+  ).get(newEmail, newUsername, id) as { id: string } | undefined;
+
+  if (existingConflict) {
+    sendError(res, 'Email or username already in use', 409);
+    return;
+  }
 
   try {
     db.prepare(`
@@ -138,8 +158,9 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
     role?: string;
     image_url?: string | null;
   };
+  const normalizedEmail = email?.trim().toLowerCase();
 
-  if (!email || !username || !password) {
+  if (!normalizedEmail || !username || !password) {
     sendError(res, 'Email, username and password are required');
     return;
   }
@@ -147,7 +168,7 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
   const userRole = role === 'admin' ? 'admin' : 'user';
 
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(email, username);
+    const existing = db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(normalizedEmail, username);
     if (existing) {
       sendError(res, 'Email or username already in use', 409);
       return;
@@ -160,7 +181,7 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
     db.prepare(`
       INSERT INTO users (id, email, username, password, role, image_url)
       VALUES (?, ?, ?, ?, ?, ?)
-    `).run(id, email.toLowerCase(), username, hashedPassword, userRole, image_url ?? null);
+    `).run(id, normalizedEmail, username, hashedPassword, userRole, image_url ?? null);
 
     const user = db.prepare(
       'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = ?'

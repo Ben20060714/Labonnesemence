@@ -17,11 +17,18 @@ import AdminSection from './components/AdminSection.tsx';
 import LoginSection from './components/LoginSection.tsx';
 import InscriptionSection from './components/InscriptionSection.tsx';
 import MonCompteSection from './components/MonCompteSection.tsx';
-import { obtenirUtilisateurCourant, UtilisateurAuthentifie } from './services/auth.ts';
+import {
+  obtenirAccessToken,
+  obtenirExpirationToken,
+  obtenirUtilisateurCourant,
+  rafraichirSessionAuth,
+  UtilisateurAuthentifie,
+} from './services/auth.ts';
 
 export default function App() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
   const [utilisateur, definirUtilisateur] = useState<UtilisateurAuthentifie | null>(null);
+  const margeRafraichissementMs = 60_000;
   const [modeSombre, definirModeSombre] = useState<boolean>(() => {
     // Restitution locale du theme
     if (typeof window !== 'undefined') {
@@ -58,6 +65,47 @@ export default function App() {
       composantActif = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!utilisateur) return;
+
+    let annule = false;
+    let identifiantTimeout: number | undefined;
+
+    const planifierRafraichissement = () => {
+      const token = obtenirAccessToken();
+      if (!token) return;
+
+      const expiration = obtenirExpirationToken(token);
+      if (!expiration) return;
+
+      const delai = Math.max(expiration - Date.now() - margeRafraichissementMs, 0);
+
+      identifiantTimeout = window.setTimeout(async () => {
+        const sessionRenouvelee = await rafraichirSessionAuth();
+        if (annule || !sessionRenouvelee) {
+          if (!annule) {
+            definirUtilisateur(null);
+          }
+          return;
+        }
+
+        const utilisateurCourant = await obtenirUtilisateurCourant();
+        if (!annule) {
+          definirUtilisateur(utilisateurCourant);
+        }
+      }, delai);
+    };
+
+    planifierRafraichissement();
+
+    return () => {
+      annule = true;
+      if (identifiantTimeout !== undefined) {
+        window.clearTimeout(identifiantTimeout);
+      }
+    };
+  }, [utilisateur]);
 
   const alternerTheme = () => {
     definirModeSombre(!modeSombre);

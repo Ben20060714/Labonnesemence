@@ -12,6 +12,7 @@ import { Evenement, Sermon } from '../types';
 interface PhotoAccueil {
   titre: string;
   image: string;
+  categorie: string;
   descr: string;
 }
 
@@ -41,27 +42,43 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   const [sermons, definirSermons] = useState<Sermon[]>([]);
   const [evenements, definirEvenements] = useState<Evenement[]>([]);
   const [photosAccueil, definirPhotosAccueil] = useState<PhotoAccueil[]>([]);
+  const [imageHero, definirImageHero] = useState<string>('../../img/Hero_pic.jpg');
   const dernierSermon = sermons[0];
   const prochainEvenement = evenements[0];
 
   useEffect(() => {
     let composantActif = true;
 
-    Promise.all([api.listerSermons(), api.listerEvenements(), api.listerFichiersPublics()])
-      .then(([sermonsApi, evenementsApi, fichiersApi]) => {
+    Promise.all([
+      api.listerSermons(),
+      api.listerEvenements(),
+      api.listerFichiersPublics('gallery').catch(() => []),
+      api.listerFichiersPublics('cover').catch(() => []),
+    ])
+      .then(([sermonsApi, evenementsApi, fichiersGalerie, fichiersBase]) => {
         if (!composantActif) return;
         definirSermons(sermonsApi);
         definirEvenements(evenementsApi);
         definirPhotosAccueil(
-          fichiersApi
+          fichiersGalerie
             .filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery')
             .slice(0, 4)
             .map((fichier) => ({
               titre: fichier.legend?.trim() || fichier.original_name,
               image: obtenirUrlFichier(fichier.id),
+              categorie: fichier.categorie?.trim() || 'Galerie',
               descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
             }))
         );
+
+        const heroImage = fichiersBase.find((fichier) => {
+          const categorie = (fichier.categorie || '').toLowerCase();
+          return fichier.mimetype.startsWith('image/') && (categorie.includes('hero') || categorie.includes('accueil'));
+        });
+
+        if (heroImage) {
+          definirImageHero(obtenirUrlFichier(heroImage.id));
+        }
       })
       .catch((erreur) => {
         console.error('Chargement accueil depuis API impossible:', erreur);
@@ -100,7 +117,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
       <section id="banniere-accueil-hero" className="relative min-h-[78vh] flex items-center justify-center overflow-hidden bg-slate-950 text-white px-4 py-24">
         {/* Image de fond*/}
         <div className="absolute inset-0 z-0">
-          <img src="../../img/Hero_pic.jpg" alt="Intérieur" className="w-full h-full object-cover object-center filter brightness-75 contrast-105" referrerPolicy="no-referrer"/>
+          <img src={imageHero} alt="Intérieur" className="w-full h-full object-cover object-center filter brightness-75 contrast-105" referrerPolicy="no-referrer"/>
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/70 to-slate-950/95"/>
         </div>
 
@@ -125,7 +142,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
               La bonne semence <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e7d4b0] via-[#c29f63] to-[#e7d4b0] bg-300% animate-pulse">
-                Unie dans la foi et le service
+                Unie dans la foi
               </span>
             </h1>
           </motion.div>

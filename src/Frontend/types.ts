@@ -30,12 +30,12 @@ export interface Evenement {
 
 export interface MembreEquipe {
   identifiant: string;
+  prenom: string;
   nom: string;
   role: string;
   email?: string;
   telephone?: string;
   biographie: string;
-  initiales: string;
   imageUrl?: string;
 }
 

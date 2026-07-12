@@ -38,14 +38,14 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                 <Church className="w-5 h-5" />
               </div>
               <span className="font-serif text-xl tracking-wider font-semibold text-[#c29f63]">
-                CABCS
+                CABSC
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed font-light">
               La Bonne Semence accompagne les familles dans la foi, la prière, l'enseignement biblique et le service communautaire.
             </p>
             <div className="text-xs text-slate-500 font-mono">
-              © {new Date().getFullYear()} CABCS.
+              © {new Date().getFullYear()} CABSC.
             </div>
           </div>
 
@@ -158,7 +158,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
             <button onClick={() => definirPageActive('evenements')} className="hover:text-slate-300 cursor-pointer">Calendrier</button>
           </div>
           <span className="text-[11px] font-mono text-slate-600">
-            Eglise La bonne semence — 30ème communauté pentecôtiste au congo
+            Communauté des assemblées Bonne Semence au congo - CABSC
           </span>
         </div>
       </div>

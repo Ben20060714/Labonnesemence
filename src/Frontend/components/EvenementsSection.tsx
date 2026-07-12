@@ -64,7 +64,7 @@ export default function EvenementsSection() {
           Agenda
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl font-bold text-slate-900 leading-tight dark:text-slate-100">
-          Calendrier des Activités écclésiastiques
+          Calendrier des Activités
         </h1>
         <p className="text-base text-slate-600 font-light dark:text-slate-400">
           Chaque semaine, notre église s’éveille au rythme de la prière. Venez, nous vous invitons à passer un bon moment avec nous dans le seigneur.
@@ -188,7 +188,7 @@ export default function EvenementsSection() {
             Vous venez pour la toute première fois ?
           </h3>
           <p className="text-sm text-slate-600 font-light leading-relaxed dark:text-slate-400">
-            N’ayez aucune inquiétude : nos bénévoles de l'équipe d'accueil (protocoles) se feront une joie de vous escorter depuis l'arrêt jusqu'à l'entrée de l'église, de vous présenter le déroulement des activités.
+            N’ayez aucune inquiétude : nos bénévoles de l'équipe d'accueil (protocoles) se feront une joie de vous escorter depuis l'arrêt jusqu'à l'entrée de l'église, de vous présenter le déroulement des activités. appelez le +243 822 342 445 pour plus de précisions.
           </p>
         </div>
         <div className="flex items-center gap-2 text-[#af894d] text-xs uppercase font-mono tracking-widest font-bold">
