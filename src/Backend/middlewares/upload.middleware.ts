@@ -2,7 +2,7 @@ import multer, { FileFilterCallback } from 'multer';
 import { Request } from 'express';
 
 const ALLOWED_MIMETYPES = [
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif', 'image/bmp',
   'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm',
   'video/mp4', 'video/webm', 'video/ogg',
   'application/pdf',

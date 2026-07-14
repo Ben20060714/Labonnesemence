@@ -10,10 +10,10 @@
 
 1. Installer les dépendances:
    `npm install`
-<!-- 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key -->
+
 2. Demarrer l'app:
    `npm run dev`
 
 ## Page
 
-Ben20060714.github.io/Labonnesemence
+cabcs.onrender.com

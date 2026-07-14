@@ -12,6 +12,7 @@ import {
 } from '../controllers/files.controller';
 import { authenticate, optionalAuthenticate } from '../middlewares/auth.middleware';
 import { upload } from '../middlewares/upload.middleware';
+import { optimizeImage } from '../middlewares/image.middleware';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ const router = Router();
  * @body   multipart/form-data: file, is_public (optional)
  * @access Private
  */
-router.post('/upload', authenticate, upload.single('file'), uploadFile);
+router.post('/upload', authenticate, upload.single('file'), optimizeImage, uploadFile);
 
 /**
  * @route  POST /api/files/upload-multiple
@@ -29,7 +30,7 @@ router.post('/upload', authenticate, upload.single('file'), uploadFile);
  * @body   multipart/form-data: files[], is_public (optional)
  * @access Private
  */
-router.post('/upload-multiple', authenticate, upload.array('files', 10), uploadMultipleFiles);
+router.post('/upload-multiple', authenticate, upload.array('files', 10), optimizeImage, uploadMultipleFiles);
 
 /**
  * @route  GET /api/files/public
