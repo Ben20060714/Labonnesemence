@@ -9,6 +9,8 @@ import { motion } from 'motion/react';
 import { api, obtenirUrlFichier } from '../services/api';
 import { Evenement, Sermon } from '../types';
 
+import HeroPic from '../../../img/Hero_pic.jpg';
+
 interface PhotoAccueil {
   titre: string;
   image: string;
@@ -42,7 +44,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   const [sermons, definirSermons] = useState<Sermon[]>([]);
   const [evenements, definirEvenements] = useState<Evenement[]>([]);
   const [photosAccueil, definirPhotosAccueil] = useState<PhotoAccueil[]>([]);
-  const [imageHero, definirImageHero] = useState<string>('../../img/Hero_pic.jpg');
+  const [imageHero, definirImageHero] = useState<string>(HeroPic);
   const dernierSermon = sermons[0];
   const prochainEvenement = evenements[0];
 

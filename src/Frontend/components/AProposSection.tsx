@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MembreEquipe, DevEquipe } from '../types';
 import { api, calculerInitiales, obtenirUrlFichier } from '../services/api';
 
+import MM5 from '../../../img/MM_5.jpg';
+import MM4 from '../../../img/MM_4.jpg';
+
 const DEVELOPPEUR: DevEquipe[] = [
   {
     identifiant: 'Dev-1',
@@ -46,8 +49,8 @@ export default function AProposSection() {
   const [membresEquipe, definirMembresEquipe] = useState<MembreEquipe[]>([]);
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
-  const [imageHistorique, definirImageHistorique] = useState<string>('../../img/MM_5.jpg');
-  const [imgPstEtGinane, definirImgPstEtGinane] = useState<string>('../../img/MM_4.jpg');
+  const [imageHistorique, definirImageHistorique] = useState<string>(MM5);
+  const [imgPstEtGinane, definirImgPstEtGinane] = useState<string>(MM4);
 
   useEffect(() => {
     let composantActif = true;
