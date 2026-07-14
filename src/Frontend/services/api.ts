@@ -106,7 +106,11 @@ const obtenirBaseApi = () => {
     return 'http://localhost:5000/api';
   }
 
-  return `${window.location.protocol}//${window.location.hostname}:5000/api`;
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  }
+
+  return '/api';
 };
 
 export const obtenirUrlFichier = (id: string, mode: 'stream' | 'download' = 'stream') => {
