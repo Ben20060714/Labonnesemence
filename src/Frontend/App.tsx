@@ -50,6 +50,11 @@ export default function App() {
     }
   }, [modeSombre]);
 
+  // Remonter en haut de la page lors du changement de section
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pageActive]);
+
   useEffect(() => {
     let composantActif = true;
 
