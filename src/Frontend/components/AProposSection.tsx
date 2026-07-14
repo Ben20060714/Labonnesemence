@@ -170,7 +170,7 @@ export default function AProposSection() {
                   <p>En l'an 2000, une succession se préparait déjà selon le plan divin de Dieu. Sur cette photo, nous voyons le Patriarche Jean Medard Kalonda Bin Baruani et son fils biologique Jean Djoe Kalonda Bin Baruani.</p>
                 </div>
                 <div>
-                  <img src={imgPstEtGinane} alt="Le Pst. Djoe et Ginane" className="rounded-lg shadow-md lg:w-full" />
+                  <img src={imgPstEtGinane} alt="Le Patriarche et son fils le Pst. Djoe" className="rounded-lg shadow-md lg:w-full" />
                 </div>
               </div>
             </div>
