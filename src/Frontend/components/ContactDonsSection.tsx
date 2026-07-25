@@ -298,7 +298,7 @@ export default function ContactDonsSection() {
 
 
         {/* ================= SECTION B : INTERACTION DONS ================= */}
-        <div className="bg-slate-50 border border-[#f4ebd9] rounded-xl p-6 sm:p-8 space-y-6 flex flex-col justify-between dark:bg-slate-900/40 dark:border-slate-800">
+        <div className="hidden bg-slate-50 border border-[#f4ebd9] rounded-xl p-6 sm:p-8 space-y-6 flex flex-col justify-between dark:bg-slate-900/40 dark:border-slate-800">
           
           <div className="space-y-5">
             <div className="space-y-2 text-left">

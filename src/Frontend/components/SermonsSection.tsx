@@ -3,11 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useRef, useEffect } from 'react';
-import { Search, Play, Pause, Headphones, Calendar, Compass, Volume2, VolumeX, Square, Book } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { Search, Play, Pause, Calendar, Compass, Book } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Sermon } from '../types';
 import { api } from '../services/api';
+import { useSermonPlayer } from './SermonPlayerContext.tsx';
+import HeroPic from '../../../img/Hero_pic.jpg';
+import MM1 from '../../../img/MM_1.jpg';
+import MM4 from '../../../img/MM_4.jpg';
+import MM5 from '../../../img/MM_5.jpg';
 
 // Composant pour extraire et afficher la durée d'un fichier audio
 function AffichageDureeDynamique({ url }: { url: string }) {
@@ -27,21 +32,23 @@ function AffichageDureeDynamique({ url }: { url: string }) {
   return <span>{duree}</span>;
 }
 
+const imagesParDefaut = [HeroPic, MM1, MM4, MM5];
+
+function obtenirImageSermon(identifiant: string): string {
+  const index = Number.parseInt(identifiant.replace(/\D+/g, ''), 10);
+  if (Number.isFinite(index) && index > 0) {
+    return imagesParDefaut[(index - 1) % imagesParDefaut.length];
+  }
+
+  return imagesParDefaut[0];
+}
+
 export default function SermonsSection() {
   const [listeSermons, definirListeSermons] = useState<Sermon[]>([]);
   const [chargement, definirChargement] = useState<boolean>(true);
   const [recherche, definirRecherche] = useState<string>('');
   const [categorieFiltree, definirCategorieFiltree] = useState<string>('Tous');
-  
-  // États de lecture Audio
-  const [idSermonEnCours, definirIdSermonEnCours] = useState<string | null>(null);
-  const [lectureEnCours, definirLectureEnCours] = useState<boolean>(false);
-  const [tempsActuel, definirTempsActuel] = useState<number>(0);
-  const [dureeTotale, definirDureeTotale] = useState<number>(0);
-  const [audioSuivantSourdine, definirAudioSuivantSourdine] = useState<boolean>(false);
-
-  // Référence à l'élément audio HTML5
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { sermonCourant, lectureEnCours, jouerSermon, basculerLecture } = useSermonPlayer();
 
   useEffect(() => {
     let composantActif = true;
@@ -64,74 +71,6 @@ export default function SermonsSection() {
     };
   }, []);
 
-  // Initialiser l'audio au montage
-  useEffect(() => {
-    audioRef.current = new Audio();
-    
-    const audio = audioRef.current;
-
-    const mettreAJourProgression = () => {
-      definirTempsActuel(audio.currentTime);
-    };
-
-    const chargerMetadonnees = () => {
-      definirDureeTotale(audio.duration);
-    };
-
-    const gererFinLecture = () => {
-      definirLectureEnCours(false);
-      definirTempsActuel(0);
-    };
-
-    audio.addEventListener('timeupdate', mettreAJourProgression);
-    audio.addEventListener('loadedmetadata', chargerMetadonnees);
-    audio.addEventListener('ended', gererFinLecture);
-
-    return () => {
-      audio.pause();
-      audio.removeEventListener('timeupdate', mettreAJourProgression);
-      audio.removeEventListener('loadedmetadata', chargerMetadonnees);
-      audio.removeEventListener('ended', gererFinLecture);
-    };
-  }, []);
-
-  // Synchroniser l'état de lecture et sourdine avec l'élément audio
-  useEffect(() => {
-    if (!audioRef.current) return;
-    
-    if (lectureEnCours) {
-      audioRef.current.play().catch(err => console.error("Erreur lecture:", err));
-    } else {
-      audioRef.current.pause();
-    }
-    audioRef.current.muted = audioSuivantSourdine;
-  }, [lectureEnCours, audioSuivantSourdine, idSermonEnCours]);
-
-  // Utilitaire pour formater les secondes en MM:SS
-  const formaterTemps = (secondes: number) => {
-    if (isNaN(secondes)) return "00:00";
-    const minutes = Math.floor(secondes / 60);
-    const restesSecondes = Math.floor(secondes % 60);
-    return `${minutes.toString().padStart(2, '0')}:${restesSecondes.toString().padStart(2, '0')}`;
-  };
-
-  const obtenirImageSermon = (identifiant: string) => {
-    switch (identifiant) {
-      case 'sermon-1':
-        return 'https://images.unsplash.com/photo-1544764200-d834fd210a23?auto=format&fit=crop&q=80&w=400';
-      case 'sermon-2':
-        return 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&q=80&w=400';
-      case 'sermon-3':
-        return 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400';
-      case 'sermon-4':
-        return 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&q=80&w=400';
-      case 'sermon-5':
-        return 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&q=80&w=400';
-      default:
-        return 'https://images.unsplash.com/photo-1507434965515-61970f2bd7c6?auto=format&fit=crop&q=80&w=400';
-    }
-  };
-
   const sermonsFiltres = listeSermons.filter((sermon) => {
     const correspondRecherche =
       sermon.titre.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -147,30 +86,17 @@ export default function SermonsSection() {
 
   const declencherLectureAudio = (idSermon: string) => {
     const sermon = listeSermons.find(s => s.identifiant === idSermon);
-    if (!sermon || !audioRef.current) return;
+    if (!sermon) return;
 
-    if (idSermonEnCours === idSermon) {
-      definirLectureEnCours(!lectureEnCours);
-    } else {
-      // Changer de morceau
-      audioRef.current.src = (sermon as any).urlAudio;
-      definirIdSermonEnCours(idSermon);
-      definirLectureEnCours(true);
-      definirTempsActuel(0);
+    if (sermonCourant?.identifiant === sermon.identifiant && lectureEnCours) {
+      basculerLecture();
+      return;
     }
+
+    jouerSermon(sermon);
   };
 
-  const arreterLectureAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    definirIdSermonEnCours(null);
-    definirLectureEnCours(false);
-    definirTempsActuel(0);
-  };
-
-  const sermonSelectionne = listeSermons.find((s) => s.identifiant === idSermonEnCours);
+  const sermonSelectionne = listeSermons.find((s) => s.identifiant === sermonCourant?.identifiant);
 
   return (
     <section id="sermons-enseignements-screen" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-12">
@@ -236,7 +162,7 @@ export default function SermonsSection() {
       <div id="liste-sermons-contenant" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sermonsFiltres.length > 0 ? (
           sermonsFiltres.map((sermon) => {
-            const estSermonActif = idSermonEnCours === sermon.identifiant;
+            const estSermonActif = sermonCourant?.identifiant === sermon.identifiant;
             const estEnTrainDeJouer = estSermonActif && lectureEnCours;
 
             return (
@@ -343,112 +269,6 @@ export default function SermonsSection() {
           </div>
         )}
       </div>
-
-      {/* Lecteur de Musique / Sermon persistant en bas */}
-      <AnimatePresence>
-        {idSermonEnCours && sermonSelectionne && (
-          <motion.div
-            id="lecteur-audio-persistant-bar"
-            initial={{ y: 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 80, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900 dark:bg-slate-950 text-white border-t border-[#c29f63]/30 px-6 py-4 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4"
-          >
-            {/* Info Sermon */}
-            <div className="flex items-center gap-4 w-full md:w-1/3">
-              <div className="p-3 bg-[#c29f63]/20 rounded-lg text-[#c29f63] hidden sm:block">
-                <Headphones className="w-5 h-5" />
-              </div>
-              <div className="truncate text-left">
-                <h4 className="font-serif text-sm font-semibold tracking-wide text-slate-100 truncate">
-                  {sermonSelectionne.titre}
-                </h4>
-                <p className="text-[11px] font-mono text-slate-400 truncate">
-                  {sermonSelectionne.orateur} • {sermonSelectionne.passageBiblique}
-                </p>
-              </div>
-            </div>
-
-            {/* Contrôles Principaux */}
-            <div className="items-center flex flex-col gap-2 w-full md:w-1/3">
-              <div className="flex items-center gap-4">
-                <button
-                  id="bouton-lecteur-arret"
-                  onClick={arreterLectureAudio}
-                  className="p-1.5 text-slate-400 hover:text-white transition-all cursor-pointer"
-                  title="Arrêter"
-                >
-                  <Square className="w-4 h-4 fill-current" />
-                </button>
-
-                <button
-                  id="bouton-lecteur-lecture"
-                  onClick={() => declencherLectureAudio(sermonSelectionne.identifiant)}
-                  className="p-3 bg-[#c29f63] hover:bg-amber-600 rounded-full text-slate-950 shadow-md transform hover:scale-105 transition-all cursor-pointer"
-                >
-                  {lectureEnCours ? (
-                    <Pause className="w-4 h-4 fill-current" />
-                  ) : (
-                    <Play className="w-4 h-4 fill-current ml-0.5" />
-                  )}
-                </button>
-
-                <button
-                  id="bouton-lecteur-sourdine"
-                  onClick={() => definirAudioSuivantSourdine(!audioSuivantSourdine)}
-                  className="p-1.5 text-slate-400 hover:text-white transition-all cursor-pointer"
-                  title={audioSuivantSourdine ? 'Rétablir le son' : 'Rendre muet'}
-                >
-                  {audioSuivantSourdine ? (
-                    <VolumeX className="w-4 h-4" />
-                  ) : (
-                    <Volume2 className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-
-              {/* Barre de timeline temporelle */}
-              <div className="w-full flex items-center gap-3 text-[10px] font-mono text-slate-400">
-                <span>{formaterTemps(tempsActuel)}</span>
-                <div className="relative flex-1 h-1 bg-slate-700 rounded-full overflow-hidden cursor-pointer group">
-                  <div
-                    className="absolute left-0 top-0 bottom-0 bg-[#c29f63] transition-all"
-                    style={{ width: `${(tempsActuel / (dureeTotale || 1)) * 100}%` }}
-                  />
-                </div>
-                <span>{formaterTemps(dureeTotale)}</span>
-              </div>
-            </div>
-
-            {/* Equaliseur visuel simulé */}
-            <div className="hidden md:flex items-center gap-1 h-5 w-1/3 justify-end text-[#c29f63]">
-              {lectureEnCours ? (
-                [...Array(6)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-[3px] bg-[#c29f63] rounded-sm"
-                    animate={{
-                      height: [4, 18, 6, 20, 10, 4][i % 6],
-                      y: [0, 2, 0, -2, 1, 0][i % 6],
-                    }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 0.5 + i * 0.1,
-                      repeatType: 'reverse',
-                    }}
-                    style={{ height: '14px' }}
-                  />
-                ))
-              ) : (
-                <div className="text-xs font-light text-slate-500 font-mono">
-                  Lecture en pause
-                </div>
-              )}
-            </div>
-
-          </motion.div>
-        )}
-      </AnimatePresence>
 
     </section>
   );

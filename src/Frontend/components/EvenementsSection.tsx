@@ -7,6 +7,21 @@ import { useEffect, useState } from 'react';
 import { Calendar, MapPin, Clock, Bell } from 'lucide-react';
 import { Evenement } from '../types';
 import { api } from '../services/api';
+import HeroPic from '../../../img/Hero_pic.jpg';
+import MM1 from '../../../img/MM_1.jpg';
+import MM4 from '../../../img/MM_4.jpg';
+import MM5 from '../../../img/MM_5.jpg';
+
+const imagesParDefaut = [HeroPic, MM1, MM4, MM5];
+
+function obtenirImageEvenement(identifiant: string): string {
+  const index = Number.parseInt(identifiant.replace(/\D+/g, ''), 10);
+  if (Number.isFinite(index) && index > 0) {
+    return imagesParDefaut[(index - 1) % imagesParDefaut.length];
+  }
+
+  return imagesParDefaut[0];
+}
 
 export default function EvenementsSection() {
   const [evenements, definirEvenements] = useState<Evenement[]>([]);
@@ -38,22 +53,22 @@ export default function EvenementsSection() {
     return filtreCategorie === 'Tous' || evt.categorie === filtreCategorie;
   });
 
-  const obtenirImageEvenement = (identifiant: string) => {
-    switch (identifiant) {
-      case 'evenement-1':
-        return 'https://images.unsplash.com/photo-1548625361-155deee223d2?auto=format&fit=crop&q=80&w=600';
-      case 'evenement-2':
-        return 'https://images.unsplash.com/photo-1507434965515-61970f2bd7c6?auto=format&fit=crop&q=80&w=600';
-      case 'evenement-3':
-        return 'https://images.unsplash.com/photo-1461530751191-68beaca85077?auto=format&fit=crop&q=80&w=600';
-      case 'evenement-4':
-        return 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&q=80&w=600';
-      case 'evenement-5':
-        return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600';
-      default:
-        return 'https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&q=80&w=600';
-    }
-  };
+  // const obtenirImageEvenement = (identifiant: string) => {
+  //   switch (identifiant) {
+  //     case 'evenement-1':
+  //       return 'https://images.unsplash.com/photo-1548625361-155deee223d2?auto=format&fit=crop&q=80&w=600';
+  //     case 'evenement-2':
+  //       return 'https://images.unsplash.com/photo-1507434965515-61970f2bd7c6?auto=format&fit=crop&q=80&w=600';
+  //     case 'evenement-3':
+  //       return 'https://images.unsplash.com/photo-1461530751191-68beaca85077?auto=format&fit=crop&q=80&w=600';
+  //     case 'evenement-4':
+  //       return 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&q=80&w=600';
+  //     case 'evenement-5':
+  //       return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600';
+  //     default:
+  //       return 'https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&q=80&w=600';
+  //   }
+  // };
 
   return (
     <section id="calendrier-paroissial-screen" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-12">
@@ -87,8 +102,8 @@ export default function EvenementsSection() {
               onClick={() => definirFiltreCategorie(type)}
               className={`px-5 py-3 rounded text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 estActif
-                  ? 'bg-slate-900 text-white shadow-md dark:bg-slate-850 dark:text-slate-100'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 dark:hover:bg-slate-800'
+                  ? 'bg-[#af894d] text-white shadow-md dark:bg-slate-850 dark:text-slate-100'
+                  : 'bg-white text-slate-300 hover:bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:text-slate-350 dark:border-slate-800 dark:hover:bg-slate-800'
               }`}
             >
               {type === 'Tous' ? 'Tous les événements' : type}

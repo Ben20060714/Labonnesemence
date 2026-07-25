@@ -69,7 +69,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               titre: fichier.legend?.trim() || fichier.original_name,
               image: obtenirUrlFichier(fichier.id),
               categorie: fichier.categorie?.trim() || 'Galerie',
-              descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
+              // descr: `Ajoutee par ${fichier.uploader_username || 'un membre'}`,
             }))
         );
 
@@ -115,27 +115,15 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   return (
     <div id="section-accueil-complete" className="space-y-20 pb-20">
       
-      {/* 1. Hero Banner avec animations raffinées */}
+      {/* 1. Hero Banner */}
       <section id="banniere-accueil-hero" className="relative min-h-[78vh] flex items-center justify-center overflow-hidden bg-slate-950 text-white px-4 py-24">
         {/* Image de fond*/}
         <div className="absolute inset-0 z-0">
-          <img src={imageHero} alt="Intérieur" className="w-full h-full object-cover object-center filter brightness-75 contrast-105" referrerPolicy="no-referrer"/>
+          <img src={imageHero} alt="Intérieur" className="w-full h-full object-cover object-center filter" referrerPolicy="no-referrer"/>
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/70 to-slate-950/95"/>
         </div>
 
-        {/* Motif SVG en arrière-plan */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none mix-blend-overlay z-0">
-          <svg className="w-full h-full text-[#c29f63]" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 100 1000 Q 100 200 500 200 Q 900 200 900 1000" stroke="currentColor" strokeWidth="6" />
-            <path d="M 200 1000 Q 200 400 500 400 Q 800 400 800 1000" stroke="currentColor" strokeWidth="4" />
-            <path d="M 300 1000 Q 300 550 500 550 Q 700 550 700 1000" stroke="currentColor" strokeWidth="2" />
-            <line x1="500" y1="200" x2="500" y2="1000" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" />
-          </svg>
-        </div>
-
-        {/* Halo lumineux*/}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none z-0"/>
-
+        {/* Hero bannière */}
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
           <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="space-y-3">
             <span className="font-mono text-xs uppercase tracking-widest text-[#c29f63] inline-block bg-[#c29f63]/10 px-3.5 py-1.5 rounded-full">
@@ -176,7 +164,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               Prochain culte
             </h2>
             <p className="text-sm text-slate-500 font-light dark:text-slate-400">
-              Venez participer à notre activité hebdomadaire d'enseignement biblique.
+              Venez participer à nos activités hebdomadaires d'enseignement biblique.
             </p>
             <div>
               <button id="bouton-voir-tous-evenements" onClick={() => redirigerVersPage('evenements')} className="text-xs font-bold uppercase tracking-wider text-[#af894d] hover:text-[#936f3c] flex items-center gap-1 cursor-pointer dark:text-[#c29f63]">
@@ -213,7 +201,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </div>
           ) : (
           <div className="lg:col-span-8 bg-white border border-dashed border-[#f4ebd9]/80 rounded-xl p-8 text-center text-sm text-slate-500 dark:bg-slate-900 dark:border-slate-800">
-            Aucun événement n'est encore enregistré en base.
+            Aucun événement n'est encore disponible.
           </div>
           )}
 
@@ -227,7 +215,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             Fondations de Notre Vie Commune
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
-            l’église S’articule Autour du Cœur
+            l’Eglise S’articule Autour du Cœur
           </h2>
           <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
         </div>
@@ -253,7 +241,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
         </div>
       </section>
 
-      {/* 4. Focus Dernier Sermon / Homélie */}
+      {/* 4. Focus Dernier enseignement */}
       {dernierSermon && (
       <section id="section-homelie-focus" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white p-8 sm:p-12 border border-slate-800">
@@ -353,13 +341,13 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
         </div>
         ) : (
         <div className="py-12 text-center text-sm text-slate-500 border border-dashed border-[#f4ebd9] rounded-xl dark:border-slate-800">
-          Aucune photo publique n'est encore enregistrée en base.
+          Aucune photo publique n'est encore enregistrée.
         </div>
         )}
       </section>
 
       {/* 5. Appel à la solidarité / Dons */}
-      <section id="section-dons-accueil" className="bg-[#fcfaf4] py-16 transition-colors dark:bg-slate-900/40">
+      <section id="section-dons-accueil" className="hidden bg-[#fcfaf4] py-16 transition-colors dark:bg-slate-900/40">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
           <div className="p-3.5 bg-amber-50 text-[#af894d] rounded-full w-fit mx-auto dark:bg-slate-800 dark:text-[#c29f63]">
             <Gift className="w-8 h-8" />

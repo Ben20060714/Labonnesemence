@@ -98,6 +98,10 @@ export interface MonetbilConfig {
   cancelUrl: string;
 }
 
+export interface NewsletterResponse {
+  email: string;
+}
+
 const categoriesSermon = ['Dimanche', 'Enseignement', 'Fête', 'Dévotion', 'Exhortation'] as const;
 const categoriesEvenement = ['Culte', 'Jeunesse', 'Prière', 'Social'] as const;
 
@@ -270,6 +274,13 @@ export const api = {
     return executerRequeteApi<MessageContact>('/contacts', {
       method: 'POST',
       body: JSON.stringify(message),
+    });
+  },
+
+  async soumettreNewsletter(email: string): Promise<NewsletterResponse> {
+    return executerRequeteApi<NewsletterResponse>('/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     });
   },
 

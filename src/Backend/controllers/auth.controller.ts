@@ -22,22 +22,22 @@ export async function register(req: Request, res: Response): Promise<void> {
   const normalizedEmail = email?.trim().toLowerCase();
 
   if (!normalizedEmail || !username || !password) {
-    sendError(res, 'Email, username and password are required');
+    sendError(res, 'L’e-mail, le nom d’utilisateur et le mot de passe sont requis.');
     return;
   }
 
   if (!isValidEmail(normalizedEmail)) {
-    sendError(res, 'Invalid email format');
+    sendError(res, 'Format d’e-mail invalide.');
     return;
   }
 
   if (!isStrongPassword(password)) {
-    sendError(res, 'Password must be at least 8 characters long');
+    sendError(res, 'Le mot de passe doit contenir au moins 8 caractères.');
     return;
   }
 
   if (username.length < 3 || username.length > 30) {
-    sendError(res, 'Username must be between 3 and 30 characters');
+    sendError(res, 'Le nom d’utilisateur doit contenir entre 3 et 30 caractères.');
     return;
   }
 
@@ -48,7 +48,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   try {
     const existing = await db.maybeOne('SELECT id FROM users WHERE email = $1 OR username = $2', [normalizedEmail, username]);
     if (existing) {
-      sendError(res, 'Email or username already in use', 409);
+      sendError(res, 'L’e-mail ou le nom d’utilisateur est déjà utilisé.', 409);
       return;
     }
 
@@ -68,10 +68,10 @@ export async function register(req: Request, res: Response): Promise<void> {
     const accessToken = generateAccessToken(user.id, user.email, user.role);
     const refreshToken = await generateRefreshToken(user.id);
 
-    sendSuccess(res, { user, accessToken, refreshToken }, 'Account created successfully', 201);
+    sendSuccess(res, { user, accessToken, refreshToken }, 'Compte créé avec succès', 201);
   } catch (error) {
-    console.error('Register error:', error);
-    sendError(res, 'Failed to create account', 500);
+    console.error('Erreur lors de la crétion du compte:', error);
+    sendError(res, 'Échec de la création du compte.', 500);
   }
 }
 
@@ -80,7 +80,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   const normalizedEmail = email?.trim().toLowerCase();
 
   if (!normalizedEmail || !password) {
-    sendError(res, 'Email and password are required');
+    sendError(res, 'L’e-mail et le mot de passe sont obligatoires.');
     return;
   }
 
@@ -88,13 +88,13 @@ export async function login(req: Request, res: Response): Promise<void> {
     const user = await db.maybeOne<User>('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
 
     if (!user) {
-      sendError(res, 'Invalid credentials', 401);
+      sendError(res, 'Identifiants invalides.', 401);
       return;
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      sendError(res, 'Invalid credentials', 401);
+      sendError(res, 'Identifiants invalides.', 401);
       return;
     }
 
@@ -110,10 +110,10 @@ export async function login(req: Request, res: Response): Promise<void> {
       created_at: user.created_at,
     };
 
-    sendSuccess(res, { user: publicUser, accessToken, refreshToken }, 'Login successful');
+    sendSuccess(res, { user: publicUser, accessToken, refreshToken }, 'Connexion reussie');
   } catch (error) {
-    console.error('Login error:', error);
-    sendError(res, 'Login failed', 500);
+    console.error('Erreur de connexion:', error);
+    sendError(res, 'Échec de la connexion.', 500);
   }
 }
 
@@ -121,7 +121,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (!refreshToken) {
-    sendError(res, 'Refresh token required');
+    sendError(res, 'Le refresh token est requis.');
     return;
   }
 
@@ -130,7 +130,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
     const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
-      sendError(res, 'User not found', 404);
+      sendError(res, 'Utilisateur introuvable.', 404);
       return;
     }
 
@@ -139,9 +139,9 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     const newAccessToken = generateAccessToken(user.id, user.email, user.role);
     const newRefreshToken = await generateRefreshToken(user.id);
 
-    sendSuccess(res, { accessToken: newAccessToken, refreshToken: newRefreshToken }, 'Tokens refreshed');
+    sendSuccess(res, { accessToken: newAccessToken, refreshToken: newRefreshToken }, 'Jetons rafraîchis.');
   } catch {
-    sendError(res, 'Invalid or expired refresh token', 401);
+    sendError(res, 'Jeton invalide ou expiré.', 401);
   }
 }
 
@@ -149,7 +149,7 @@ export async function heartbeat(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (!refreshToken) {
-    sendError(res, 'Refresh token required');
+    sendError(res, 'Le refresh token est requis.');
     return;
   }
 
@@ -158,7 +158,7 @@ export async function heartbeat(req: Request, res: Response): Promise<void> {
 
     const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
-      sendError(res, 'User not found', 404);
+      sendError(res, 'Utilisateur introuvable.', 404);
       return;
     }
 
@@ -183,10 +183,10 @@ export async function heartbeat(req: Request, res: Response): Promise<void> {
         accessToken,
         refreshToken: newRefreshToken,
       },
-      'Session refreshed'
+      'Session rafraîchie.'
     );
   } catch {
-    sendError(res, 'Invalid or expired refresh token', 401);
+    sendError(res, 'Jeton invalide ou expiré.', 401);
   }
 }
 
@@ -201,22 +201,22 @@ export async function logout(req: AuthRequest, res: Response): Promise<void> {
     }
   }
 
-  sendSuccess(res, null, 'Logged out successfully');
+  sendSuccess(res, null, 'Déconnexion réussie');
 }
 
 export async function logoutAll(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé', 401);
     return;
   }
 
   await revokeAllUserRefreshTokens(req.user.userId);
-  sendSuccess(res, null, 'Logged out from all devices');
+  sendSuccess(res, null, 'Déconnecté de tous les appareils.');
 }
 
 export async function getMe(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé', 401);
     return;
   }
 
@@ -226,7 +226,7 @@ export async function getMe(req: AuthRequest, res: Response): Promise<void> {
   );
 
   if (!user) {
-    sendError(res, 'User not found', 404);
+    sendError(res, 'Utilisateur introuvable.', 404);
     return;
   }
 
@@ -235,7 +235,7 @@ export async function getMe(req: AuthRequest, res: Response): Promise<void> {
 
 export async function updatePassword(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé', 401);
     return;
   }
 
@@ -245,25 +245,25 @@ export async function updatePassword(req: AuthRequest, res: Response): Promise<v
   };
 
   if (!currentPassword || !newPassword) {
-    sendError(res, 'Current and new password are required');
+    sendError(res, 'Le mot de passe actuel et le nouveau mot de passe sont requis.');
     return;
   }
 
   if (!isStrongPassword(newPassword)) {
-    sendError(res, 'New password must be at least 8 characters long');
+    sendError(res, 'Le mot de passe doit contenir au minimum 8 caractères.');
     return;
   }
 
   try {
     const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [req.user.userId]);
     if (!user) {
-      sendError(res, 'User not found', 404);
+      sendError(res, 'Utilisateur introuvable.', 404);
       return;
     }
 
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) {
-      sendError(res, 'Current password is incorrect', 401);
+      sendError(res, 'Mot de passe incorrect', 401);
       return;
     }
 
@@ -272,9 +272,9 @@ export async function updatePassword(req: AuthRequest, res: Response): Promise<v
 
     await revokeAllUserRefreshTokens(user.id);
 
-    sendSuccess(res, null, 'Password updated. Please log in again.');
+    sendSuccess(res, null, 'Mot de passe mis à jour. Veuillez vous connecter à nouveau.');
   } catch (error) {
-    console.error('Update password error:', error);
-    sendError(res, 'Failed to update password', 500);
+    console.error('Erreur lors de la mise à jour du mot de passe:', error);
+    sendError(res, 'Impossible de mettre à jour le mot de passe.', 500);
   }
 }

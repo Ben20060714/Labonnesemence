@@ -7,7 +7,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    sendError(res, 'Authorization token required', 401);
+    sendError(res, 'Le jeton d’autorisation est requis.', 401);
     return;
   }
 
@@ -18,7 +18,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
     req.user = payload;
     next();
   } catch {
-    sendError(res, 'Invalid or expired token', 401);
+    sendError(res, 'Jeton invalide ou expiré.', 401);
   }
 }
 
@@ -44,12 +44,12 @@ export function optionalAuthenticate(req: AuthRequest, _res: Response, next: Nex
 export function requireRole(...roles: Role[]) {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      sendError(res, 'Unauthorized', 401);
+      sendError(res, 'Non autorisé.', 401);
       return;
     }
 
     if (!roles.includes(req.user.role)) {
-      sendError(res, 'Insufficient permissions', 403);
+      sendError(res, 'Permissions insuffisantes.', 403);
       return;
     }
 

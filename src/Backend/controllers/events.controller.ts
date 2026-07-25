@@ -5,9 +5,10 @@ import { sendSuccess, sendError } from '../utils/helpers.ts';
 export const getAll = async (_req: Request, res: Response) => {
   try {
     const rows = await db.many('SELECT * FROM events ORDER BY date ASC');
-    sendSuccess(res, rows, 'Activites recuperees');
+    sendSuccess(res, rows, 'Activités récupérées.');
   } catch (error: any) {
-    sendError(res, error.message);
+    console.error('Erreur lors de la récupération des activités:', error);
+    sendError(res, 'Impossible de récupérer les activités.');
   }
 };
 
@@ -22,9 +23,10 @@ export const create = async (req: Request, res: Response) => {
       `,
       [titre, lieu, description, image_url ?? null, categorie, heure, date]
     );
-    sendSuccess(res, { id: result.id }, 'Activite creee', 201);
+    sendSuccess(res, { id: result.id }, 'Activité créée.', 201);
   } catch (error: any) {
-    sendError(res, error.message);
+    console.error('Erreur lors de la création de l’activité:', error);
+    sendError(res, 'Impossible de créer l’activité.');
   }
 };
 
@@ -40,19 +42,21 @@ export const update = async (req: Request, res: Response) => {
       `,
       [titre, lieu, description, image_url ?? null, categorie, heure, date, req.params.id]
     );
-    if (result.changes === 0) return sendError(res, 'Activite non trouvee', 404);
-    sendSuccess(res, null, 'Activite mise a jour');
+    if (result.changes === 0) return sendError(res, 'Activité introuvable.', 404);
+    sendSuccess(res, null, 'Activité mise à jour.');
   } catch (error: any) {
-    sendError(res, error.message);
+    console.error('Erreur lors de la mise à jour de l’activité:', error);
+    sendError(res, 'Impossible de mettre à jour l’activité.');
   }
 };
 
 export const remove = async (req: Request, res: Response) => {
   try {
     const result = await db.run('DELETE FROM events WHERE id = $1', [req.params.id]);
-    if (result.changes === 0) return sendError(res, 'Activite non trouvee', 404);
-    sendSuccess(res, null, 'Activite supprimee');
+    if (result.changes === 0) return sendError(res, 'Activité introuvable.', 404);
+    sendSuccess(res, null, 'Activité supprimée.');
   } catch (error: any) {
-    sendError(res, error.message);
+    console.error('Erreur lors de la suppression de l’activité:', error);
+    sendError(res, 'Impossible de supprimer l’activité.');
   }
 };

@@ -48,12 +48,12 @@ export async function getUserById(req: AuthRequest, res: Response): Promise<void
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   if (req.user.role !== 'admin' && req.user.userId !== id) {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
@@ -63,7 +63,7 @@ export async function getUserById(req: AuthRequest, res: Response): Promise<void
   );
 
   if (!user) {
-    sendError(res, 'User not found', 404);
+    sendError(res, 'Utilisateur introuvable.', 404);
     return;
   }
 
@@ -74,13 +74,13 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   // Non-admin users can only update their own profile
   if (req.user.role !== 'admin' && req.user.userId !== id) {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
@@ -94,7 +94,7 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
 
   const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [id]);
   if (!user) {
-    sendError(res, 'User not found', 404);
+    sendError(res, 'Utilisateur introuvable.', 404);
     return;
   }
 
@@ -109,7 +109,7 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
   );
 
   if (existingConflict) {
-    sendError(res, 'Email or username already in use', 409);
+    sendError(res, 'L’e-mail ou le nom d’utilisateur est déjà utilisé.', 409);
     return;
   }
 
@@ -127,10 +127,10 @@ export async function updateUser(req: AuthRequest, res: Response): Promise<void>
       [id]
     );
 
-    sendSuccess(res, updated, 'User updated');
+    sendSuccess(res, updated, 'Utilisateur mis à jour.');
   } catch (error) {
     console.error('Update user error:', error);
-    sendError(res, 'Failed to update user', 500);
+    sendError(res, 'Impossible de mettre à jour l’utilisateur.', 500);
   }
 }
 
@@ -138,24 +138,24 @@ export async function deleteUser(req: AuthRequest, res: Response): Promise<void>
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   // Non-admin users can only delete their own account
   if (req.user.role !== 'admin' && req.user.userId !== id) {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
   const user = await db.maybeOne('SELECT id FROM users WHERE id = $1', [id]);
   if (!user) {
-    sendError(res, 'User not found', 404);
+    sendError(res, 'Utilisateur introuvable.', 404);
     return;
   }
 
   await db.query('DELETE FROM users WHERE id = $1', [id]);
-  sendSuccess(res, null, 'User deleted');
+  sendSuccess(res, null, 'Utilisateur supprimé.');
 }
 
 export async function adminCreateUser(req: AuthRequest, res: Response): Promise<void> {
@@ -169,7 +169,7 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
   const normalizedEmail = email?.trim().toLowerCase();
 
   if (!normalizedEmail || !username || !password) {
-    sendError(res, 'Email, username and password are required');
+    sendError(res, 'L’e-mail, le nom d’utilisateur et le mot de passe sont requis.');
     return;
   }
 
@@ -178,7 +178,7 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
   try {
     const existing = await db.maybeOne('SELECT id FROM users WHERE email = $1 OR username = $2', [normalizedEmail, username]);
     if (existing) {
-      sendError(res, 'Email or username already in use', 409);
+      sendError(res, 'L’e-mail ou le nom d’utilisateur est déjà utilisé.', 409);
       return;
     }
 
@@ -199,9 +199,9 @@ export async function adminCreateUser(req: AuthRequest, res: Response): Promise<
       [id]
     );
 
-    sendSuccess(res, user, 'User created by admin', 201);
+    sendSuccess(res, user, 'Utilisateur créé par un administrateur.', 201);
   } catch (error) {
     console.error('Admin create user error:', error);
-    sendError(res, 'Failed to create user', 500);
+    sendError(res, 'Impossible de créer l’utilisateur.', 500);
   }
 }
