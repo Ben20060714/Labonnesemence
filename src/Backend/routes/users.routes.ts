@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUser,
   adminCreateUser,
+  changeUsername,
 } from '../controllers/users.controller';
 import { authenticate, requireAdmin } from '../middlewares/auth.middleware';
 
@@ -33,6 +34,13 @@ router.post('/', authenticate, requireAdmin, adminCreateUser);
  * @access Private
  */
 router.get('/:id', authenticate, getUserById);
+
+/**
+ * @route  PATCH /api/users/:id/username
+ * @desc   Change username (admin or self)
+ * @access Private
+ */
+router.patch('/:id/username', authenticate, changeUsername);
 
 /**
  * @route  PUT /api/users/:id

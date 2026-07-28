@@ -70,6 +70,60 @@ export async function getUserById(req: AuthRequest, res: Response): Promise<void
   sendSuccess(res, user);
 }
 
+export async function changeUsername(req: AuthRequest, res: Response): Promise<void> {
+  const { id } = req.params;
+  const { username } = req.body as { username?: string };
+
+  if (!req.user) {
+    sendError(res, 'Non autorisé.', 401);
+    return;
+  }
+
+  if (req.user.role !== 'admin' && req.user.userId !== id) {
+    sendError(res, 'Accès interdit.', 403);
+    return;
+  }
+
+  const newUsername = username?.trim();
+  if (!newUsername) {
+    sendError(res, 'Le nom d’utilisateur est requis.', 400);
+    return;
+  }
+
+  const user = await db.maybeOne<User>('SELECT * FROM users WHERE id = $1', [id]);
+  if (!user) {
+    sendError(res, 'Utilisateur introuvable.', 404);
+    return;
+  }
+
+  const existingUser = await db.maybeOne<{ id: string }>(
+    'SELECT id FROM users WHERE username = $1 AND id != $2',
+    [newUsername, id]
+  );
+
+  if (existingUser) {
+    sendError(res, 'Ce nom d’utilisateur est déjà utilisé.', 409);
+    return;
+  }
+
+  try {
+    await db.query(
+      'UPDATE users SET username = $1, updated_at = now() WHERE id = $2',
+      [newUsername, id]
+    );
+
+    const updated = await db.one<PublicUser>(
+      'SELECT id, email, username, role, image_url, created_at FROM users WHERE id = $1',
+      [id]
+    );
+
+    sendSuccess(res, updated, 'Nom d’utilisateur mis à jour.');
+  } catch (error) {
+    console.error('Change username error:', error);
+    sendError(res, 'Impossible de mettre à jour le nom d’utilisateur.', 500);
+  }
+}
+
 export async function updateUser(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
