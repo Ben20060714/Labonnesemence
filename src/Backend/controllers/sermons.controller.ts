@@ -13,15 +13,19 @@ export const getAll = async (_req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-  const { titre, verset, description, chemin, date, auteur, categorie, image_url } = req.body;
+  const { titre, verset, description, chemin, date, auteur, categorie, image_url, auto_delete, delete_after_days } = req.body;
+  const autoDelete = auto_delete === true || auto_delete === 'true';
+  const deleteAfterDays = delete_after_days !== undefined && delete_after_days !== null
+    ? Number(delete_after_days)
+    : null;
   try {
     const result = await db.one<{ id: number }>(
       `
-        INSERT INTO sermons (titre, verset, description, chemin, image_url, date, auteur, categorie)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO sermons (titre, verset, description, chemin, image_url, date, auteur, categorie, auto_delete, delete_after_days)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id
       `,
-      [titre, verset, description, chemin, image_url ?? null, date, auteur, categorie]
+      [titre, verset, description, chemin, image_url ?? null, date, auteur, categorie, autoDelete, deleteAfterDays]
     );
     sendSuccess(res, { id: result.id }, 'Enseignement ajouté.', 201);
   } catch (error: any) {
@@ -31,16 +35,24 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const { titre, verset, description, chemin, date, auteur, categorie, image_url } = req.body;
+  const { titre, verset, description, chemin, date, auteur, categorie, image_url, auto_delete, delete_after_days } = req.body;
+  const autoDelete = typeof auto_delete !== 'undefined' ? auto_delete === true || auto_delete === 'true' : null;
+  const deleteAfterDays = typeof delete_after_days !== 'undefined'
+    ? delete_after_days !== null
+      ? Number(delete_after_days)
+      : null
+    : undefined;
   try {
     const result = await db.run(
       `
         UPDATE sermons
         SET titre = $1, verset = $2, description = $3, chemin = $4, image_url = $5,
-            date = $6, auteur = $7, categorie = $8, updated_at = now()
-        WHERE id = $9
+            date = $6, auteur = $7, categorie = $8, auto_delete = COALESCE($9, auto_delete),
+            delete_after_days = CASE WHEN $10 IS NOT NULL THEN $10 ELSE delete_after_days END,
+            updated_at = now()
+        WHERE id = $11
       `,
-      [titre, verset, description, chemin, image_url ?? null, date, auteur, categorie, req.params.id]
+      [titre, verset, description, chemin, image_url ?? null, date, auteur, categorie, autoDelete, deleteAfterDays, req.params.id]
     );
     if (result.changes === 0) return sendError(res, 'Enseignement introuvable.', 404);
     sendSuccess(res, null, 'Enseignement mis à jour.');

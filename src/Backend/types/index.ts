@@ -31,6 +31,8 @@ export interface PastorMessage {
   content: string;
   label: string;
   author: string;
+  auto_delete?: boolean;
+  delete_after_days?: number | null;
   created_at: string;
   updated_at: string;
 }

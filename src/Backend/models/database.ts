@@ -130,6 +130,8 @@ export async function initializeDatabase(): Promise<void> {
       date TEXT,
       auteur TEXT,
       categorie TEXT,
+      auto_delete BOOLEAN NOT NULL DEFAULT false,
+      delete_after_days INTEGER,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -143,6 +145,8 @@ export async function initializeDatabase(): Promise<void> {
       categorie TEXT,
       heure TEXT,
       date TEXT,
+      auto_delete BOOLEAN NOT NULL DEFAULT false,
+      delete_after_days INTEGER,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -162,6 +166,8 @@ export async function initializeDatabase(): Promise<void> {
       content TEXT NOT NULL,
       label TEXT NOT NULL,
       author TEXT NOT NULL,
+      auto_delete BOOLEAN NOT NULL DEFAULT false,
+      delete_after_days INTEGER,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -199,11 +205,17 @@ export async function initializeDatabase(): Promise<void> {
   await ensureColumnExists('users', 'image_url', 'TEXT');
   await ensureColumnExists('posts', 'image_url', 'TEXT');
   await ensureColumnExists('sermons', 'image_url', 'TEXT');
+  await ensureColumnExists('sermons', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');
+  await ensureColumnExists('sermons', 'delete_after_days', 'INTEGER');
   await ensureColumnExists('events', 'image_url', 'TEXT');
+  await ensureColumnExists('events', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');
+  await ensureColumnExists('events', 'delete_after_days', 'INTEGER');
   await ensureColumnExists('files', 'legend', 'TEXT');
   await ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
   await ensureColumnExists('files', 'categorie', 'TEXT');
   await ensureColumnExists('pastor_messages', 'author', "TEXT NOT NULL DEFAULT ''");
+  await ensureColumnExists('pastor_messages', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');
+  await ensureColumnExists('pastor_messages', 'delete_after_days', 'INTEGER');
   await db.query("UPDATE files SET usage = 'gallery' WHERE usage IS NULL OR usage = ''");
   await ensureDefaultAdmin();
 

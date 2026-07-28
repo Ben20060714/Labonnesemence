@@ -6,6 +6,7 @@ import fs from 'fs';
 
 import { initializeDatabase } from './models/database.ts';
 import { cleanExpiredRefreshTokens } from './utils/jwt.ts';
+import { scheduleDailyCleanup } from './utils/cleanup.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
 
 import authRoutes from './routes/auth.routes.js';
@@ -45,6 +46,9 @@ setInterval(() => {
     console.error('Echec de la destruction des tokens expirés:', error);
   });
 }, 60 * 60 * 1000);
+
+// ─── Clean expired auto-delete entities daily at 03:00 ──────────────────────
+scheduleDailyCleanup();
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/health', (_req: any, res: any) => {

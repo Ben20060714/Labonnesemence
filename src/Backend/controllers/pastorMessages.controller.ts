@@ -7,7 +7,7 @@ import { sendError, sendSuccess } from '../utils/helpers.ts';
 export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const messages = await db.many<PastorMessage>(
-      'SELECT id, title, content, label, author, created_at, updated_at FROM pastor_messages ORDER BY created_at DESC'
+      'SELECT id, title, content, label, author, auto_delete, delete_after_days, created_at, updated_at FROM pastor_messages ORDER BY created_at DESC'
     );
     sendSuccess(res, messages, 'Messages du pasteur récupérés.');
   } catch (error: any) {
@@ -36,11 +36,13 @@ export const getMessageById = async (req: AuthRequest, res: Response): Promise<v
 };
 
 export const createMessage = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, content, label, author } = req.body as {
+  const { title, content, label, author, auto_delete, delete_after_days } = req.body as {
     title?: string;
     content?: string;
     label?: string;
     author?: string;
+    auto_delete?: boolean | string;
+    delete_after_days?: number | string | null;
   };
 
   const payload = {
@@ -48,6 +50,10 @@ export const createMessage = async (req: AuthRequest, res: Response): Promise<vo
     content: content?.trim() || '',
     label: label?.trim() || '',
     author: author?.trim() || '',
+    auto_delete: auto_delete === true || auto_delete === 'true',
+    delete_after_days: delete_after_days !== undefined && delete_after_days !== null
+      ? Number(delete_after_days)
+      : null,
   };
 
   if (!payload.title || !payload.content || !payload.label || !payload.author) {
@@ -58,12 +64,13 @@ export const createMessage = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const id = uuidv4();
     await db.query(
-      `INSERT INTO pastor_messages (id, title, content, label, author) VALUES ($1, $2, $3, $4, $5)`,
-      [id, payload.title, payload.content, payload.label, payload.author]
+      `INSERT INTO pastor_messages (id, title, content, label, author, auto_delete, delete_after_days)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [id, payload.title, payload.content, payload.label, payload.author, payload.auto_delete, payload.delete_after_days]
     );
 
     const created = await db.one<PastorMessage>(
-      'SELECT id, title, content, label, author, created_at, updated_at FROM pastor_messages WHERE id = $1',
+      'SELECT id, title, content, label, author, auto_delete, delete_after_days, created_at, updated_at FROM pastor_messages WHERE id = $1',
       [id]
     );
 
@@ -75,14 +82,16 @@ export const createMessage = async (req: AuthRequest, res: Response): Promise<vo
 };
 
 export const updateMessage = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, content, label, author } = req.body as {
+  const { title, content, label, author, auto_delete, delete_after_days } = req.body as {
     title?: string;
     content?: string;
     label?: string;
     author?: string;
+    auto_delete?: boolean | string;
+    delete_after_days?: number | string | null;
   };
 
-  if (!title?.trim() && !content?.trim() && !label?.trim() && !author?.trim()) {
+  if (!title?.trim() && !content?.trim() && !label?.trim() && !author?.trim() && typeof auto_delete === 'undefined' && typeof delete_after_days === 'undefined') {
     sendError(res, 'Au moins un champ doit être fourni pour la mise à jour.');
     return;
   }
@@ -102,6 +111,12 @@ export const updateMessage = async (req: AuthRequest, res: Response): Promise<vo
     const updatedContent = content?.trim() || undefined;
     const updatedLabel = label?.trim() || undefined;
     const updatedAuthor = author?.trim() || undefined;
+    const updatedAutoDelete = typeof auto_delete !== 'undefined' ? auto_delete === true || auto_delete === 'true' : undefined;
+    const updatedDeleteAfterDays = typeof delete_after_days !== 'undefined'
+      ? delete_after_days !== null
+        ? Number(delete_after_days)
+        : null
+      : undefined;
 
     await db.query(
       `UPDATE pastor_messages
@@ -109,13 +124,15 @@ export const updateMessage = async (req: AuthRequest, res: Response): Promise<vo
            content = COALESCE($2, content),
            label = COALESCE($3, label),
            author = COALESCE($4, author),
+           auto_delete = COALESCE($5, auto_delete),
+           delete_after_days = CASE WHEN $6 IS NOT NULL THEN $6 ELSE delete_after_days END,
            updated_at = now()
-       WHERE id = $5`,
-      [updatedTitle, updatedContent, updatedLabel, updatedAuthor, req.params.id]
+       WHERE id = $7`,
+      [updatedTitle, updatedContent, updatedLabel, updatedAuthor, updatedAutoDelete, updatedDeleteAfterDays, req.params.id]
     );
 
     const updated = await db.one<PastorMessage>(
-      'SELECT id, title, content, label, author, created_at, updated_at FROM pastor_messages WHERE id = $1',
+      'SELECT id, title, content, label, author, auto_delete, delete_after_days, created_at, updated_at FROM pastor_messages WHERE id = $1',
       [req.params.id]
     );
 
