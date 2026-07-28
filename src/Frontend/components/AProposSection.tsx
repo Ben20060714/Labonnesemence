@@ -11,6 +11,7 @@ import { api, calculerInitiales, obtenirUrlFichier } from '../services/api';
 
 import MM5 from '../../../img/MM_5.jpg';
 import MM4 from '../../../img/MM_4.jpg';
+import MM1 from '../../../img/MM_1.jpg'
 
 const DEVELOPPEUR: DevEquipe[] = [
   {
@@ -50,7 +51,8 @@ export default function AProposSection() {
   const [membreSelectionne, definirMembreSelectionne] = useState<MembreEquipe | null>(null);
   const [devSelectionne, definirDevSelectionne] = useState<DevEquipe | null>(null);
   const [imageHistorique, definirImageHistorique] = useState<string>(MM5);
-  const [imgPstEtGinane, definirImgPstEtGinane] = useState<string>(MM4);
+  const [imgPatriarche, definirimgPatriarche] = useState<string>(MM4);
+  const [imgPstEtGinane, definirimgPstEtGinane] = useState<string>(MM1);
 
   useEffect(() => {
     let composantActif = true;
@@ -156,24 +158,31 @@ export default function AProposSection() {
               </p>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
-              <p>
-                Depuis la mort de son Bishop en Septembre 2020, la Bonne Semence est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
-              </p>
-              <p>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit,</p>
-              <p>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></p>
-              <p className="italic font-bold"><i>« Voici les miracles qui accompagneront ceux qui auront cru : en mon nom, ils chasseront les demons ; ils parleront de nouvelles langues ; ils saisiront des serpents ; s'ils boivent quelque breuvage mortel, il ne leur fera point de mal ; ils imposeront les mains aux malades, et les malades seront guéris. »</i></p>
-              <p>Les guerisons miraculeuses, les delivrances ainsi que les manifestations de la puissance du Saint-Esprit accompagnent son ministère.</p>
+              <div className="flex flex-col md:flex-row gap-4 items-center">
+                <div className="">
+                  <img src={imgPstEtGinane} alt="Le Patriarche et son epouse, Ginane" className="rounded-lg shadow-md lg:w-full" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
+                  <p>
+                    Depuis la mort de son Bishop en Septembre 2020, la Bonne Semence est dirigée par le Pasteur Djoe Baruani, fils biologique du Pasteur Jean Médard.
+                  </p>
+                  <p>Après avoir vécu plus de vingt ans en Europe, le Pasteur Djoe Baruani a accepté l'appel de Dieu d'une manière inconditionnelle étant l'ami du Saint-Esprit,</p>
+                  <p>Le pasteur Djoe voit dans son ministère l'accomplissement des promesses bibliques écrites dans <strong>Marc 16 : 17 - 18</strong></p>
+                  <p className="italic font-bold"><i>« Voici les miracles qui accompagneront ceux qui auront cru : en mon nom, ils chasseront les demons ; ils parleront de nouvelles langues ; ils saisiront des serpents ; s'ils boivent quelque breuvage mortel, il ne leur fera point de mal ; ils imposeront les mains aux malades, et les malades seront guéris. »</i></p>
+                  <p>Les guerisons miraculeuses, les delivrances ainsi que les manifestations de la puissance du Saint-Esprit accompagnent son ministère.</p>
+                </div>
+              </div>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">LA SUCCESSION</h2>
               <div className="flex flex-col md:flex-row gap-4 items-center">
                 <div>
+                  <h2 className="text-2xl font-bold">LA SUCCESSION</h2>
                   <p>Un succes sans successeur ne sera jamais considere comme un veritable succès.</p>
                   <p>En l'an 2000, une succession se préparait déjà selon le plan divin de Dieu. Sur cette photo, nous voyons le Patriarche Jean Medard Kalonda Bin Baruani et son fils biologique Jean Djoe Kalonda Bin Baruani.</p>
                 </div>
                 <div>
-                  <img src={imgPstEtGinane} alt="Le Patriarche et son fils le Pst. Djoe" className="rounded-lg shadow-md lg:w-full" />
+                  <img src={imgPatriarche} alt="Le Patriarche et son fils le Pst. Djoe" className="rounded-lg shadow-md lg:w-full" />
                 </div>
               </div>
             </div>

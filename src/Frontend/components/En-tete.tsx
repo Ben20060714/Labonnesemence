@@ -44,7 +44,7 @@ export default function EnTete({
   return (
     <header
       id="barre-navigation-principale"
-      className="sticky top-0 z-50 w-full border-b backdrop-blur-md bg-white/90 border-[#f4ebd9] text-slate-800 transition-colors duration-300 dark:bg-slate-900/95 dark:border-slate-800 dark:text-slate-100">
+      className="sticky top-0 z-50 w-full border-b backdrop-blur-md bg-[#fcfaf4]/92 border-[#f4ebd9] text-slate-800 transition-colors duration-300 dark:bg-slate-900/95 dark:border-slate-800 dark:text-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div id="bloc-logo-paroisse" className="flex items-center gap-3 cursor-pointer select-none" onClick={() => executerChangementPage('accueil')}>
@@ -95,7 +95,7 @@ export default function EnTete({
       </div>
 
       {menuMobileOuvert && (
-        <motion.div id="conteneur-menu-mobile" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden border-t border-[#f4ebd9] bg-white text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100">
+        <motion.div id="conteneur-menu-mobile" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden border-t border-[#f4ebd9] bg-[#fcfaf4] text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100">
           <div className="px-3 py-4 space-y-1.5">
             {ongletsNavigation.map((onglet) => {
               const estActif = pageActive === onglet.cle;

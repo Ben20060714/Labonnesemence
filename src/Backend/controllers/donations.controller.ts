@@ -74,17 +74,17 @@ export const create = async (req: Request, res: Response) => {
   };
 
   if (!donnees.donorName || !donnees.donorEmail || !donnees.donorPhone) {
-    sendError(res, 'Nom, email et telephone du donateur sont requis.');
+    sendError(res, 'Le nom, l’e-mail et le téléphone du donateur sont requis.');
     return;
   }
 
   if (!isValidEmail(donnees.donorEmail)) {
-    sendError(res, 'Adresse email invalide.');
+    sendError(res, 'Adresse e-mail invalide.');
     return;
   }
 
   if (!Number.isInteger(donnees.amount) || donnees.amount < 1) {
-    sendError(res, 'Montant de don invalide.');
+    sendError(res, 'Montant du don invalide.');
     return;
   }
 
@@ -112,9 +112,10 @@ export const create = async (req: Request, res: Response) => {
     );
 
     const donation = await db.one('SELECT * FROM donations WHERE id = $1', [id]);
-    sendSuccess(res, donation, 'Don prepare.', 201);
+    sendSuccess(res, donation, 'Don préparé.', 201);
   } catch (error: any) {
-    sendError(res, error.message, 500);
+    console.error('Erreur lors de la préparation du don:', error);
+    sendError(res, 'Impossible de préparer le don.', 500);
   }
 };
 
@@ -123,7 +124,7 @@ export const notifyMonetbil = async (req: Request, res: Response) => {
   const reference = trouverReference(payload);
 
   if (!reference) {
-    sendError(res, 'Reference de paiement manquante.');
+    sendError(res, 'Référence de paiement manquante.');
     return;
   }
 
@@ -145,16 +146,18 @@ export const notifyMonetbil = async (req: Request, res: Response) => {
 
     sendSuccess(res, { received: true });
   } catch (error: any) {
-    sendError(res, error.message, 500);
+    console.error('Erreur lors de la notification Monetbil:', error);
+    sendError(res, 'Impossible de traiter la notification de paiement.', 500);
   }
 };
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
     const rows = await db.many('SELECT * FROM donations ORDER BY created_at DESC');
-    sendSuccess(res, rows, 'Dons recuperes.');
+    sendSuccess(res, rows, 'Dons récupérés.');
   } catch (error: any) {
-    sendError(res, error.message, 500);
+    console.error('Erreur lors de la récupération des dons:', error);
+    sendError(res, 'Impossible de récupérer les dons.', 500);
   }
 };
 
@@ -182,8 +185,9 @@ export const updateStatus = async (req: Request, res: Response) => {
     }
 
     const donation = await db.one('SELECT * FROM donations WHERE id = $1', [req.params.id]);
-    sendSuccess(res, donation, 'Statut du don mis a jour.');
+    sendSuccess(res, donation, 'Statut du don mis à jour.');
   } catch (error: any) {
-    sendError(res, error.message, 500);
+    console.error('Erreur lors de la mise à jour du statut du don:', error);
+    sendError(res, 'Impossible de mettre à jour le statut du don.', 500);
   }
 };

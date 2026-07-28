@@ -6,6 +6,7 @@
 import { useState, SyntheticEvent } from 'react';
 import { Church, Mail, MapPin, Phone, Send, Check } from 'lucide-react';
 import { motion } from 'motion/react';
+import { api } from '../services/api';
 
 interface PiedDePageProps {
   definirPageActive: (page: string) => void;
@@ -13,18 +14,28 @@ interface PiedDePageProps {
 
 export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
   const [courrielNewsletter, definirCourrielNewsletter] = useState<string>('');
-  const [statutInscription, definirStatutInscription] = useState<boolean>(false);
+  const [newsletterEnCours, definirNewsletterEnCours] = useState<boolean>(false);
+  const [newsletterSucces, definirNewsletterSucces] = useState<boolean>(false);
+  const [newsletterErreur, definirNewsletterErreur] = useState<string | null>(null);
 
-  const gererInscriptionNewsletter = (evenement: SyntheticEvent) => {
+  const gererInscriptionNewsletter = async (evenement: SyntheticEvent) => {
     evenement.preventDefault();
     if (!courrielNewsletter.trim()) return;
-    
-    // Simulation success
-    definirStatutInscription(true);
-    setTimeout(() => {
+
+    definirNewsletterEnCours(true);
+    definirNewsletterSucces(false);
+    definirNewsletterErreur(null);
+
+    try {
+      await api.soumettreNewsletter(courrielNewsletter.trim());
+      definirNewsletterSucces(true);
       definirCourrielNewsletter('');
-      definirStatutInscription(false);
-    }, 4000);
+      window.setTimeout(() => definirNewsletterSucces(false), 4000);
+    } catch (erreur) {
+      definirNewsletterErreur(erreur instanceof Error ? erreur.message : "L'inscription à la newsletter a échoué.");
+    } finally {
+      definirNewsletterEnCours(false);
+    }
   };
 
   return (
@@ -42,7 +53,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed font-light">
-              La Bonne Semence accompagne les familles dans la foi, la prière, l'enseignement biblique et le service communautaire.
+              BONNE SEMENCE accompagne les familles dans la foi, la prière, l'enseignement biblique et le service communautaire.
             </p>
             <div className="text-xs text-slate-500 font-mono">
               © {new Date().getFullYear()} CABSC.
@@ -86,11 +97,11 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-[#c29f63]" />
-                <span className="font-mono">+243 822 342 445</span>
+                <a className="font-mono" href="tel:+243 822 342 445">+243 822 342 445</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-[#c29f63]" />
-                <span className="font-mono text-xs">bonnesemence.cabsc@gmail.com</span>
+                <a className="font-mono text-xs" href="mailto:bonnesemence.cabsc@gmail.com">bonnesemence.cabsc@gmail.com</a>
               </li>
             </ul>
           </div>
@@ -121,30 +132,38 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                 <button
                   type="submit"
                   id="bouton-soumettre-newsletter"
+                  disabled={newsletterEnCours}
                   className="absolute right-1 p-1.5 text-slate-300 bg-[#af894d] hover:bg-[#c29f63] rounded transition-all cursor-pointer"
                 >
-                  {statutInscription ? (
+                  {newsletterEnCours ? (
+                    <Send className="w-4 h-4 animate-pulse" />
+                  ) : newsletterSucces ? (
                     <Check className="w-4 h-4 text-white" />
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
                 </button>
               </div>
-              
-              {statutInscription && (
-                // <motion.p
-                //   id="message-succes-newsletter"
-                //   initial={{ opacity: 0, y: 5 }}
-                //   animate={{ opacity: 1, y: 0 }}
-                //   className="text-[11px] text-emerald-400 font-medium mt-1.5 flex items-center gap-1">
-                //   <Check className="w-3 h-3" /> Fonctionnalité en cours de développement...
-                // </motion.p>
+
+              {newsletterSucces && (
                 <motion.p
                   id="message-succes-newsletter"
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-[11px] text-red-500 font-medium mt-1.5 flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Fonctionnalité en cours de développement...
+                  className="text-[11px] text-emerald-400 font-medium mt-1.5 flex items-center gap-1"
+                >
+                  <Check className="w-3 h-3" /> Inscription confirmée.
+                </motion.p>
+              )}
+
+              {newsletterErreur && (
+                <motion.p
+                  id="message-erreur-newsletter"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[11px] text-rose-400 font-medium mt-1.5 flex items-center gap-1"
+                >
+                  {newsletterErreur}
                 </motion.p>
               )}
             </form>

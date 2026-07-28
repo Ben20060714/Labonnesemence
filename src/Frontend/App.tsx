@@ -17,6 +17,7 @@ import AdminSection from './components/AdminSection.tsx';
 import LoginSection from './components/LoginSection.tsx';
 import InscriptionSection from './components/InscriptionSection.tsx';
 import MonCompteSection from './components/MonCompteSection.tsx';
+import { SermonPlayerBar, SermonPlayerProvider, useSermonPlayer } from './components/SermonPlayerContext.tsx';
 import {
   obtenirAccessToken,
   obtenirExpirationToken,
@@ -26,6 +27,14 @@ import {
 } from './services/auth.ts';
 
 export default function App() {
+  return (
+    <SermonPlayerProvider>
+      <AppChrome />
+    </SermonPlayerProvider>
+  );
+}
+
+function AppChrome() {
   const [pageActive, definirPageActive] = useState<string>('accueil');
   const [utilisateur, definirUtilisateur] = useState<UtilisateurAuthentifie | null>(null);
   const margeRafraichissementMs = 60_000;
@@ -116,6 +125,8 @@ export default function App() {
     definirModeSombre(!modeSombre);
   };
 
+  const { sermonCourant } = useSermonPlayer();
+
   // Sélecteur de rendu de page
   const renduSectionActive = () => {
     switch (pageActive) {
@@ -153,7 +164,7 @@ export default function App() {
   return (
     <div
       id="application-globale"
-      className="min-h-screen flex flex-col justify-between bg-white text-slate-850 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300"
+      className="min-h-screen flex flex-col justify-between bg-[#fcfaf4] text-slate-850 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300"
     >
       {/* Barre de navigation / En-tête de page */}
       <EnTete
@@ -165,7 +176,7 @@ export default function App() {
       />
 
       {/* Cadre de contenu dynamique avec animations de transition */}
-      <main id="contenant-principal-pages" className="flex-grow">
+      <main id="contenant-principal-pages" className={`flex-grow ${sermonCourant ? 'pb-36 sm:pb-40' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={pageActive}
@@ -183,6 +194,8 @@ export default function App() {
 
       {/* Pied de page informatif et d'inscription */}
       <PiedDePage definirPageActive={definirPageActive} />
+      {sermonCourant && <div aria-hidden="true" className="h-32 sm:h-36" />}
+      <SermonPlayerBar />
     </div>
   );
 }

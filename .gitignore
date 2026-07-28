@@ -1,6 +1,9 @@
 node_modules/
+.agents/
 build/
 coverage/
+.venv/
+dist/
 .DS_Store
 *.log
 .env*
@@ -10,4 +13,5 @@ tmp
 decoded_files_js.txt
 data/
 uploads/
-TODO.txt
+brouillon.txt
+PriereDuJourSection.tsx

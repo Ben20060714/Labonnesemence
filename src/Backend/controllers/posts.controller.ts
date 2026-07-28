@@ -60,7 +60,7 @@ export async function getPostBySlug(req: Request, res: Response): Promise<void> 
   `, [slug]);
 
   if (!post) {
-    sendError(res, 'Post not found', 404);
+    sendError(res, 'Article introuvable.', 404);
     return;
   }
 
@@ -107,7 +107,7 @@ export async function getAllPostsAdmin(req: AuthRequest, res: Response): Promise
 
 export async function createPost(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
@@ -119,12 +119,12 @@ export async function createPost(req: AuthRequest, res: Response): Promise<void>
   };
 
   if (!title || !content) {
-    sendError(res, 'Title and content are required');
+    sendError(res, 'Le titre et le contenu sont requis.');
     return;
   }
 
   if (title.length < 3 || title.length > 200) {
-    sendError(res, 'Title must be between 3 and 200 characters');
+    sendError(res, 'Le titre doit contenir entre 3 et 200 caractères.');
     return;
   }
 
@@ -153,10 +153,10 @@ export async function createPost(req: AuthRequest, res: Response): Promise<void>
       WHERE p.id = $1
     `, [id]);
 
-    sendSuccess(res, post, 'Post created', 201);
+    sendSuccess(res, post, 'Article créé.', 201);
   } catch (error) {
     console.error('Create post error:', error);
-    sendError(res, 'Failed to create post', 500);
+    sendError(res, 'Impossible de créer l’article.', 500);
   }
 }
 
@@ -164,19 +164,19 @@ export async function updatePost(req: AuthRequest, res: Response): Promise<void>
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
-    sendError(res, 'Post not found', 404);
+    sendError(res, 'Article introuvable.', 404);
     return;
   }
 
   // Only the author or admin can update
   if (post.author_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
@@ -217,10 +217,10 @@ export async function updatePost(req: AuthRequest, res: Response): Promise<void>
       WHERE p.id = $1
     `, [id]);
 
-    sendSuccess(res, updated, 'Post updated');
+    sendSuccess(res, updated, 'Article mis à jour.');
   } catch (error) {
     console.error('Update post error:', error);
-    sendError(res, 'Failed to update post', 500);
+    sendError(res, 'Impossible de mettre à jour l’article.', 500);
   }
 }
 
@@ -228,67 +228,67 @@ export async function deletePost(req: AuthRequest, res: Response): Promise<void>
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
-    sendError(res, 'Post not found', 404);
+    sendError(res, 'Article introuvable.', 404);
     return;
   }
 
   if (post.author_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
   await db.query('DELETE FROM posts WHERE id = $1', [id]);
-  sendSuccess(res, null, 'Post deleted');
+  sendSuccess(res, null, 'Article supprimé.');
 }
 
 export async function publishPost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
-    sendError(res, 'Post not found', 404);
+    sendError(res, 'Article introuvable.', 404);
     return;
   }
 
   if (post.author_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
   await db.query('UPDATE posts SET published = true, updated_at = now() WHERE id = $1', [id]);
-  sendSuccess(res, null, 'Post published');
+  sendSuccess(res, null, 'Article publié.');
 }
 
 export async function unpublishPost(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const post = await db.maybeOne<Post>('SELECT * FROM posts WHERE id = $1', [id]);
   if (!post) {
-    sendError(res, 'Post not found', 404);
+    sendError(res, 'Article introuvable.', 404);
     return;
   }
 
   if (post.author_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Forbidden', 403);
+    sendError(res, 'Accès interdit.', 403);
     return;
   }
 
   await db.query('UPDATE posts SET published = false, updated_at = now() WHERE id = $1', [id]);
-  sendSuccess(res, null, 'Post unpublished');
+  sendSuccess(res, null, 'Article dépublié.');
 }

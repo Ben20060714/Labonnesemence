@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -14,6 +15,7 @@ import filesRoutes from './routes/files.routes.js';
 import sermonsRoutes from './routes/sermons.routes.js';
 import eventsRoutes from './routes/events.routes.js';
 import contactsRoutes from './routes/contacts.routes.js';
+import newsletterRoutes from './routes/newsletter.routes.ts';
 import donationsRoutes from './routes/donations.routes.js';
 
 const dir = import.meta.dirname;
@@ -39,7 +41,7 @@ await initializeDatabase();
 // ─── Clean expired tokens every hour ────────────────────────────────────────
 setInterval(() => {
   cleanExpiredRefreshTokens().catch((error) => {
-    console.error('Failed to clean expired refresh tokens:', error);
+    console.error('Echec de la destruction des tokens expirés:', error);
   });
 }, 60 * 60 * 1000);
 
@@ -60,6 +62,7 @@ app.use('/api/files', filesRoutes);
 app.use('/api/sermons', sermonsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/contacts', contactsRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/donations', donationsRoutes);
 
 // ─── Frontend statique ───────────────────────────────────────────────────────
@@ -121,6 +124,7 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/contacts`);
   console.log(`  GET    /api/contacts         (admin)`);
   console.log(`  DELETE /api/contacts/:id     (admin)`);
+  console.log(`  POST   /api/newsletter/subscribe`);
   console.log(`  GET    /api/donations/monetbil/config`);
   console.log(`  POST   /api/donations`);
   console.log(`  POST   /api/donations/monetbil/notify`);

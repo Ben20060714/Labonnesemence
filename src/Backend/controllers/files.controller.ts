@@ -32,7 +32,7 @@ const removeFromBucket = async (filename: string) => {
 const sendBucketFile = async (res: Response, file: FileRecord, disposition: 'attachment' | 'inline') => {
   const { data, error } = await supabase.storage.from(supabaseBucket).download(file.filename);
   if (error || !data) {
-    sendError(res, 'File not found in Supabase bucket', 404);
+    sendError(res, 'Fichier introuvable dans le bucket Supabase.', 404);
     return;
   }
 
@@ -45,12 +45,12 @@ const sendBucketFile = async (res: Response, file: FileRecord, disposition: 'att
 
 export async function uploadFile(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   if (!req.file) {
-    sendError(res, 'No file uploaded');
+    sendError(res, 'Aucun fichier n’a été envoyé.');
     return;
   }
 
@@ -92,23 +92,23 @@ export async function uploadFile(req: AuthRequest, res: Response): Promise<void>
       [id]
     );
 
-    sendSuccess(res, file, 'File uploaded successfully', 201);
+    sendSuccess(res, file, 'Fichier chargé avec succès.', 201);
   } catch (error) {
     await removeFromBucket(storedFilename).catch(() => {});
-    console.error('Upload error:', error);
-    sendError(res, 'Failed to upload file', 500);
+    console.error('Erreur du chargement:', error);
+    sendError(res, 'Échec lors du chargement du fichier.', 500);
   }
 }
 
 export async function uploadMultipleFiles(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) {
-    sendError(res, 'No files uploaded');
+    sendError(res, 'Aucun fichier n’a été envoyé.');
     return;
   }
 
@@ -148,11 +148,11 @@ export async function uploadMultipleFiles(req: AuthRequest, res: Response): Prom
       [ids]
     );
 
-    sendSuccess(res, uploadedFiles, `${files.length} files uploaded`, 201);
+    sendSuccess(res, uploadedFiles, `${files.length} fichiers chargés.`, 201);
   } catch (error) {
     await Promise.all(uploadedPaths.map((filename) => removeFromBucket(filename).catch(() => {})));
-    console.error('Multi-upload error:', error);
-    sendError(res, 'Failed to upload files', 500);
+    console.error('Erreur de chargement des fichiers:', error);
+    sendError(res, 'Échec lors du chargement des fichiers.', 500);
   }
 }
 
@@ -161,17 +161,17 @@ export async function downloadFile(req: AuthRequest, res: Response): Promise<voi
 
   const file = await db.maybeOne<FileRecord>('SELECT * FROM files WHERE id = $1', [id]);
   if (!file) {
-    sendError(res, 'File not found', 404);
+    sendError(res, 'Fichier introuvable.', 404);
     return;
   }
 
   if (!file.is_public) {
     if (!req.user) {
-      sendError(res, 'Authentication required', 401);
+      sendError(res, 'Authentification requise.', 401);
       return;
     }
     if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
-      sendError(res, 'Access denied', 403);
+      sendError(res, 'Accès refusé', 403);
       return;
     }
   }
@@ -184,17 +184,17 @@ export async function streamFile(req: AuthRequest, res: Response): Promise<void>
 
   const file = await db.maybeOne<FileRecord>('SELECT * FROM files WHERE id = $1', [id]);
   if (!file) {
-    sendError(res, 'File not found', 404);
+    sendError(res, 'Fichier introuvable.', 404);
     return;
   }
 
   if (!file.is_public) {
     if (!req.user) {
-      sendError(res, 'Authentication required', 401);
+      sendError(res, 'Authentification requise.', 401);
       return;
     }
     if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
-      sendError(res, 'Access denied', 403);
+      sendError(res, 'Accès refusé.', 403);
       return;
     }
   }
@@ -204,7 +204,7 @@ export async function streamFile(req: AuthRequest, res: Response): Promise<void>
 
 export async function getFiles(req: AuthRequest, res: Response): Promise<void> {
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
@@ -295,17 +295,17 @@ export async function getFileInfo(req: AuthRequest, res: Response): Promise<void
   );
 
   if (!file) {
-    sendError(res, 'File not found', 404);
+    sendError(res, 'Fichier introuvable.', 404);
     return;
   }
 
   if (!file.is_public) {
     if (!req.user) {
-      sendError(res, 'Authentication required', 401);
-      return;
-    }
-    if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
-      sendError(res, 'Access denied', 403);
+    sendError(res, 'Authentification requise.', 401);
+    return;
+  }
+  if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
+      sendError(res, 'Accès refusé.', 403);
       return;
     }
   }
@@ -317,52 +317,52 @@ export async function deleteFile(req: AuthRequest, res: Response): Promise<void>
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const file = await db.maybeOne<FileRecord>('SELECT * FROM files WHERE id = $1', [id]);
   if (!file) {
-    sendError(res, 'File not found', 404);
+    sendError(res, 'Fichier introuvable.', 404);
     return;
   }
 
   if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Access denied', 403);
+    sendError(res, 'Accès refusé.', 403);
     return;
   }
 
   await removeFromBucket(file.filename);
   await db.query('DELETE FROM files WHERE id = $1', [id]);
-  sendSuccess(res, null, 'File deleted');
+  sendSuccess(res, null, 'Fichier supprimé.');
 }
 
 export async function updateFileVisibility(req: AuthRequest, res: Response): Promise<void> {
   const { id } = req.params;
 
   if (!req.user) {
-    sendError(res, 'Unauthorized', 401);
+    sendError(res, 'Non autorisé.', 401);
     return;
   }
 
   const { is_public } = req.body as { is_public?: boolean };
 
   if (is_public === undefined) {
-    sendError(res, 'is_public field is required');
+    sendError(res, 'Le champ is_public est requis.');
     return;
   }
 
   const file = await db.maybeOne<FileRecord>('SELECT * FROM files WHERE id = $1', [id]);
   if (!file) {
-    sendError(res, 'File not found', 404);
+    sendError(res, 'Fichier introuvable.', 404);
     return;
   }
 
   if (file.uploader_id !== req.user.userId && req.user.role !== 'admin') {
-    sendError(res, 'Access denied', 403);
+    sendError(res, 'Accès refusé.', 403);
     return;
   }
 
   await db.query('UPDATE files SET is_public = $1 WHERE id = $2', [!!is_public, id]);
-  sendSuccess(res, null, `File is now ${is_public ? 'public' : 'private'}`);
+  sendSuccess(res, null, `Le fichier est maintenant ${is_public ? 'public' : 'privé'}.`);
 }
