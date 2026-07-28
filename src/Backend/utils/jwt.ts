@@ -5,9 +5,9 @@ import { JwtPayload, Role } from '../types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-super-secret-refresh-key-change-in-production';
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
-const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+const ACCESS_TOKEN_EXPIRY = '7d';
+const REFRESH_TOKEN_EXPIRY = '30d';
+const REFRESH_TOKEN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
 
 export function generateAccessToken(userId: string, email: string, role: Role): string {
   return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });

@@ -16,6 +16,7 @@ import sermonsRoutes from './routes/sermons.routes.js';
 import eventsRoutes from './routes/events.routes.js';
 import contactsRoutes from './routes/contacts.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.ts';
+import pastorMessagesRoutes from './routes/mot_du_pasteur.routes.ts';
 import donationsRoutes from './routes/donations.routes.js';
 
 const dir = import.meta.dirname;
@@ -63,6 +64,7 @@ app.use('/api/sermons', sermonsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/mot_du_pasteur', pastorMessagesRoutes);
 app.use('/api/donations', donationsRoutes);
 
 // ─── Frontend statique ───────────────────────────────────────────────────────
@@ -124,6 +126,11 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/contacts`);
   console.log(`  GET    /api/contacts         (admin)`);
   console.log(`  DELETE /api/contacts/:id     (admin)`);
+  console.log(`  GET    /api/mot_du_pasteur      (user/admin)`);
+  console.log(`  GET    /api/mot_du_pasteur/:id  (user/admin)`);
+  console.log(`  POST   /api/mot_du_pasteur      (admin)`);
+  console.log(`  PUT    /api/mot_du_pasteur/:id  (admin)`);
+  console.log(`  DELETE /api/mot_du_pasteur/:id  (admin)`);
   console.log(`  POST   /api/newsletter/subscribe`);
   console.log(`  GET    /api/donations/monetbil/config`);
   console.log(`  POST   /api/donations`);

@@ -25,6 +25,16 @@ export interface PublicUser {
 
 export type UserPublic = PublicUser;
 
+export interface PastorMessage {
+  id: string;
+  title: string;
+  content: string;
+  label: string;
+  author: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Post {
   id: string;
   title: string;

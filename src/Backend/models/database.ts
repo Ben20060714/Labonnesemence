@@ -156,6 +156,16 @@ export async function initializeDatabase(): Promise<void> {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
+    CREATE TABLE IF NOT EXISTS pastor_messages (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      label TEXT NOT NULL,
+      author TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS donations (
       id TEXT PRIMARY KEY,
       reference TEXT UNIQUE NOT NULL,
@@ -193,6 +203,7 @@ export async function initializeDatabase(): Promise<void> {
   await ensureColumnExists('files', 'legend', 'TEXT');
   await ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
   await ensureColumnExists('files', 'categorie', 'TEXT');
+  await ensureColumnExists('pastor_messages', 'author', "TEXT NOT NULL DEFAULT ''");
   await db.query("UPDATE files SET usage = 'gallery' WHERE usage IS NULL OR usage = ''");
   await ensureDefaultAdmin();
 
