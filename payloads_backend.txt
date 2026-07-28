@@ -1,0 +1,795 @@
+PAYLOADS BACKEND - LA BONNE SEMENCE
+Base API: http://localhost:5000
+
+Structure commune des reponses JSON:
+
+Succes:
+{
+  "success": true,
+  "data": ...,
+  "message": "Message optionnel"
+}
+
+Erreur:
+{
+  "success": false,
+  "error": "Message d'erreur"
+}
+
+Authentification:
+- Les routes privees attendent l'en-tete: Authorization: Bearer <accessToken>
+- Les routes marquees "admin" exigent un utilisateur avec role "admin".
+- Les routes paginees acceptent en general: ?page=1&limit=10
+- Reponse paginee:
+{
+  "success": true,
+  "data": {
+    "items": [],
+    "total": 0,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 0
+  }
+}
+
+Types principaux retournes:
+
+PublicUser:
+{
+  "id": "uuid",
+  "email": "user@example.com",
+  "username": "nom",
+  "role": "admin | user",
+  "image_url": "url-ou-null",
+  "created_at": "datetime"
+}
+
+PostWithAuthor:
+{
+  "id": "uuid",
+  "title": "Titre",
+  "slug": "titre",
+  "content": "Contenu",
+  "excerpt": "Resume ou null",
+  "image_url": "url-ou-null",
+  "author_id": "uuid",
+  "published": 0,
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "author_username": "nom",
+  "author_email": "user@example.com"
+}
+
+FileWithUploader:
+{
+  "id": "uuid",
+  "filename": "images/fichier.jpg",
+  "original_name": "fichier.jpg",
+  "legend": "Legende ou null",
+  "usage": "gallery | cover",
+  "mimetype": "image/jpeg",
+  "size": 12345,
+  "uploader_id": "uuid",
+  "is_public": 1,
+  "created_at": "datetime",
+  "uploader_username": "nom"
+}
+
+Sermon:
+{
+  "id": 1,
+  "titre": "Titre",
+  "verset": "Jean 3:16",
+  "description": "Description",
+  "chemin": "url audio/video/fichier",
+  "image_url": "url-ou-null",
+  "date": "2026-06-26",
+  "auteur": "Orateur",
+  "categorie": "Enseignement",
+  "created_at": "datetime",
+  "updated_at": "datetime"
+}
+
+Event:
+{
+  "id": 1,
+  "titre": "Titre",
+  "lieu": "Lieu",
+  "description": "Description",
+  "image_url": "url-ou-null",
+  "categorie": "Culte",
+  "heure": "10:00",
+  "date": "2026-06-26",
+  "created_at": "datetime",
+  "updated_at": "datetime"
+}
+
+ContactMessage:
+{
+  "id": "uuid",
+  "nom": "Nom",
+  "email": "contact@example.com",
+  "sujet": "Sujet",
+  "contenu": "Message",
+  "created_at": "datetime"
+}
+
+Donation:
+{
+  "id": "uuid",
+  "reference": "DON-...",
+  "donor_name": "Nom",
+  "donor_email": "donateur@example.com",
+  "donor_phone": "+237...",
+  "amount": 1000,
+  "currency": "USD",
+  "designation": "Don CABCS",
+  "description": "Description",
+  "status": "pending | paid | failed | cancelled",
+  "provider": "monetbil",
+  "provider_transaction_id": "id-ou-null",
+  "provider_payload": "json-ou-null",
+  "created_at": "datetime",
+  "updated_at": "datetime"
+}
+
+============================================================
+AUTH - /api/auth
+============================================================
+
+POST /api/auth/register
+Acces: public
+Envoi:
+{
+  "email": "user@example.com",
+  "username": "nomUtilisateur",
+  "password": "motdepasse8",
+  "role": "user | admin"
+}
+Champs requis: email, username, password
+Regles: email valide, password >= 8 caracteres, username entre 3 et 30 caracteres.
+Reception:
+{
+  "success": true,
+  "data": {
+    "user": PublicUser,
+    "accessToken": "jwt",
+    "refreshToken": "jwt"
+  },
+  "message": "Account created successfully"
+}
+
+POST /api/auth/login
+Acces: public
+Envoi:
+{
+  "email": "user@example.com",
+  "password": "motdepasse"
+}
+Reception:
+{
+  "success": true,
+  "data": {
+    "user": PublicUser,
+    "accessToken": "jwt",
+    "refreshToken": "jwt"
+  },
+  "message": "Login successful"
+}
+
+POST /api/auth/refresh
+Acces: public
+Envoi:
+{
+  "refreshToken": "jwt"
+}
+Reception:
+{
+  "success": true,
+  "data": {
+    "accessToken": "nouveau-jwt",
+    "refreshToken": "nouveau-refresh-token"
+  },
+  "message": "Tokens refreshed"
+}
+
+POST /api/auth/heartbeat
+Acces: public
+Envoi:
+{
+  "refreshToken": "jwt"
+}
+Reception:
+{
+  "success": true,
+  "data": {
+    "user": PublicUser,
+    "accessToken": "nouveau-jwt",
+    "refreshToken": "nouveau-refresh-token"
+  },
+  "message": "Session refreshed"
+}
+
+POST /api/auth/logout
+Acces: prive
+Envoi:
+{
+  "refreshToken": "jwt"
+}
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Logged out successfully"
+}
+
+POST /api/auth/logout-all
+Acces: prive
+Envoi: aucun body requis
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Logged out from all devices"
+}
+
+GET /api/auth/me
+Acces: prive
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": PublicUser
+}
+
+PATCH /api/auth/password
+Acces: prive
+Envoi:
+{
+  "currentPassword": "ancienMotDePasse",
+  "newPassword": "nouveauMotDePasse8"
+}
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Password updated. Please log in again."
+}
+
+============================================================
+USERS - /api/users
+============================================================
+
+GET /api/users/public?page=1&limit=10
+Acces: public
+Envoi: aucun body
+Reception: reponse paginee de PublicUser.
+
+GET /api/users?page=1&limit=10
+Acces: admin
+Envoi: aucun body
+Reception: reponse paginee de PublicUser.
+
+POST /api/users
+Acces: admin
+Envoi:
+{
+  "email": "user@example.com",
+  "username": "nomUtilisateur",
+  "password": "motdepasse8",
+  "role": "user | admin",
+  "image_url": "url-ou-null"
+}
+Champs requis: email, username, password
+Reception:
+{
+  "success": true,
+  "data": PublicUser,
+  "message": "User created by admin"
+}
+
+GET /api/users/:id
+Acces: prive
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": PublicUser
+}
+
+PUT /api/users/:id
+Acces: prive, utilisateur lui-meme ou admin
+Envoi:
+{
+  "username": "nouveauNom",
+  "email": "new@example.com",
+  "role": "user | admin",
+  "image_url": "url-ou-null"
+}
+Notes: role modifiable seulement par un admin. Tous les champs sont optionnels.
+Reception:
+{
+  "success": true,
+  "data": PublicUser,
+  "message": "User updated"
+}
+
+DELETE /api/users/:id
+Acces: prive, utilisateur lui-meme ou admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "User deleted"
+}
+
+============================================================
+POSTS - /api/posts
+============================================================
+
+GET /api/posts?page=1&limit=10&author=nom&search=mot
+Acces: public
+Envoi: aucun body
+Query optionnels: page, limit, author, search
+Reception: reponse paginee de PostWithAuthor, uniquement les posts published = 1.
+
+GET /api/posts/admin?page=1&limit=10&published=true
+Acces: prive
+Envoi: aucun body
+Query optionnels: page, limit, published
+Notes: admin voit tous les posts; utilisateur normal voit ses propres posts.
+Reception: reponse paginee de PostWithAuthor.
+
+GET /api/posts/:slug
+Acces: public
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": PostWithAuthor
+}
+
+POST /api/posts
+Acces: prive
+Envoi:
+{
+  "title": "Titre",
+  "content": "Contenu",
+  "excerpt": "Resume optionnel",
+  "published": true
+}
+Champs requis: title, content
+Regles: title entre 3 et 200 caracteres.
+Reception:
+{
+  "success": true,
+  "data": PostWithAuthor,
+  "message": "Post created"
+}
+
+PUT /api/posts/:id
+Acces: prive, auteur ou admin
+Envoi:
+{
+  "title": "Nouveau titre",
+  "content": "Nouveau contenu",
+  "excerpt": "Nouveau resume ou null",
+  "published": false
+}
+Notes: tous les champs sont optionnels.
+Reception:
+{
+  "success": true,
+  "data": PostWithAuthor,
+  "message": "Post updated"
+}
+
+DELETE /api/posts/:id
+Acces: prive, auteur ou admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Post deleted"
+}
+
+PATCH /api/posts/:id/publish
+Acces: prive, auteur ou admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Post published"
+}
+
+PATCH /api/posts/:id/unpublish
+Acces: prive, auteur ou admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Post unpublished"
+}
+
+============================================================
+FILES - /api/files
+============================================================
+
+POST /api/files/upload
+Acces: prive
+Content-Type: multipart/form-data
+Envoi:
+- file: fichier, champ requis
+- is_public: "true" | "false", optionnel
+- legend: texte, optionnel
+- usage: "gallery" | "cover", optionnel
+Contraintes upload:
+- taille max: 10 MB
+- mimetypes acceptes: images jpeg/png/gif/webp/svg, audio mp3/wav/ogg/webm, video mp4/webm/ogg, pdf, txt/csv/json, zip, Word, Excel.
+Reception:
+{
+  "success": true,
+  "data": FileWithUploader,
+  "message": "File uploaded successfully"
+}
+
+POST /api/files/upload-multiple
+Acces: prive
+Content-Type: multipart/form-data
+Envoi:
+- files: liste de fichiers, max 10
+- is_public: "true" | "false", optionnel
+- legend: texte, optionnel
+- usage: "gallery" | "cover", optionnel
+Reception:
+{
+  "success": true,
+  "data": [FileWithUploader],
+  "message": "N files uploaded"
+}
+
+GET /api/files/public?page=1&limit=10
+Acces: public
+Envoi: aucun body
+Reception: reponse paginee de FileWithUploader, uniquement fichiers publics avec usage gallery.
+
+GET /api/files?page=1&limit=10
+Acces: prive
+Envoi: aucun body
+Notes: admin voit tous les fichiers; utilisateur normal voit ses propres fichiers.
+Reception: reponse paginee de FileWithUploader.
+
+GET /api/files/:id/info
+Acces: public si fichier public, sinon prive
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": FileWithUploader
+}
+
+GET /api/files/:id/download
+Acces: public si fichier public, sinon prive
+Envoi: aucun body
+Reception: flux fichier avec headers:
+- Content-Disposition: attachment
+- Content-Type: mimetype du fichier
+- Content-Length: taille du fichier
+
+GET /api/files/:id/stream
+Acces: public si fichier public, sinon prive
+Envoi: aucun body
+Reception: flux fichier inline avec headers:
+- Content-Type: mimetype du fichier
+- Content-Length: taille du fichier
+
+PATCH /api/files/:id/visibility
+Acces: prive, proprietaire ou admin
+Envoi:
+{
+  "is_public": true
+}
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "File is now public"
+}
+
+DELETE /api/files/:id
+Acces: prive, proprietaire ou admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "File deleted"
+}
+
+============================================================
+SERMONS - /api/sermons
+============================================================
+
+GET /api/sermons
+Acces: public
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": [Sermon],
+  "message": "Enseignements recuperes"
+}
+
+POST /api/sermons
+Acces: admin
+Envoi:
+{
+  "titre": "Titre",
+  "verset": "Jean 3:16",
+  "description": "Description",
+  "chemin": "url audio/video/fichier",
+  "image_url": "url-ou-null",
+  "date": "2026-06-26",
+  "auteur": "Orateur",
+  "categorie": "Enseignement"
+}
+Champ requis en base: titre.
+Reception:
+{
+  "success": true,
+  "data": {
+    "id": 1
+  },
+  "message": "Enseignement ajoute"
+}
+
+PUT /api/sermons/:id
+Acces: admin
+Envoi:
+{
+  "titre": "Titre",
+  "verset": "Jean 3:16",
+  "description": "Description",
+  "chemin": "url audio/video/fichier",
+  "image_url": "url-ou-null",
+  "date": "2026-06-26",
+  "auteur": "Orateur",
+  "categorie": "Enseignement"
+}
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Enseignement mis a jour"
+}
+
+DELETE /api/sermons/:id
+Acces: admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Enseignement supprime"
+}
+
+============================================================
+EVENTS - /api/events
+============================================================
+
+GET /api/events
+Acces: public
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": [Event],
+  "message": "Activites recuperees"
+}
+
+POST /api/events
+Acces: admin
+Envoi:
+{
+  "titre": "Titre",
+  "lieu": "Lieu",
+  "description": "Description",
+  "categorie": "Culte",
+  "heure": "10:00",
+  "date": "2026-06-26",
+  "image_url": "url-ou-null"
+}
+Champ requis en base: titre.
+Reception:
+{
+  "success": true,
+  "data": {
+    "id": 1
+  },
+  "message": "Activite creee"
+}
+
+PUT /api/events/:id
+Acces: admin
+Envoi:
+{
+  "titre": "Titre",
+  "lieu": "Lieu",
+  "description": "Description",
+  "categorie": "Culte",
+  "heure": "10:00",
+  "date": "2026-06-26",
+  "image_url": "url-ou-null"
+}
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Activite mise a jour"
+}
+
+DELETE /api/events/:id
+Acces: admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Activite supprimee"
+}
+
+============================================================
+CONTACTS - /api/contacts
+============================================================
+
+POST /api/contacts
+Acces: public
+Envoi:
+{
+  "nom": "Nom",
+  "email": "contact@example.com",
+  "sujet": "Sujet",
+  "contenu": "Message"
+}
+Champs requis: nom, email, sujet, contenu.
+Regles: email valide.
+Reception:
+{
+  "success": true,
+  "data": ContactMessage,
+  "message": "Message de contact enregistre."
+}
+
+GET /api/contacts
+Acces: admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": [ContactMessage],
+  "message": "Messages de contact recuperes."
+}
+
+DELETE /api/contacts/:id
+Acces: admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": null,
+  "message": "Message de contact supprime."
+}
+
+============================================================
+DONATIONS - /api/donations
+============================================================
+
+GET /api/donations/monetbil/config
+Acces: public
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": {
+    "serviceKey": "cle-service",
+    "paymentUrl": "https://www.monetbil.com/widget/v2.1/",
+    "notifyUrl": "http://localhost:5000/api/donations/monetbil/notify",
+    "returnUrl": "http://localhost:3001",
+    "cancelUrl": "http://localhost:3001"
+  }
+}
+
+POST /api/donations
+Acces: public
+Envoi:
+{
+  "donorName": "Nom du donateur",
+  "donorEmail": "donateur@example.com",
+  "donorPhone": "+237...",
+  "amount": 1000,
+  "designation": "Don CABCS",
+  "description": "Description optionnelle"
+}
+Champs requis: donorName, donorEmail, donorPhone, amount.
+Regles: email valide, amount entier >= 1.
+Reception:
+{
+  "success": true,
+  "data": Donation,
+  "message": "Don prepare."
+}
+
+POST /api/donations/monetbil/notify
+Acces: public, appele par Monetbil
+Envoi: body JSON, form-urlencoded ou query params. Le backend fusionne req.query et req.body.
+Champs possibles pour retrouver la reference:
+{
+  "reference": "DON-...",
+  "payment_ref": "DON-...",
+  "transaction_ref": "DON-...",
+  "item_ref": "DON-...",
+  "monetbil_item_ref": "DON-...",
+  "order_id": "DON-..."
+}
+Champs possibles pour le statut:
+{
+  "status": "success | successful | paid | completed | complete | accepted | failed | failure | error | rejected | declined | cancelled | canceled | cancel",
+  "payment_status": "paid",
+  "transaction_status": "paid",
+  "state": "paid"
+}
+Champs possibles pour l'id transaction provider:
+{
+  "transaction_id": "id-provider",
+  "payment_id": "id-provider",
+  "operator_transaction_id": "id-provider",
+  "channel_transaction_id": "id-provider"
+}
+Reception:
+{
+  "success": true,
+  "data": {
+    "received": true
+  }
+}
+
+GET /api/donations
+Acces: admin
+Envoi: aucun body
+Reception:
+{
+  "success": true,
+  "data": [Donation],
+  "message": "Dons recuperes."
+}
+
+PATCH /api/donations/:id/status
+Acces: admin
+Envoi:
+{
+  "status": "pending | paid | failed | cancelled"
+}
+Reception:
+{
+  "success": true,
+  "data": Donation,
+  "message": "Statut du don mis a jour."
+}
+
+============================================================
+HEALTH
+============================================================
+
+GET /health
+Acces: public
+Envoi: aucun body
+Reception:
+{
+  "status": "ok",
+  "timestamp": "2026-06-26T00:00:00.000Z",
+  "version": "1.0.0"
+}

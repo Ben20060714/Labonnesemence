@@ -1,0 +1,6 @@
+{
+  "name": "Eglise la bonne semence",
+  "description": "Site officiel de l'église la bonne semence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

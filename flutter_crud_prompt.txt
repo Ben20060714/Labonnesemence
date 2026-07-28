@@ -1,0 +1,93 @@
+Prompt pour reproduire le CRUD et l'affichage des sermons et événements en Flutter
+
+Objectif:
+Fournir à une IA un prompt complet en français pour générer une application Flutter (UI + appels API) reproduisant le CRUD (Create, Read, Update, Delete) et l'affichage des sermons et des événements tels qu'implémentés dans ce projet React/Express.
+
+Contexte technique du backend (à reproduire côté Flutter pour appels API):
+- Base URL API: `https://votre-api.example.com/api` (remplacer par l'URL réelle)
+- Endpoints disponibles:
+	- Sermons:
+		- `GET /api/sermons` -> Liste tous les sermons (ordre: `created_at DESC`).
+		- `POST /api/sermons` -> Crée un sermon (auth + admin). Payload JSON: `{ titre, verset, description, chemin, date, auteur, categorie, image_url }`.
+		- `PUT /api/sermons/:id` -> Met à jour un sermon existant (auth + admin). Même payload que POST.
+		- `DELETE /api/sermons/:id` -> Supprime un sermon (auth + admin).
+	- Events (Événements):
+		- `GET /api/events` -> Liste tous les événements (ordre: `date ASC`).
+		- `POST /api/events` -> Crée un événement (auth + admin). Payload JSON: `{ titre, lieu, description, categorie, heure, date, image_url }`.
+		- `PUT /api/events/:id` -> Met à jour un événement (auth + admin). Même payload que POST.
+		- `DELETE /api/events/:id` -> Supprime un événement (auth + admin).
+
+Comportement UI observé (à reproduire en Flutter):
+- Sermons:
+	- Affichage d'une grille/list view de sermons avec image, catégorie, date, titre, verset, résumé et orateur.
+	- Recherche textuelle (titre, orateur, verset, résumé) et filtrage par catégorie (ex: Tous, Dimanche, Enseignement, Fête).
+	- Lecture audio intégrée: bouton lecture/pause sur chaque carte, lecteur persistant en bas avec titre, orateur, timeline, contrôle mute/stop.
+	- Format des données attendu par le frontend React: `identifiant` (string), `titre`, `resume`, `orateur`, `passageBiblique` (ou `verset`), `categorie`, `date`, `imageUrl`, `urlAudio`.
+
+- Événements:
+	- Grille d'événements (cartes) avec image, catégorie, titre, description, date, heure, lieu et statut (ouvert/complet).
+	- Filtrage par catégorie (ex: Tous, Culte, Jeunesse, Prière, Social).
+	- CTA en bas de la carte indiquant `Activité ouverte` ou `Complet` selon `placesDisponibles`.
+	- Format des données attendu: `identifiant`, `titre`, `description`, `categorie`, `date`, `heure`, `lieu`, `imageUrl`, `placesDisponibles`.
+
+Contraintes UX / Détails visuels à respecter:
+- Cartes arrondies, images full-bleed en haut de la carte, overlay gradient.
+- Boutons de filtre visibles et accessibles, état actif clairement marqué.
+- Lecteur audio persistant flottant en bas avec bouton principal central (play/pause) et timeline.
+- Gestion du chargement: afficher un indicateur textuel pendant les requêtes initiales.
+
+Exigences fonctionnelles pour l'IA génératrice Flutter:
+1. Créer un projet Flutter (stable) avec architecture claire (ex: Provider, Riverpod, Bloc ou GetX) — indiquer le choix et justifier brièvement.
+2. Implémenter modèles Dart pour `Sermon` et `Evenement` avec sérialisation JSON.
+3. Implémenter un service `ApiService` réutilisable pour appeler les endpoints listés (GET/POST/PUT/DELETE) avec gestion des erreurs et des en-têtes d'auth (token JWT si nécessaire).
+4. Écrans/Widgets à générer:
+	 - `SermonsListScreen`: liste + recherche + filtres + cartes + lecture audio.
+	 - `SermonPlayerWidget`: lecteur persistant en bas avec timeline et contrôles.
+	 - `SermonFormScreen`: formulaire pour créer/éditer un sermon (admin).
+	 - `EventsListScreen`: grille d'événements + filtres.
+	 - `EventFormScreen`: formulaire pour créer/éditer un événement (admin).
+5. Gérer l'upload d'image et d'audio (optionnel): fournir composant ou instructions pour uploader via `/api/files/upload` si disponible.
+6. Tests unitaires minimaux: parse JSON, ApiService mocking.
+7. README: instructions pour configurer la `API_BASE_URL`, démarrer l'app et exécuter tests.
+
+Exemples de JSON attendus (mock):
+- Sermon:
+	{
+		"identifiant": "sermon-1",
+		"titre": "La foi active",
+		"resume": "Un message sur l'importance d'une foi vivante...",
+		"orateur": "Pasteur John",
+		"passageBiblique": "Jacques 2:17",
+		"categorie": "Enseignement",
+		"date": "2026-07-01",
+		"imageUrl": "https://.../img.jpg",
+		"urlAudio": "https://.../sermon1.mp3"
+	}
+
+- Evenement:
+	{
+		"identifiant": "evenement-1",
+		"titre": "Soirée de prière",
+		"description": "Rassemblement de prière et louange.",
+		"categorie": "Prière",
+		"date": "2026-08-12",
+		"heure": "18:00",
+		"lieu": "Église centrale",
+		"imageUrl": "https://.../evt.jpg",
+		"placesDisponibles": 50
+	}
+
+Instructions précises pour l'IA (format du prompt):
+- Langue: Français.
+- Fournir:
+	1. L'arborescence des fichiers Flutter créés.
+	2. Le code Dart complet pour les modèles, services, widgets principaux et routes.
+	3. Un exemple d'intégration du lecteur audio (utilisant `just_audio` ou `audio_players`).
+	4. Les commandes pour lancer, build et tester (`flutter pub get`, `flutter run`, `flutter test`).
+	5. Expliquer brièvement les choix d'architecture et comment étendre pour l'auth admin.
+
+Ton et style:
+- Concis, orienté développeur, fournir des extraits de code prêts à l'emploi et un projet minimal fonctionnel.
+
+Fin du prompt.
+
