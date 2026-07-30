@@ -23,6 +23,20 @@ export interface PublicUser {
   updated_at?: string;
 }
 
+export interface MembreHierarchie {
+  id: string;
+  prenom: string;
+  nom: string;
+  fonction: string;
+  biographie: string;
+  email?: string | null;
+  telephone?: string | null;
+  afficher_coordonnees: boolean;
+  image_url?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type UserPublic = PublicUser;
 
 export interface PastorMessage {

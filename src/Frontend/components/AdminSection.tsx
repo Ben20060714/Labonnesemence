@@ -62,7 +62,7 @@ export default function AdminSection() {
   // États pour les formulaires (Exemple de correction pour inputs non contrôlés)
   const [nouveauEvt, definirNouveauEvt] = useState<FormulaireEvenement>({ titre: '', heure: '', lieu: '', description: '', categorie: 'Culte', placesDisponibles: 0 });
   const [nouveauSermon, definirNouveauSermon] = useState<FormulaireSermon>({ titre: '', orateur: '', passageBiblique: '', urlAudio: '', resume: '', date: '', categorie: 'Dimanche' });
-  const [nouveauMembre, definirNouveauMembre] = useState<FormulaireMembre>({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '' });
+  const [nouveauMembre, definirNouveauMembre] = useState<FormulaireMembre>({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '', afficherCoordonnees: false });
 
   // --- Logique du Calendrier Interactif ---
   const [vueCalendrier, definirVueCalendrier] = useState(new Date());
@@ -211,11 +211,10 @@ export default function AdminSection() {
       const imageUrl = await televerserImageEtObtenirUrl(fichierImageMembre, 'cover', 'Membre');
       const nouveau = await api.creerMembre({
         ...nouveauMembre,
-        username: `${nouveauMembre.prenom} ${nouveauMembre.nom}`.trim(),
         imageUrl,
       });
       definirMembres(prev => [...prev, nouveau]);
-      definirNouveauMembre({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '' });
+      definirNouveauMembre({ prenom: '', nom: '', role: '', biographie: '', email: '', telephone: '', afficherCoordonnees: false });
       definirFichierImageMembre(null);
       afficherNotification("Membre ajouté à l'équipe !");
     } catch (erreur) {
@@ -630,13 +629,13 @@ export default function AdminSection() {
             {sectionActive === 'membres' && (
               <motion.div key="membres" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-serif text-xl font-bold">Gestion des membres</h2>
-                  <button type="button" onClick={ajouterMembre} className="flex items-center gap-2 px-4 py-2 bg-[#af894d] text-white text-xs font-bold rounded-lg hover:bg-emerald-600 cursor-pointer">
-                    <Plus className="w-4 h-4"/> Ajouter un membre
-                  </button>
+                  <div>
+                    <h2 className="font-serif text-xl font-bold">Gestion de la hiérarchie</h2>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Ces fiches sont publiques et ne créent aucun compte utilisateur.</p>
+                  </div>
                 </div>
 
-                <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-dashed border-[#e7d4b0] text-center space-y-4">
+                <form onSubmit={ajouterMembre} className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-dashed border-[#e7d4b0] text-center space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-3 text-left">
                       <label className="text-[10px] font-bold uppercase text-slate-400">Prénom</label>
@@ -674,12 +673,20 @@ export default function AdminSection() {
                         className="w-full pl-8 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       /></div>
                       <div className="relative"><Mail className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400"/><input
-                        type="text"
+                        type="email"
                         placeholder="Email"
                         value={nouveauMembre.email}
                         onChange={e => definirNouveauMembre({ ...nouveauMembre, email: e.target.value })}
                         className="w-full pl-8 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       /></div>
+                      <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={nouveauMembre.afficherCoordonnees}
+                          onChange={e => definirNouveauMembre({ ...nouveauMembre, afficherCoordonnees: e.target.checked })}
+                        />
+                        Afficher les coordonnées dans la fiche publique
+                      </label>
                     </div>
                     <div className="space-y-3 text-left">
                       <label className="text-[10px] font-bold uppercase text-slate-400">Biographie courte</label>
@@ -707,7 +714,7 @@ export default function AdminSection() {
                       Ajouter à l'équipe
                     </button>
                   </div>
-                </div>
+                </form>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {membres.map(m => (

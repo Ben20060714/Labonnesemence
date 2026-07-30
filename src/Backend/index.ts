@@ -20,6 +20,7 @@ import contactsRoutes from './routes/contacts.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.ts';
 import pastorMessagesRoutes from './routes/mot_du_pasteur.routes.ts';
 import donationsRoutes from './routes/donations.routes.js';
+import hierarchyMembersRoutes from './routes/hierarchyMembers.routes.ts';
 
 const dir = import.meta.dirname;
 const app = express();
@@ -66,6 +67,7 @@ app.get('/health', (_req: any, res: any) => {
 // ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/hierarchy-members', hierarchyMembersRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/sermons', sermonsRoutes);

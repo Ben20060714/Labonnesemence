@@ -39,11 +39,15 @@ interface EvenementBackend {
   date?: string;
 }
 
-interface UtilisateurBackend {
+interface MembreHierarchieBackend {
   id: string;
-  email: string;
-  username: string;
-  role: string;
+  prenom: string;
+  nom: string;
+  fonction: string;
+  biographie: string;
+  email?: string | null;
+  telephone?: string | null;
+  afficher_coordonnees?: boolean;
   image_url?: string | null;
   created_at?: string;
 }
@@ -186,18 +190,17 @@ const convertirEvenement = (evenement: EvenementBackend): Evenement => ({
   imageUrl: evenement.image_url || undefined,
 });
 
-const convertirUtilisateurEnMembre = (utilisateur: UtilisateurBackend): MembreEquipe => {
-  const nomComplet = utilisateur.username || utilisateur.email.split('@')[0];
-  const { prenom, nom } = decomposerNomComplet(nomComplet);
-
+const convertirMembreHierarchie = (membre: MembreHierarchieBackend): MembreEquipe => {
   return {
-    identifiant: utilisateur.id,
-    prenom,
-    nom,
-    role: utilisateur.role === 'admin' ? 'Administrateur' : 'Membre',
-    email: utilisateur.email,
-    biographie: `Compte ${utilisateur.role}`,
-    imageUrl: utilisateur.image_url || undefined,
+    identifiant: membre.id,
+    prenom: membre.prenom,
+    nom: membre.nom,
+    role: membre.fonction,
+    biographie: membre.biographie,
+    email: membre.afficher_coordonnees ? membre.email || undefined : undefined,
+    telephone: membre.afficher_coordonnees ? membre.telephone || undefined : undefined,
+    afficherCoordonnees: membre.afficher_coordonnees ?? false,
+    imageUrl: membre.image_url || undefined,
   };
 };
 
@@ -346,43 +349,35 @@ export const api = {
   },
 
   async listerMembres(): Promise<MembreEquipe[]> {
-    const donnees = await executerRequeteApi<ReponsePaginee<UtilisateurBackend>>('/users?limit=100', {}, true);
-    return donnees.items.map(convertirUtilisateurEnMembre);
+    const donnees = await executerRequeteApi<ReponsePaginee<MembreHierarchieBackend>>('/hierarchy-members?limit=100', {}, true);
+    return donnees.items.map(convertirMembreHierarchie);
   },
 
   async listerMembresPublics(): Promise<MembreEquipe[]> {
-    const donnees = await executerRequeteApi<ReponsePaginee<UtilisateurBackend>>('/users/public?limit=100');
-    return donnees.items.map(convertirUtilisateurEnMembre);
+    const donnees = await executerRequeteApi<ReponsePaginee<MembreHierarchieBackend>>('/hierarchy-members/public?limit=24');
+    return donnees.items.map(convertirMembreHierarchie);
   },
 
-  async creerMembre(membre: Omit<MembreEquipe, 'identifiant'> & { username?: string }): Promise<MembreEquipe> {
-    const username = (membre.username || `${membre.prenom} ${membre.nom}`).trim();
-    const pseudoEmail = username
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '.')
-      .replace(/\.{2,}/g, '.')
-      .replace(/^\./, '')
-      .replace(/\.$/, '') || 'membre';
-    const email = membre.email?.trim() || `${pseudoEmail}@labonnesemence.local`;
-    const { username: _username, ...payloadMembre } = membre;
-    const utilisateur = await executerRequeteApi<UtilisateurBackend>('/users', {
+  async creerMembre(membre: Omit<MembreEquipe, 'identifiant'>): Promise<MembreEquipe> {
+    const resultat = await executerRequeteApi<MembreHierarchieBackend>('/hierarchy-members', {
       method: 'POST',
       body: JSON.stringify({
-        username,
-        email,
-        password: 'ChangeMe123',
-        role: membre.role.toLowerCase().includes('admin') ? 'admin' : 'user',
+        prenom: membre.prenom,
+        nom: membre.nom,
+        fonction: membre.role,
+        biographie: membre.biographie,
+        email: membre.email || null,
+        telephone: membre.telephone || null,
+        afficher_coordonnees: membre.afficherCoordonnees ?? false,
         image_url: membre.imageUrl || null,
       }),
     }, true);
 
-    return { ...payloadMembre, identifiant: utilisateur.id, email: utilisateur.email, imageUrl: utilisateur.image_url || membre.imageUrl };
+    return convertirMembreHierarchie({ ...resultat, afficher_coordonnees: Boolean(resultat.afficher_coordonnees) });
   },
 
   async supprimerMembre(id: string): Promise<void> {
-    await executerRequeteApi<null>(`/users/${id}`, { method: 'DELETE' }, true);
+    await executerRequeteApi<null>(`/hierarchy-members/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerFichiers(): Promise<FichierBackend[]> {

@@ -85,6 +85,20 @@ export async function initializeDatabase(): Promise<void> {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
+    CREATE TABLE IF NOT EXISTS hierarchy_members (
+      id TEXT PRIMARY KEY,
+      prenom TEXT NOT NULL,
+      nom TEXT NOT NULL,
+      fonction TEXT NOT NULL,
+      biographie TEXT NOT NULL DEFAULT '',
+      email TEXT,
+      telephone TEXT,
+      afficher_coordonnees BOOLEAN NOT NULL DEFAULT false,
+      image_url TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS posts (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -203,6 +217,7 @@ export async function initializeDatabase(): Promise<void> {
   `);
 
   await ensureColumnExists('users', 'image_url', 'TEXT');
+  await ensureColumnExists('hierarchy_members', 'afficher_coordonnees', 'BOOLEAN NOT NULL DEFAULT false');
   await ensureColumnExists('posts', 'image_url', 'TEXT');
   await ensureColumnExists('sermons', 'image_url', 'TEXT');
   await ensureColumnExists('sermons', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');

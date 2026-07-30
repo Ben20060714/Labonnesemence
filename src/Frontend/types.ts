@@ -35,6 +35,7 @@ export interface MembreEquipe {
   role: string;
   email?: string;
   telephone?: string;
+  afficherCoordonnees?: boolean;
   biographie: string;
   imageUrl?: string;
 }

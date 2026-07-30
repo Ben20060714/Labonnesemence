@@ -17,6 +17,7 @@ import AdminSection from './components/AdminSection.tsx';
 import LoginSection from './components/LoginSection.tsx';
 import InscriptionSection from './components/InscriptionSection.tsx';
 import MonCompteSection from './components/MonCompteSection.tsx';
+import PriereDuJourSection from './components/PriereDuJourSection.tsx';
 import { SermonPlayerBar, SermonPlayerProvider, useSermonPlayer } from './components/SermonPlayerContext.tsx';
 import {
   obtenirAccessToken,
@@ -134,6 +135,8 @@ function AppChrome() {
         return <AccueilSection redirigerVersPage={definirPageActive} />;
       case 'sermons':
         return <SermonsSection />;
+      case 'priere-du-jour':
+        return <PriereDuJourSection />;
       case 'evenements':
         return <EvenementsSection />;
       case 'communaute':

@@ -28,6 +28,7 @@ export default function EnTete({
   const ongletsNavigation = [
     { cle: 'accueil', libelle: 'Accueil' },
     { cle: 'sermons', libelle: 'Enseignements' },
+    { cle: 'priere-du-jour', libelle: 'Prière du jour' },
     { cle: 'evenements', libelle: 'Calendrier' },
     { cle: 'galerie', libelle: 'Galerie' },
     { cle: 'communaute', libelle: 'A propos' },
