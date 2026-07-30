@@ -75,7 +75,7 @@ export default function EnTete({
 
           <div className="hidden md:flex items-center gap-4">
             <button id="bouton-alterner-theme-desktop" onClick={alternerTheme} className="p-2.5 rounded-full border border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-700 transition-all duration-200 cursor-pointer dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-amber-400" title={modeSombre ? 'Activer le mode clair' : 'Activer le mode sombre'}>
-              {modeSombre ? <Sun className="w-4 h-4 transition-transform duration-300 hover:rotate-45" /> : <Moon className="w-4 h-4" />}
+              {modeSombre ? <Sun className="w-4 h-4 transition-transform duration-300 hover:rotate-45"/> : <Moon className="w-4 h-4"/>}
             </button>
 
             <button id="bouton-don-rapide" onClick={() => executerChangementPage('contact-dons')} className="px-5 py-2.5 rounded-md text-xs font-semibold tracking-wider uppercase text-white bg-gradient-to-r from-[#af894d] to-[#c29f63] shadow-md hover:shadow-lg hover:from-[#936f3c] hover:to-[#af894d] active:scale-95 transition-all duration-150 cursor-pointer">
@@ -85,10 +85,10 @@ export default function EnTete({
 
           <div className="md:hidden flex items-center gap-3">
             <button id="bouton-theme-mobile" onClick={alternerTheme} className="p-2 rounded-full border border-slate-200 text-slate-500 cursor-pointer dark:border-slate-800 dark:text-slate-400">
-              {modeSombre ? <Sun className="w-4 h-4"/> : <Moon className="w-4 h-4" />}
+              {modeSombre ? <Sun className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
             </button>
             <button id="bouton-burger-mobile" onClick={() => definirMenuMobileOuvert(!menuMobileOuvert)} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer dark:text-slate-300 dark:hover:bg-slate-800">
-              {menuMobileOuvert ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {menuMobileOuvert ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
             </button>
           </div>
         </div>

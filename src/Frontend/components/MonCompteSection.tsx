@@ -65,19 +65,19 @@ export default function MonCompteSection({
 
         <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
-            <UserRound className="w-5 h-5 text-[#af894d] mb-3" />
+            <UserRound className="w-5 h-5 text-[#af894d] mb-3"/>
             <p className="text-xs uppercase font-mono text-slate-400">Nom utilisateur</p>
             <p className="font-semibold text-slate-900 dark:text-slate-100">{utilisateur.username}</p>
           </div>
 
           <div className="p-5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
-            <Mail className="w-5 h-5 text-[#af894d] mb-3" />
+            <Mail className="w-5 h-5 text-[#af894d] mb-3"/>
             <p className="text-xs uppercase font-mono text-slate-400">Email</p>
             <p className="font-semibold text-slate-900 dark:text-slate-100 break-all">{utilisateur.email}</p>
           </div>
 
           <div className="p-5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
-            <Shield className="w-5 h-5 text-[#af894d] mb-3" />
+            <Shield className="w-5 h-5 text-[#af894d] mb-3"/>
             <p className="text-xs uppercase font-mono text-slate-400">Role</p>
             <p className="font-semibold text-slate-900 dark:text-slate-100">{utilisateur.role}</p>
           </div>
@@ -96,7 +96,7 @@ export default function MonCompteSection({
             onClick={seDeconnecter}
             className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-slate-900 text-white text-xs font-bold uppercase tracking-widest hover:bg-[#af894d] transition-all cursor-pointer dark:bg-slate-800"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4"/>
             Deconnexion
           </button>
         </div>

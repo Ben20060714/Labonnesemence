@@ -216,7 +216,7 @@ export default function ContactDonsSection() {
                   Votre Nom & Post-nom
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"/>
                   <input type="text" id="nom-expediteur" required placeholder="Ex : Jean Ilunga" value={formulaireContact.nom} onChange={gererChangementChamp} className="w-full pl-9 pr-4 py-2.5 text-sm rounded bg-slate-50 border border-slate-200 outline-none focus:border-[#af894d] focus:ring-1 focus:ring-[#af894d] dark:bg-slate-800 dark:border-slate-800 dark:text-slate-100"/>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ContactDonsSection() {
                   Adresse Mail
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"/>
                   <input
                     type="email"
                     id="courriel-expediteur"
@@ -278,15 +278,15 @@ export default function ContactDonsSection() {
             >
               {contactEnvoiEnCours ? (
                 <>
-                  <Send className="w-3.5 h-3.5" /> Envoi en cours...
+                  <Send className="w-3.5 h-3.5"/> Envoi en cours...
                 </>
               ) : notificationContactEnvoye ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-400" /> Envoyé avec succès !
+                  <Check className="w-4 h-4 text-emerald-400"/> Envoyé avec succès !
                 </>
               ) : (
                 <>
-                  <Send className="w-3.5 h-3.5" /> Envoyer
+                  <Send className="w-3.5 h-3.5"/> Envoyer
                 </>
               )}
             </button>
@@ -303,7 +303,7 @@ export default function ContactDonsSection() {
           <div className="space-y-5">
             <div className="space-y-2 text-left">
               <div className="flex items-center gap-1.5 bg-[#c29f63]/10 text-[#af894d] w-fit px-2.5 py-1 rounded dark:bg-[#c29f63]/15 dark:text-[#c29f63]">
-                <Heart className="w-4 h-4 fill-current animate-pulse text-rose-500" />
+                <Heart className="w-4 h-4 fill-current animate-pulse text-rose-500"/>
                 <span className="text-[10px] font-mono tracking-wider font-bold uppercase">Soutenir l'église</span>
               </div>
               <h2 className="font-serif text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -377,7 +377,7 @@ export default function ContactDonsSection() {
               Envoyer ({montantDon} $)
             </button>
             <p className="text-[10px] text-center text-slate-400 font-mono mt-3 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Accusé de réception envoyé sous 48h.
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400"/> Accusé de réception envoyé sous 48h.
             </p>
           </div>
 
@@ -412,7 +412,7 @@ export default function ContactDonsSection() {
                 onClick={reinitialiserEspaceDon}
                 className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer dark:hover:text-slate-100"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5"/>
               </button>
 
               {/* Monetbil Payment Form */}
@@ -472,7 +472,7 @@ export default function ContactDonsSection() {
                         Numéro de téléphone (Mobile Money)
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"/>
                         <input
                           type="tel"
                           id="donateur-telephone"
@@ -493,7 +493,7 @@ export default function ContactDonsSection() {
                       disabled={donPreparationEnCours || !configurationMonetbil}
                       className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      <ShieldCheck className="w-4 h-4" />
+                      <ShieldCheck className="w-4 h-4"/>
                       {donPreparationEnCours ? 'Préparation...' : 'Préparer le paiement'}
                     </button>
                   </div>
@@ -530,8 +530,8 @@ export default function ContactDonsSection() {
                   <input type="hidden" name="currency" value={donationPreparee.currency} />
                   <input type="hidden" name="reference" value={donationPreparee.reference} />
                   <input type="hidden" name="item_ref" value={donationPreparee.reference} />
-                  <input type="hidden" name="item_name" value="Don solidaire" />
-                  <input type="hidden" name="item_type" value="SOCIAL" />
+                  <input type="hidden" name="item_name" value="Don solidaire"/>
+                  <input type="hidden" name="item_type" value="SOCIAL"/>
                   <input type="hidden" name="designation" value={donationPreparee.designation} />
                   <input type="hidden" name="description" value={donationPreparee.description || determinerImpactDon(montantDon)} />
                   <input type="hidden" name="phone" value={donationPreparee.donor_phone} />
@@ -549,7 +549,7 @@ export default function ContactDonsSection() {
                     id="bouton-soumettre-paiement-final"
                     className="w-full py-3 bg-[#af894d] hover:bg-[#936f3c] text-white font-bold text-xs uppercase tracking-widest rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
                   >
-                    <ShieldCheck className="w-4 h-4" /> Ouvrir Monetbil
+                    <ShieldCheck className="w-4 h-4"/> Ouvrir Monetbil
                   </button>
                   <a
                     href={construireUrlPaiementMonetbil()}
@@ -574,7 +574,7 @@ export default function ContactDonsSection() {
                   className="py-12 text-center space-y-6"
                 >
                   <div className="w-20 h-20 bg-amber-50 text-[#c29f63] border border-[#c29f63] rounded-full mx-auto flex items-center justify-center shadow-lg dark:bg-[#c29f63]/10">
-                    <Award className="w-10 h-10" />
+                    <Award className="w-10 h-10"/>
                   </div>
 
                   <div className="space-y-2">

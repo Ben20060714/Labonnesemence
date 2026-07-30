@@ -103,13 +103,13 @@ export default function AProposSection() {
   ];
 
   const extensionsCommunautaies = [
-    { nom: 'BONNE SEMENCE', temple: 'TEMPLE DE GLOIRE', lieu: 'GOLF LIDO LUBUMBASHI', pasteur: 'PST DJOE' },
-    { nom: 'BONNE SEMENCE', temple: 'PAROLE DE VIE', lieu: 'GOLF METEO', pasteur: 'PST JEAN JACQUES' },
-    { nom: 'BONNE SEMENCE', temple: 'PAIN DE VIE', lieu: 'GOLD FAUSTIN', pasteur: 'PST NGONGO' },
-    { nom: 'BONNE SEMENCE', temple: 'CITÉ D\'ESPÉRANCE', lieu: 'KATUBA', pasteur: 'PST BARTHÉLÉMY' },
-    { nom: 'BONNE SEMENCE KOLWEZI', temple: '', lieu: '', pasteur: 'PST BOBO' },
-    { nom: 'BONNE SEMENCE', temple: 'TORRENT DE VIE', lieu: '', pasteur: 'PST PAUL' },
-    { nom: 'BONNE SEMENCE KASUMBALESSA', temple: '', lieu: '', pasteur: 'PST JOSÉ' }
+    { nom: 'BONNE SEMENCE', temple: 'TEMPLE DE GLOIRE', lieu: 'GOLF LIDO LUBUMBASHI', pasteur: 'Pst. DJOE' },
+    { nom: 'BONNE SEMENCE', temple: 'PAROLE DE VIE', lieu: 'GOLF METEO', pasteur: 'Pst. JEAN JACQUES' },
+    { nom: 'BONNE SEMENCE', temple: 'PAIN DE VIE', lieu: 'GOLD FAUSTIN', pasteur: 'Pst. NGONGO' },
+    { nom: 'BONNE SEMENCE', temple: 'CITÉ D\'ESPÉRANCE', lieu: 'KATUBA', pasteur: 'Pst. BARTHÉLÉMY' },
+    { nom: 'BONNE SEMENCE KOLWEZI', temple: '', lieu: '', pasteur: 'Pst. BOBO' },
+    { nom: 'BONNE SEMENCE', temple: 'TORRENT DE VIE', lieu: '', pasteur: 'Pst. PAUL' },
+    { nom: 'BONNE SEMENCE KASUMBALESSA', temple: '', lieu: '', pasteur: 'Pst. JOSÉ' }
   ];
 
   return (
@@ -125,7 +125,7 @@ export default function AProposSection() {
           <h1 className="font-serif text-4xl sm:text-5xl font-bold text-slate-900 leading-tight dark:text-slate-100">
             Une église, Un seul corps : le Christ.
           </h1>
-          <div className="w-20 h-0.5 bg-[#af894d]" />
+          <div className="w-20 h-0.5 bg-[#af894d]"/>
 
           <div className="flex flex-col space-y-4 text-sm sm:text-base text-slate-600 font-light leading-relaxed dark:text-slate-400">
             <div>
@@ -160,7 +160,7 @@ export default function AProposSection() {
             <div>
               <div className="flex flex-col md:flex-row gap-4 items-center">
                 <div className="">
-                  <img src={imgPstEtGinane} alt="Le Patriarche et son epouse, Ginane" className="rounded-lg shadow-md lg:w-full" />
+                  <img src={imgPstEtGinane} alt="Le Patriarche et son epouse, Ginane" className="rounded-lg shadow-md lg:w-full"/>
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">QUI CONDUIT ET DIRIGE LA BONNE SEMENCE ACTUELLEMENT ?</h2>
@@ -182,7 +182,7 @@ export default function AProposSection() {
                   <p>En l'an 2000, une succession se préparait déjà selon le plan divin de Dieu. Sur cette photo, nous voyons le Patriarche Jean Medard Kalonda Bin Baruani et son fils biologique Jean Djoe Kalonda Bin Baruani.</p>
                 </div>
                 <div>
-                  <img src={imgPatriarche} alt="Le Patriarche et son fils le Pst. Djoe" className="rounded-lg shadow-md lg:w-full" />
+                  <img src={imgPatriarche} alt="Le Patriarche et son fils le Pst. Djoe" className="rounded-lg shadow-md lg:w-full"/>
                 </div>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function AProposSection() {
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
             La bonne semence S’ancre sur Quatre bases
           </h2>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto"/>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -233,7 +233,7 @@ export default function AProposSection() {
               className="flex gap-4 p-6 bg-slate-50 border border-[#f4ebd9]/40 rounded-xl dark:bg-slate-900 dark:border-slate-800"
             >
               <div className="p-3 bg-white text-[#af894d] rounded-lg h-fit shadow-xs dark:bg-slate-800 dark:text-[#c29f63]">
-                <ShieldCheck className="w-5 h-5" />
+                <ShieldCheck className="w-5 h-5"/>
               </div>
               <div className="space-y-1.5 text-left">
                 <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">
@@ -246,30 +246,17 @@ export default function AProposSection() {
             </div>
           ))}
         </div>
-        {/* Bloc graphique de la vision (Stained Glass Photo with Overlay & Simulation) */}
+        {/* Bloc graphique de la vision */}
         <div className="lg:col-span-5 relative h-[360px] rounded-2xl overflow-hidden bg-slate-950 p-6 flex flex-col justify-end text-white border border-[#c29f63]/30">
 
-          {/* Image de fond : Vitrail d'église */}
+          {/* Image de fond */}
           <div className="absolute inset-0 z-0">
-            <img src={imageHistorique} alt="Photo ancienne de l'église" className="w-full h-full object-cover brightness-45 contrast-125" referrerPolicy="no-referrer" />
-            <div className="absolute inset-0 bg-slate-950/40" />
-          </div>
-
-          {/* Vitrail simulé en SVG par-dessus l'image */}
-          <div className="absolute inset-0 opacity-30 mix-blend-overlay z-0">
-            <svg className="w-full h-full text-[#c29f63]" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Des motifs géométriques comme un portail de la cathédrale */}
-              <circle cx="200" cy="200" r="150" stroke="currentColor" strokeWidth="4" />
-              <polygon points="200,50 350,200 200,350 50,200" stroke="currentColor" strokeWidth="2" />
-              <line x1="200" y1="50" x2="200" y2="550" stroke="currentColor" strokeWidth="2" />
-              <line x1="50" y1="200" x2="350" y2="200" stroke="currentColor" strokeWidth="2" />
-              <circle cx="200" cy="200" r="80" stroke="currentColor" strokeWidth="2" />
-              <path d="M 50 200 C 150 50 250 50 350 200" stroke="currentColor" strokeWidth="3" />
-            </svg>
+            <img src={imageHistorique} alt="Photo ancienne de l'église" className="w-full h-full object-cover brightness-65 contrast-125" referrerPolicy="no-referrer"/>
+            <div className="absolute inset-0 bg-slate-950/40"/>
           </div>
 
           <div className="absolute top-0 right-0 p-6">
-            <History className="w-10 h-10 text-[#c29f63]/80" />
+            <History className="w-10 h-10 text-[#c29f63]/80"/>
           </div>
 
           <div className="relative space-y-3 z-10 text-left">
@@ -299,7 +286,7 @@ export default function AProposSection() {
           <p className="text-sm text-slate-500 font-light dark:text-slate-400">
             Pasteur, anciens, diacres et choristes.
           </p>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto"/>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -307,7 +294,7 @@ export default function AProposSection() {
             <motion.div key={membre.identifiant} id={`carte-paroisse-membre-${membre.identifiant}`} layoutId={`contenant-membre-${membre.identifiant}`} onClick={() => definirMembreSelectionne(membre)} className="bg-white border border-[#f4ebd9]/60 rounded-xl p-6 text-center space-y-4 hover:shadow-md hover:border-[#af894d] transition-all cursor-pointer dark:bg-slate-900 dark:border-slate-800">
               <div className="w-20 h-20 bg-gradient-to-br from-[#af894d] to-[#e7d4b0] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-serif font-bold shadow-sm overflow-hidden">
                 {membre.imageUrl ? (
-                  <img src={membre.imageUrl} alt={formaterNomComplet(membre)} className="w-full h-full object-cover" />
+                  <img src={membre.imageUrl} alt={formaterNomComplet(membre)} className="w-full h-full object-cover"/>
                 ) : (
                   calculerInitiales(membre.prenom, membre.nom)
                 )}
@@ -354,13 +341,13 @@ export default function AProposSection() {
                 onClick={() => definirMembreSelectionne(null)}
                 className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer dark:hover:text-slate-100"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5"/>
               </button>
 
               <div className="text-center space-y-4">
                 <div className="w-24 h-24 bg-gradient-to-tr from-[#af894d]/20 to-[#c29f63]/25 border-2 border-[#af894d] rounded-full mx-auto flex items-center justify-center text-[#af894d] text-3xl font-serif font-bold dark:text-[#c29f63] overflow-hidden">
                   {membreSelectionne.imageUrl ? (
-                    <img src={membreSelectionne.imageUrl} alt={formaterNomComplet(membreSelectionne)} className="w-full h-full object-cover" />
+                    <img src={membreSelectionne.imageUrl} alt={formaterNomComplet(membreSelectionne)} className="w-full h-full object-cover"/>
                   ) : (
                     calculerInitiales(membreSelectionne.prenom, membreSelectionne.nom)
                   )}
@@ -389,14 +376,14 @@ export default function AProposSection() {
               <div className="space-y-3 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
                 {membreSelectionne.email && (
                   <a href={`mailto:${membreSelectionne.email}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
-                    <Mail className="w-3.5 h-3.5 text-[#af894d]" />
+                    <Mail className="w-3.5 h-3.5 text-[#af894d]"/>
                     <span>{membreSelectionne.email.toLowerCase()}</span>
                   </a>
                 )}
                 {membreSelectionne.telephone && (
                   <div className="flex flex-wrap gap-x-4 gap-y-2">
                     <a href={`tel:${membreSelectionne.telephone}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
-                      <Phone className="w-3.5 h-3.5 text-[#af894d]" />
+                      <Phone className="w-3.5 h-3.5 text-[#af894d]"/>
                       <span>{membreSelectionne.telephone}</span>
                     </a>
                     <a
@@ -405,13 +392,13 @@ export default function AProposSection() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                     >
-                      <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
+                      <MessageCircle className="w-3.5 h-3.5 text-emerald-500"/>
                       <span>WhatsApp</span>
                     </a>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <Award className="w-3.5 h-3.5 text-[#af894d]" />
+                  <Award className="w-3.5 h-3.5 text-[#af894d]"/>
                   <span>Membre de la bonne semence depuis 2020</span>
                 </div>
               </div>
@@ -430,9 +417,9 @@ export default function AProposSection() {
             À propos du développeur
           </h2>
           <p className="text-sm text-slate-500 font-light dark:text-slate-400">
-            Qui a développé ce site web ?
+            De qui est composée l'équipe technique ?
           </p>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto"/>
         </div>
 
         <div className="flex flex-wrap justify-center gap-6">
@@ -470,7 +457,7 @@ export default function AProposSection() {
             {/* Fiche des devs Popover */}
             <motion.div id="fiche-technique-dev" layoutId={`contenant-dev-${devSelectionne.identifiant}`} className="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-6 sm:p-8 space-y-6 text-slate-800 z-10 dark:bg-slate-900 dark:text-slate-100">
               <button id="bouton-fermer-fiche-dev" onClick={() => definirDevSelectionne(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full cursor-pointer dark:hover:text-slate-100">
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5"/>
               </button>
 
               <div className="text-center space-y-4">
@@ -501,12 +488,12 @@ export default function AProposSection() {
               {/* Contacts de service */}
               <div className="space-y-3 text-xs font-mono text-slate-500 pt-4 dark:text-slate-450 border-t border-slate-50 dark:border-slate-850">
                 <a href={`mailto:${devSelectionne.email}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
-                  <Mail className="w-3.5 h-3.5 text-[#af894d]" />
+                  <Mail className="w-3.5 h-3.5 text-[#af894d]"/>
                   <span>{devSelectionne.email.toLowerCase()}</span>
                 </a>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   <a href={`tel:${devSelectionne.telephone}`} className="flex items-center gap-2 hover:text-[#af894d] transition-colors">
-                    <Phone className="w-3.5 h-3.5 text-[#af894d]" />
+                    <Phone className="w-3.5 h-3.5 text-[#af894d]"/>
                     <span>{devSelectionne.telephone}</span>
                   </a>
                   <a
@@ -515,12 +502,12 @@ export default function AProposSection() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-500"/>
                     <span>WhatsApp</span>
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Award className="w-3.5 h-3.5 text-[#af894d]" />
+                  <Award className="w-3.5 h-3.5 text-[#af894d]"/>
                   <span>{devSelectionne.accomplissement}</span>
                 </div>
               </div>

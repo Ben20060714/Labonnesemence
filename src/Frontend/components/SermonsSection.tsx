@@ -124,7 +124,7 @@ export default function SermonsSection() {
         
         {/* Recherche input */}
         <div className="md:col-span-6 relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"/>
           <input
             type="text"
             id="barre-recherche-audio"
@@ -184,7 +184,7 @@ export default function SermonsSection() {
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent"/>
                 </div>
 
                 <div className="p-6 flex flex-col justify-between flex-grow space-y-4">
@@ -196,7 +196,7 @@ export default function SermonsSection() {
                         {sermon.categorie}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-slate-400 font-light font-mono">
-                        <Calendar className="w-3.5 h-3.5" /> {sermon.date}
+                        <Calendar className="w-3.5 h-3.5"/> {sermon.date}
                       </span>
                     </div>
 
@@ -206,7 +206,7 @@ export default function SermonsSection() {
                         {sermon.titre}
                       </h3>
                       <p className="text-xs text-slate-500 font-mono flex items-center gap-1.5 dark:text-slate-400">
-                        <Book className="w-3.5 h-3.5 text-slate-400" /> Verset : {sermon.passageBiblique}
+                        <Book className="w-3.5 h-3.5 text-slate-400"/> Verset : {sermon.passageBiblique}
                       </p>
                     </div>
 
@@ -239,11 +239,11 @@ export default function SermonsSection() {
                     >
                       {estEnTrainDeJouer ? (
                         <>
-                          <Pause className="w-3.5 h-3.5" /> <span className="hidden xs:inline">En cours</span><span className="xs:hidden">Lecture</span>
+                          <Pause className="w-3.5 h-3.5"/> <span className="hidden xs:inline">En cours</span><span className="xs:hidden">Lecture</span>
                         </>
                       ) : (
                         <>
-                        <Play className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Écouter • </span> <AffichageDureeDynamique url={sermon.urlAudio} />
+                        <Play className="w-3.5 h-3.5"/> <span className="hidden sm:inline">Écouter • </span> <AffichageDureeDynamique url={sermon.urlAudio} />
                         </>
                       )}
                     </button>
@@ -255,7 +255,7 @@ export default function SermonsSection() {
           })
         ) : (
           <div className="col-span-full py-16 text-center space-y-3 bg-slate-50 rounded-xl border border-dashed border-[#e7d4b0] dark:bg-slate-900/20 dark:border-slate-800">
-            <Compass className="w-10 h-10 text-slate-400 mx-auto" />
+            <Compass className="w-10 h-10 text-slate-400 mx-auto"/>
             <p className="text-slate-500 text-sm font-light">
               Aucun enseignement ne correspond à vos critères de recherche ou il n'y a tout simplement pas d'enseignements disponibles.
             </p>

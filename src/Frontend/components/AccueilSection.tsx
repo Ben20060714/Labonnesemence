@@ -94,19 +94,19 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   const piliersParoissiaux = [
     {
       identifiant: 'pilier-foi',
-      icone: <BookOpen className="w-6 h-6 text-[#c29f63]" />,
+      icone: <BookOpen className="w-6 h-6 text-[#c29f63]"/>,
       titre: 'La parole de DIeu',
       description: 'Nourrir notre foi chrétienne à l’écoute de la parole de Dieu.'
     },
     {
       identifiant: 'pilier-fraternite',
-      icone: <Users className="w-6 h-6 text-[#c29f63]" />,
+      icone: <Users className="w-6 h-6 text-[#c29f63]"/>,
       titre: 'La Communion Fraternelle',
       description: 'Accueillir chaleureuseument chaque personne de tout âge et partager des instants d’entraide spirituelle.'
     },
     {
       identifiant: 'pilier-social',
-      icone: <Heart className="w-6 h-6 text-[#c29f63]" />,
+      icone: <Heart className="w-6 h-6 text-[#c29f63]"/>,
       titre: 'L’Action Solidaire : l’amour',
       description: 'Aimer jusqu’à servir les personnes démunies, visiter les malades.'
     }
@@ -130,7 +130,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               Bienvenue dans votre communauté
             </span>
             <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
-              La bonne semence <br/>
+              LA BONNE SEMENCE <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e7d4b0] via-[#c29f63] to-[#e7d4b0] bg-300% animate-pulse">
                 Unie dans la foi
               </span>
@@ -187,10 +187,10 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
               </p>
               <div className="flex flex-wrap gap-4 text-xs font-mono text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#af894d]" /> {prochainEvenement.date}
+                  <Calendar className="w-3.5 h-3.5 text-[#af894d]"/> {prochainEvenement.date}
                 </span>
                 <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#af894d]" /> {prochainEvenement.lieu}
+                  <MapPin className="w-3.5 h-3.5 text-[#af894d]"/> {prochainEvenement.lieu}
                 </span>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
             l’Eglise S’articule Autour du Cœur
           </h2>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto"/>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -246,7 +246,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
       <section id="section-homelie-focus" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white p-8 sm:p-12 border border-slate-800">
           {/* Accent decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"/>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
@@ -273,7 +273,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
             <div className="lg:col-span-5 flex justify-start lg:justify-end">
               <button id="bouton-ecouter-sermon-accueil" onClick={() => redirigerVersPage('sermons')} className="group flex items-center gap-4 bg-white/5 border border-white/10 hover:border-[#c29f63]/50 hover:bg-white/10 px-6 py-5 rounded-xl transition-all cursor-pointer w-full sm:w-auto">
                 <div className="p-3.5 bg-[#c29f63] rounded-full text-slate-950 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-5 h-5 fill-current ml-0.5" />
+                  <Play className="w-5 h-5 fill-current ml-0.5"/>
                 </div>
                 <div className="text-left">
                   <span className="block text-xs uppercase tracking-widest text-[#c29f63] font-mono">
@@ -300,7 +300,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100">
             La Vie communaitaire en Images
           </h2>
-          <div className="w-16 h-0.5 bg-[#af894d] mx-auto" />
+          <div className="w-16 h-0.5 bg-[#af894d] mx-auto"/>
           <p className="text-sm text-slate-500 font-light dark:text-slate-400">
             Les photos affichées ici proviennent de la galerie enregistrée en base.
           </p>
@@ -326,7 +326,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"/>
               </div>
               <div className="p-5 text-left space-y-1">
                 <h4 className="font-serif text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -350,7 +350,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
       <section id="section-dons-accueil" className="hidden bg-[#fcfaf4] py-16 transition-colors dark:bg-slate-900/40">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
           <div className="p-3.5 bg-amber-50 text-[#af894d] rounded-full w-fit mx-auto dark:bg-slate-800 dark:text-[#c29f63]">
-            <Gift className="w-8 h-8" />
+            <Gift className="w-8 h-8"/>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">
             Soutenir les comités de l’église

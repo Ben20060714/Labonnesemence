@@ -97,7 +97,7 @@ export default function GalerieSection() {
                 <span className="text-[10px] font-mono text-[#c29f63] uppercase font-bold mb-1">{item.categorie}</span>
                 <h3 className="text-white font-serif text-xl font-semibold">{item.titre}</h3>
                 <div className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md rounded-full text-white">
-                  <Maximize2 className="w-4 h-4" />
+                  <Maximize2 className="w-4 h-4"/>
                 </div>
               </div>
             </motion.div>
@@ -122,10 +122,10 @@ export default function GalerieSection() {
               className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center gap-6 z-10"
             >
               <button onClick={() => definirImageSelectionnee(null)} className="absolute top-0 right-0 p-3 text-white/70 hover:text-white transition-colors cursor-pointer">
-                <X className="w-8 h-8" />
+                <X className="w-8 h-8"/>
               </button>
               <div className="w-full flex-grow flex items-center justify-center overflow-hidden rounded-lg">
-                <img src={imageSelectionnee.image} alt={imageSelectionnee.titre} className="max-w-full max-h-full object-contain shadow-2xl" />
+                <img src={imageSelectionnee.image} alt={imageSelectionnee.titre} className="max-w-full max-h-full object-contain shadow-2xl"/>
               </div>
               <div className="text-center text-white space-y-2 max-w-2xl px-4 pb-4">
                 <span className="text-xs font-mono text-[#c29f63] uppercase tracking-widest">{imageSelectionnee.categorie}</span>
@@ -139,7 +139,7 @@ export default function GalerieSection() {
 
       {photosFiltrees.length === 0 && (
         <div className="py-20 text-center space-y-4">
-          <Camera className="w-12 h-12 text-slate-300 mx-auto" />
+          <Camera className="w-12 h-12 text-slate-300 mx-auto"/>
           <p className="text-slate-500 font-light italic">Aucune photo trouvee dans cette categorie.</p>
         </div>
       )}

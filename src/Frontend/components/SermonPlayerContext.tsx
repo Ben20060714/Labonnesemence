@@ -249,7 +249,7 @@ export function SermonPlayerBar() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="hidden rounded-full bg-[#c29f63]/20 p-3 text-[#c29f63] sm:block">
-              <Headphones className="h-5 w-5" />
+              <Headphones className="h-5 w-5"/>
             </div>
             <div className="min-w-0">
               <p className="truncate font-serif text-sm font-semibold text-slate-100 sm:text-base">
@@ -269,7 +269,7 @@ export function SermonPlayerBar() {
               title="Segment précédent"
               disabled={segmentActifIndex <= 0}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4"/>
             </button>
 
             <button
@@ -278,7 +278,7 @@ export function SermonPlayerBar() {
               className="rounded-full border border-white/10 p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               title="Reculer de 15 secondes"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="h-4 w-4"/>
             </button>
 
             <button
@@ -287,7 +287,7 @@ export function SermonPlayerBar() {
               className="rounded-full bg-[#c29f63] p-3 text-slate-950 transition-transform hover:scale-105"
               title={lectureEnCours ? 'Mettre en pause' : 'Reprendre la lecture'}
             >
-              {lectureEnCours ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
+              {lectureEnCours ? <Pause className="h-4 w-4"/> : <Play className="h-4 w-4 ml-0.5"/>}
             </button>
 
             <button
@@ -296,7 +296,7 @@ export function SermonPlayerBar() {
               className="rounded-full border border-white/10 p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               title="Avancer de 15 secondes"
             >
-              <RotateCw className="h-4 w-4" />
+              <RotateCw className="h-4 w-4"/>
             </button>
 
             <button
@@ -306,7 +306,7 @@ export function SermonPlayerBar() {
               title="Segment suivant"
               disabled={segmentActifIndex < 0 || segmentActifIndex >= segments.length - 1}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4"/>
             </button>
 
             <button
@@ -315,7 +315,7 @@ export function SermonPlayerBar() {
               className="rounded-full border border-white/10 p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               title={sourdine ? 'Rétablir le son' : 'Rendre muet'}
             >
-              {sourdine ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {sourdine ? <VolumeX className="h-4 w-4"/> : <Volume2 className="h-4 w-4"/>}
             </button>
 
             <button
@@ -324,7 +324,7 @@ export function SermonPlayerBar() {
               className="rounded-full border border-white/10 p-2 text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               title="Arrêter"
             >
-              <Square className="h-4 w-4 fill-current" />
+              <Square className="h-4 w-4 fill-current"/>
             </button>
           </div>
         </div>

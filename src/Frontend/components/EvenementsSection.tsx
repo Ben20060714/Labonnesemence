@@ -133,7 +133,7 @@ export default function EvenementsSection() {
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/15 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/15 to-transparent"/>
                 </div>
 
                 {/* Contenu de l'événement */}
@@ -147,7 +147,7 @@ export default function EvenementsSection() {
                     
                     {/* {placesRestantes > 0 && (
                       <span className="text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-[#c29f63]" /> {placesRestantes} places dispos
+                        <Users className="w-3.5 h-3.5 text-[#c29f63]"/> {placesRestantes} places dispos
                       </span>
                     )} */}
                   </div>
@@ -164,15 +164,15 @@ export default function EvenementsSection() {
                   {/* Datation et lieu */}
                   <div className="space-y-2.5 pt-4 border-t border-slate-50 text-xs font-mono text-slate-600 dark:border-slate-850 dark:text-slate-450">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-[#af894d]" />
+                      <Calendar className="w-4 h-4 text-[#af894d]"/>
                       <span>{evt.date}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#af894d]" />
+                      <Clock className="w-4 h-4 text-[#af894d]"/>
                       <span>{evt.heure}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#af894d]" />
+                      <MapPin className="w-4 h-4 text-[#af894d]"/>
                       <span>{evt.lieu}</span>
                     </div>
                   </div>
@@ -207,7 +207,7 @@ export default function EvenementsSection() {
           </p>
         </div>
         <div className="flex items-center gap-2 text-[#af894d] text-xs uppercase font-mono tracking-widest font-bold">
-          <Bell className="w-4 h-4 animate-bounce" /> Soyez le(la) bienvenu(e) !
+          <Bell className="w-4 h-4 animate-bounce"/> Soyez le(la) bienvenu(e) !
         </div>
       </div>
 

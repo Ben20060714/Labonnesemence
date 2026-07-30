@@ -52,20 +52,20 @@ export default function LoginSection({ redirigerVersPage, definirUtilisateur, pa
           <div>
             <label htmlFor="email" className="sr-only">Adresse Email</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="email" name="email" type="email" autoComplete="email" required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Adresse Email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           </div>
           <div>
             <label htmlFor="password" className="sr-only">Mot de passe</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="password" name="password" type="password" autoComplete="current-password" required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
           </div>
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
           <button type="submit" disabled={loading} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#af894d] hover:bg-[#936f3c] disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#af894d] transition-colors duration-200">
-            {loading ? 'Connexion en cours...' : <><LogIn className="w-4 h-4 mr-2" /> Se connecter</>}
+            {loading ? 'Connexion en cours...' : <><LogIn className="w-4 h-4 mr-2"/> Se connecter</>}
           </button>
           <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
             Vous n'avez pas de compte ?{' '}

@@ -59,34 +59,34 @@ export default function InscriptionSection({ redirigerVersPage, definirUtilisate
           <div>
             <label htmlFor="nom-inscription" className="sr-only">Nom complet</label>
             <div className="relative">
-              <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="nom-inscription" name="nom" type="text" autoComplete="username" minLength={3} maxLength={30} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Nom d'utilisateur" value={nom} onChange={(e) => setNom(e.target.value)} />
             </div>
           </div>
           <div>
             <label htmlFor="email-inscription" className="sr-only">Adresse Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="email-inscription" name="email" type="email" autoComplete="email" required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Adresse Email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           </div>
           <div>
             <label htmlFor="password-inscription" className="sr-only">Mot de passe</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="password-inscription" name="password" type="password" autoComplete="new-password" minLength={8} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
           </div>
           <div>
             <label htmlFor="confirmation-password-inscription" className="sr-only">Confirmer le mot de passe</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
               <input id="confirmation-password-inscription" name="confirmationPassword" type="password" autoComplete="new-password" minLength={8} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm placeholder-slate-400 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-[#af894d] focus:border-[#af894d] text-sm" placeholder="Confirmer le mot de passe" value={confirmationPassword} onChange={(e) => setConfirmationPassword(e.target.value)} />
             </div>
           </div>
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
           <button type="submit" disabled={loading} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#af894d] hover:bg-[#936f3c] disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#af894d] transition-colors duration-200">
-            {loading ? 'Inscription en cours...' : <><UserPlus className="w-4 h-4 mr-2" /> S'inscrire</>}
+            {loading ? 'Inscription en cours...' : <><UserPlus className="w-4 h-4 mr-2"/> S'inscrire</>}
           </button>
           <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
             Vous avez déjà un compte ?{' '}

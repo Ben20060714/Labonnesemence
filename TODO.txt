@@ -1,49 +1,10 @@
-# Finir la traduction des erreurs dans le backend sans casser et sans degrader le code : j'ai déjà commencé, tu verras certains messages d'erreur en français et d'autres non. Si il faut corriger, corrige ceux que j'ai mal traduit ou mal appélé
-# Ajouter la fonctionnalité aidant à naviguer dans la lecture d'une prédication : quand l'utilisateur lis une predication, parfois il peut avoir mal entendu une partie alors il faut cette fonctionnalité qui fera en sorte que quand il n'a pas bien entendu, qu'il ait la possibilité de naviguer sur l'audio. Un peu comme quand in fait une recherche dans un lecteur audio.
-# Ajouter la fonctionnalité : quand je lance un enseignement audio, une fois que je vais vers un autre onglet à part enseignements, que le lecteur ne se ferme pas mais qu'il continue la lecture : il peut arriver que l'utilisateur ait besoin d'explorer d'autres onglets sans vouloir fermer la lecture.
-# corriger la couleur blanche quand on est en mode clair : la couleur est trop forte, baisse un tout petit peu la luminosité
-# Integrer nodemailer dans ce projet pour les formulaires de contact et newsletter.
+# Construire la page @PriereDuJourSection.tsx
 
 Tu travailles sur une application existante. Ta mission est d’implémenter les améliorations suivantes sans casser l’existant, sans dégrader la qualité du code et en respectant l’architecture déjà en place.
 
-Priorité 1 : intégrer Nodemailer dans le projet
-- Ajouter l’intégration de Nodemailer pour gérer l’envoi des emails depuis :
-  - le formulaire de contact
-  - la newsletter
-- Vérifier la structure actuelle du projet avant d’implémenter quoi que ce soit.
-- Mettre en place une intégration propre, sécurisée et réutilisable.
-- Gérer la configuration via variables d’environnement.
-- Prévoir une gestion correcte des erreurs d’envoi et des retours utilisateur.
-- Si nécessaire, factoriser la logique d’envoi pour éviter la duplication.
-- Ne pas casser les formulaires existants.
-- Si le projet utilise déjà un système d’email ou un backend partiel, l’adapter au lieu de le réécrire inutilement.
-
-Priorité 2 : finir la traduction des erreurs backend
-- Terminer la traduction des messages d’erreur backend en français.
-- Il existe déjà un mélange de messages traduits et non traduits : repérer ce qui manque.
-- Corriger les mauvaises traductions, les formulations incohérentes ou les appels mal faits.
-- Ne pas dégrader les logs techniques si certains doivent rester en anglais pour le debug.
-- Garder une séparation claire entre messages utilisateur et messages techniques.
-
-Priorité 3 : améliorer la navigation dans la lecture d’une prédication
-- Ajouter une fonctionnalité qui aide l’utilisateur à retrouver un passage audio quand il a mal entendu une partie.
-- L’expérience doit ressembler à une navigation/recherche dans un lecteur audio.
-- L’utilisateur doit pouvoir se déplacer facilement dans l’audio sans perdre son contexte de lecture.
-- Penser à une UX simple, rapide et intuitive.
-- La fonctionnalité doit être utile pendant l’écoute d’une prédication.
-
-Priorité 4 : conserver la lecture audio quand l’utilisateur change d’onglet
-- Quand un enseignement audio est lancé, il ne doit pas se fermer si l’utilisateur navigue vers un autre onglet de la section enseignements.
-- Le lecteur doit continuer à jouer en arrière-plan tant que l’utilisateur ne l’arrête pas volontairement.
-- Préserver l’état du lecteur, la progression et les contrôles.
-- Éviter toute coupure inutile lors de la navigation interne.
-
-Priorité 5 : ajuster la couleur en mode clair
-- Corriger la couleur blanche en mode clair, elle est trop forte.
-- Baisser légèrement la luminosité pour un rendu plus doux et plus agréable.
-- Faire un ajustement subtil, pas un changement visuel radical.
-- Vérifier que le contraste reste lisible et accessible.
-
+//
+!! Ecrire le prompt ici !!
+//
 Consignes générales
 - Commencer par analyser le code existant avant de modifier.
 - Respecter les conventions déjà utilisées dans le projet.

@@ -46,7 +46,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-[#c29f63]/20 text-[#c29f63] rounded-full">
-                <Church className="w-5 h-5" />
+                <Church className="w-5 h-5"/>
               </div>
               <span className="font-serif text-xl tracking-wider font-semibold text-[#c29f63]">
                 CABSC
@@ -92,15 +92,15 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
             </h3>
             <ul className="space-y-3 text-sm text-slate-400 font-light">
               <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 mt-0.5 text-[#c29f63]" />
+                <MapPin className="w-4 h-4 mt-0.5 text-[#c29f63]"/>
                 <span>7878 boulevard Kilwa, Golf Lido, Lubumbashi</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-[#c29f63]" />
+                <Phone className="w-4 h-4 text-[#c29f63]"/>
                 <a className="font-mono" href="tel:+243 822 342 445">+243 822 342 445</a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-[#c29f63]" />
+                <Mail className="w-4 h-4 text-[#c29f63]"/>
                 <a className="font-mono text-xs" href="mailto:bonnesemence.cabsc@gmail.com">bonnesemence.cabsc@gmail.com</a>
               </li>
             </ul>
@@ -136,11 +136,11 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                   className="absolute right-1 p-1.5 text-slate-300 bg-[#af894d] hover:bg-[#c29f63] rounded transition-all cursor-pointer"
                 >
                   {newsletterEnCours ? (
-                    <Send className="w-4 h-4 animate-pulse" />
+                    <Send className="w-4 h-4 animate-pulse"/>
                   ) : newsletterSucces ? (
-                    <Check className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-white"/>
                   ) : (
-                    <Send className="w-4 h-4" />
+                    <Send className="w-4 h-4"/>
                   )}
                 </button>
               </div>
@@ -152,7 +152,7 @@ export default function PiedDePage({ definirPageActive }: PiedDePageProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-[11px] text-emerald-400 font-medium mt-1.5 flex items-center gap-1"
                 >
-                  <Check className="w-3 h-3" /> Inscription confirmée.
+                  <Check className="w-3 h-3"/> Inscription confirmée.
                 </motion.p>
               )}
 

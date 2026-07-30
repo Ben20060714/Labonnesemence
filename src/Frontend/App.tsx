@@ -144,7 +144,7 @@ function AppChrome() {
         return <ContactDonsSection />;
       case 'administration':
         if (utilisateur?.role !== 'admin') {
-          return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} pageApresConnexion="administration" />;
+          return <LoginSection redirigerVersPage={definirPageActive} definirUtilisateur={definirUtilisateur} pageApresConnexion="administration"/>;
         }
         return <AdminSection/>;
       case 'login':
@@ -167,13 +167,7 @@ function AppChrome() {
       className="min-h-screen flex flex-col justify-between bg-[#fcfaf4] text-slate-850 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300"
     >
       {/* Barre de navigation / En-tête de page */}
-      <EnTete
-        pageActive={pageActive}
-        definirPageActive={definirPageActive}
-        modeSombre={modeSombre}
-        alternerTheme={alternerTheme}
-        utilisateur={utilisateur}
-      />
+      <EnTete pageActive={pageActive} definirPageActive={definirPageActive} modeSombre={modeSombre} alternerTheme={alternerTheme} utilisateur={utilisateur}/>
 
       {/* Cadre de contenu dynamique avec animations de transition */}
       <main id="contenant-principal-pages" className={`flex-grow ${sermonCourant ? 'pb-36 sm:pb-40' : ''}`}>
@@ -194,7 +188,7 @@ function AppChrome() {
 
       {/* Pied de page informatif et d'inscription */}
       <PiedDePage definirPageActive={definirPageActive} />
-      {sermonCourant && <div aria-hidden="true" className="h-32 sm:h-36" />}
+      {sermonCourant && <div aria-hidden="true" className="h-32 sm:h-36"/>}
       <SermonPlayerBar />
     </div>
   );

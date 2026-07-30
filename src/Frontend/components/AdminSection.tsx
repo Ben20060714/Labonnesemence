@@ -320,7 +320,7 @@ export default function AdminSection() {
                 : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 }`}
             >
-              <item.icon className="w-4 h-4" />
+              <item.icon className="w-4 h-4"/>
               {item.label}
             </button>
           ))}
@@ -359,7 +359,7 @@ export default function AdminSection() {
 
                 <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl space-y-4">
                   <h3 className="font-serif text-lg font-bold flex items-center gap-2">
-                    <Info className="w-4 h-4 text-[#af894d]" />
+                    <Info className="w-4 h-4 text-[#af894d]"/>
                     Info pour Administrateur
                   </h3>
                   <p className="text-sm  text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -382,8 +382,8 @@ export default function AdminSection() {
                     <div className="flex items-center justify-between px-2">
                       <span className="font-bold">{NOMS_MOIS[vueCalendrier.getMonth()]} {vueCalendrier.getFullYear()}</span>
                       <div className="flex gap-1">
-                        <button onClick={() => changerMois(-1)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"><ChevronLeft className="w-4 h-4" /></button>
-                        <button onClick={() => changerMois(1)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"><ChevronRight className="w-4 h-4" /></button>
+                        <button onClick={() => changerMois(-1)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"><ChevronLeft className="w-4 h-4"/></button>
+                        <button onClick={() => changerMois(1)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"><ChevronRight className="w-4 h-4"/></button>
                       </div>
                     </div>
                     <div className="grid grid-cols-7 gap-1 text-center bg-slate-100 dark:bg-slate-800 rounded-xl">
@@ -420,21 +420,21 @@ export default function AdminSection() {
                       />
                       <div className="grid grid-cols-2 gap-3">
                         <div className="relative">
-                          <CalendarIcon className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                          <input type="text" placeholder="Date" value={dateSelectionnee} readOnly className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 bg-slate-100 cursor-not-allowed" />
+                          <CalendarIcon className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
+                          <input type="text" placeholder="Date" value={dateSelectionnee} readOnly className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700 bg-slate-100 cursor-not-allowed"/>
                         </div>
                         <div className="relative">
-                          <Clock className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                          <input type="text" placeholder="Heure" value={nouveauEvt.heure} onChange={e => definirNouveauEvt({ ...nouveauEvt, heure: e.target.value })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
+                          <Clock className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
+                          <input type="text" placeholder="Heure" value={nouveauEvt.heure} onChange={e => definirNouveauEvt({ ...nouveauEvt, heure: e.target.value })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
                         </div>
                       </div>
                       <div className="relative">
-                        <MapPin className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                        <input type="text" placeholder="Lieu" value={nouveauEvt.lieu} onChange={e => definirNouveauEvt({ ...nouveauEvt, lieu: e.target.value })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
+                        <MapPin className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
+                        <input type="text" placeholder="Lieu" value={nouveauEvt.lieu} onChange={e => definirNouveauEvt({ ...nouveauEvt, lieu: e.target.value })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
                       </div>
                       {/* <div className="relative hidden">
-                        <Users className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                        <input type="number" placeholder="Places disponibles" value={nouveauEvt.placesDisponibles} onChange={e => definirNouveauEvt({ ...nouveauEvt, placesDisponibles: Number(e.target.value) })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
+                        <Users className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
+                        <input type="number" placeholder="Places disponibles" value={nouveauEvt.placesDisponibles} onChange={e => definirNouveauEvt({ ...nouveauEvt, placesDisponibles: Number(e.target.value) })} className="w-full pl-9 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
                       </div> */}
                       <div className="space-y-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/40 p-3">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Image de couverture de l'événement</label>
@@ -484,9 +484,9 @@ export default function AdminSection() {
                             <td className="py-3 px-2">
                               <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                 {e.imageUrl ? (
-                                  <img src={e.imageUrl} alt={e.titre} className="w-full h-full object-cover" />
+                                  <img src={e.imageUrl} alt={e.titre} className="w-full h-full object-cover"/>
                                 ) : (
-                                  <ImageIcon className="w-5 h-5 text-slate-400" />
+                                  <ImageIcon className="w-5 h-5 text-slate-400"/>
                                 )}
                               </div>
                             </td>
@@ -495,7 +495,7 @@ export default function AdminSection() {
                             <td className="py-3 px-2 text-slate-500">{e.lieu}</td>
                             <td className="py-3 px-2 text-right">
                               <button onClick={() => supprimerItem('evenements', e.identifiant)} className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-md transition-all cursor-pointer">
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4"/>
                               </button>
                             </td>
                           </tr>
@@ -522,7 +522,7 @@ export default function AdminSection() {
                       className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                     />
                     <div className="relative">
-                      <User className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
+                      <User className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
                       <input
                         type="text"
                         placeholder="Orateur"
@@ -532,7 +532,7 @@ export default function AdminSection() {
                       />
                     </div>
                     <div className="relative">
-                      <BookOpen className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
+                      <BookOpen className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400"/>
                       <input
                         type="text"
                         placeholder="Passage biblique"
@@ -593,7 +593,7 @@ export default function AdminSection() {
                       onChange={e => definirNouveauSermon({ ...nouveauSermon, resume: e.target.value })}
                       className="flex-1 w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" rows={4}></textarea>
                     <button type="submit" className="w-full py-2.5 bg-slate-400 text-white dark:bg-slate-800 text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#af894d] transition-all cursor-pointer flex items-center justify-center gap-2">
-                      <Save className="w-4 h-4" /> Publier
+                      <Save className="w-4 h-4"/> Publier
                     </button>
                   </div>
                 </form>
@@ -606,9 +606,9 @@ export default function AdminSection() {
                         <div className="flex items-center gap-4">
                           <div className="w-14 h-14 overflow-hidden rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-[#af894d] shrink-0">
                             {s.imageUrl ? (
-                              <img src={s.imageUrl} alt={s.titre} className="w-full h-full object-cover" />
+                              <img src={s.imageUrl} alt={s.titre} className="w-full h-full object-cover"/>
                             ) : (
-                              <Mic className="w-5 h-5" />
+                              <Mic className="w-5 h-5"/>
                             )}
                           </div>
                           <div>
@@ -617,7 +617,7 @@ export default function AdminSection() {
                           </div>
                         </div>
                         <button onClick={() => supprimerItem('sermons', s.identifiant)} className="opacity-0 group-hover:opacity-100 p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4"/>
                         </button>
                       </div>
                     ))}
@@ -632,7 +632,7 @@ export default function AdminSection() {
                 <div className="flex items-center justify-between">
                   <h2 className="font-serif text-xl font-bold">Gestion des membres</h2>
                   <button type="button" onClick={ajouterMembre} className="flex items-center gap-2 px-4 py-2 bg-[#af894d] text-white text-xs font-bold rounded-lg hover:bg-emerald-600 cursor-pointer">
-                    <Plus className="w-4 h-4" /> Ajouter un membre
+                    <Plus className="w-4 h-4"/> Ajouter un membre
                   </button>
                 </div>
 
@@ -666,14 +666,14 @@ export default function AdminSection() {
                     </div>
                     <div className="space-y-3 text-left">
                       <label className="text-[10px] font-bold uppercase text-slate-400">Contact</label>
-                      <div className="relative"><Phone className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" /><input
+                      <div className="relative"><Phone className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400"/><input
                         type="text"
                         placeholder="Téléphone"
                         value={nouveauMembre.telephone}
                         onChange={e => definirNouveauMembre({ ...nouveauMembre, telephone: e.target.value })}
                         className="w-full pl-8 pr-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                       /></div>
-                      <div className="relative"><Mail className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" /><input
+                      <div className="relative"><Mail className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400"/><input
                         type="text"
                         placeholder="Email"
                         value={nouveauMembre.email}
@@ -714,7 +714,7 @@ export default function AdminSection() {
                     <div key={m.identifiant} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-4 relative group">
                       <div className="w-12 h-12 bg-[#af894d] rounded-full flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                         {m.imageUrl ? (
-                          <img src={m.imageUrl} alt={formaterNomCompletMembre(m)} className="w-full h-full object-cover" />
+                          <img src={m.imageUrl} alt={formaterNomCompletMembre(m)} className="w-full h-full object-cover"/>
                         ) : (
                           calculerInitiales(m.prenom, m.nom)
                         )}
@@ -727,7 +727,7 @@ export default function AdminSection() {
                         </p>
                       </div>
                       <button onClick={() => supprimerItem('membres', m.identifiant)} className="p-2 text-slate-300 hover:text-rose-500 transition-colors cursor-pointer">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4"/>
                       </button>
                     </div>
                   ))}
@@ -750,9 +750,9 @@ export default function AdminSection() {
                         <div className="space-y-1">
                           <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">{message.sujet}</h3>
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                            <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {message.nom}</span>
+                            <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5"/> {message.nom}</span>
                             <a href={`mailto:${message.email}`} className="flex items-center gap-1.5 text-[#af894d] hover:underline">
-                              <Mail className="w-3.5 h-3.5" /> {message.email}
+                              <Mail className="w-3.5 h-3.5"/> {message.email}
                             </a>
                           </div>
                         </div>
@@ -761,7 +761,7 @@ export default function AdminSection() {
                             {new Date(message.created_at).toLocaleString('fr-FR')}
                           </span>
                           <button onClick={() => supprimerItem('messages', message.id)} className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all cursor-pointer">
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4"/>
                           </button>
                         </div>
                       </div>
@@ -772,7 +772,7 @@ export default function AdminSection() {
 
                 {messagesContact.length === 0 && (
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-10 text-center space-y-2">
-                    <MessageSquare className="w-8 h-8 mx-auto text-slate-400" />
+                    <MessageSquare className="w-8 h-8 mx-auto text-slate-400"/>
                     <p className="text-sm text-slate-500">Aucun message de contact enregistré pour le moment.</p>
                   </div>
                 )}
@@ -837,7 +837,7 @@ export default function AdminSection() {
 
                 {donations.length === 0 && (
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-10 text-center space-y-2">
-                    <CreditCard className="w-8 h-8 mx-auto text-slate-400" />
+                    <CreditCard className="w-8 h-8 mx-auto text-slate-400"/>
                     <p className="text-sm text-slate-500">Aucun don enregistré pour le moment.</p>
                   </div>
                 )}
@@ -857,7 +857,7 @@ export default function AdminSection() {
                 <div className="bg-slate-100 dark:bg-slate-800 p-10 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center">
                   <div className="max-w-xs mx-auto space-y-4">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
-                      <Plus className="w-8 h-8" />
+                      <Plus className="w-8 h-8"/>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-bold">Ajouter une photo</p>
@@ -881,8 +881,8 @@ export default function AdminSection() {
                           className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
                         />
                       </div>
-                      <input type="file" accept="image/*" onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)} className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
-                      <input type="text" value={legendeGalerie} onChange={(e) => definirLegendeGalerie(e.target.value)} placeholder="Légende de l'image" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700" />
+                      <input type="file" accept="image/*" onChange={(e) => definirFichierGalerie(e.target.files?.[0] || null)} className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
+                      <input type="text" value={legendeGalerie} onChange={(e) => definirLegendeGalerie(e.target.value)} placeholder="Légende de l'image" className="w-full px-3 py-2 text-xs rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"/>
                       <button type="button" onClick={envoyerPhotoGalerie} className="w-full py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer">
                         Envoyer la photo
                       </button>
@@ -912,7 +912,7 @@ export default function AdminSection() {
                               <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
                             </div>
                             <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4"/>
                             </button>
                           </div>
                         </div>
@@ -944,7 +944,7 @@ export default function AdminSection() {
                               <p className="text-[10px] text-slate-500 font-mono">{Math.round(fichier.size / 1024)} Ko</p>
                             </div>
                             <button onClick={() => supprimerItem('galerie', fichier.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4"/>
                             </button>
                           </div>
                         </div>
@@ -971,9 +971,9 @@ export default function AdminSection() {
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed bottom-8 right-8 z-[100] bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-500/50"
           >
-            <div className="bg-[#af894d] rounded-full p-1"><Check className="w-4 h-4" /></div>
+            <div className="bg-[#af894d] rounded-full p-1"><Check className="w-4 h-4"/></div>
             <span className="text-sm font-semibold">{notif}</span>
-            <button onClick={() => definirNotif(null)} className="ml-4 text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            <button onClick={() => definirNotif(null)} className="ml-4 text-slate-400 hover:text-white"><X className="w-4 h-4"/></button>
           </motion.div>
         )}
       </AnimatePresence>

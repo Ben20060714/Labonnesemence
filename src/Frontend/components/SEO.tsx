@@ -37,8 +37,8 @@ export default function SEO({
   useEffect(() => {
     const siteName = 'Église La Bonne Semence';
     const defaultDescription = "Communauté des Assemblées Bonne Semence (CABCS). Fondée par le Patriarche Jean Médard Kalonda, dirigée par le Pasteur Djoe Baruani. Une église, un seul corps : le Christ.";
-    const defaultKeywords = 'église, la bonne semence, CABCS, foi chrétienne, salut, Jésus-Christ, Kinshasa, Pasteur Djoe Baruani, évangélisation, communauté chrétienne';
-    const siteUrl = 'https://lbs.cabcs.org';
+    const defaultKeywords = 'église, la bonne semence, CABSC, foi chrétienne, salut, Jésus-Christ, Kinshasa, Golf Lido, Boulevard Kilwa, 7878, Dieu, lbs, cabcs, Baruani, Pasteur Djoe Baruani, évangélisation, communauté chrétienne';
+    const siteUrl = 'https://cabcs.onrender.com';
     const defaultImage = '/img/church-preview.jpg';
 
     const seoTitle = title ? `${title} | ${siteName}` : `${siteName} - Une église, Un seul corps`;
