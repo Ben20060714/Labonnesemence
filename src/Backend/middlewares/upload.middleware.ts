@@ -3,7 +3,7 @@ import { Request } from 'express';
 
 const ALLOWED_MIMETYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif', 'image/bmp',
-  'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm',
+  'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/x-aac',
   'video/mp4', 'video/webm', 'video/ogg',
   'application/pdf',
   'text/plain', 'text/csv',
