@@ -15,8 +15,6 @@ const ALLOWED_MIMETYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ];
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
 const getUploadCategory = (mimetype: string): string => {
   if (mimetype.startsWith('image/')) return 'images';
   if (mimetype.startsWith('audio/')) return 'audio';
@@ -39,7 +37,6 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
 export const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter,
-  limits: { fileSize: MAX_FILE_SIZE },
 });
 
 export const getUploadCategoryForFile = getUploadCategory;

@@ -186,6 +186,18 @@ export async function initializeDatabase(): Promise<void> {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
+    CREATE TABLE IF NOT EXISTS daily_devotions (
+      id TEXT PRIMARY KEY,
+      scheduled_date DATE UNIQUE NOT NULL,
+      verse_reference TEXT NOT NULL,
+      verse_text TEXT NOT NULL,
+      meditation_text TEXT NOT NULL DEFAULT '',
+      prayer_text TEXT NOT NULL,
+      is_published BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS donations (
       id TEXT PRIMARY KEY,
       reference TEXT UNIQUE NOT NULL,
@@ -214,6 +226,7 @@ export async function initializeDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_donations_reference ON donations(reference);
     CREATE INDEX IF NOT EXISTS idx_donations_status ON donations(status);
     CREATE INDEX IF NOT EXISTS idx_donations_created ON donations(created_at);
+    CREATE INDEX IF NOT EXISTS idx_daily_devotions_current ON daily_devotions(is_published, scheduled_date);
   `);
 
   await ensureColumnExists('users', 'image_url', 'TEXT');
@@ -228,6 +241,7 @@ export async function initializeDatabase(): Promise<void> {
   await ensureColumnExists('files', 'legend', 'TEXT');
   await ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
   await ensureColumnExists('files', 'categorie', 'TEXT');
+  await ensureColumnExists('daily_devotions', 'meditation_text', "TEXT NOT NULL DEFAULT ''");
   await ensureColumnExists('pastor_messages', 'author', "TEXT NOT NULL DEFAULT ''");
   await ensureColumnExists('pastor_messages', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');
   await ensureColumnExists('pastor_messages', 'delete_after_days', 'INTEGER');

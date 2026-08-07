@@ -21,6 +21,7 @@ import newsletterRoutes from './routes/newsletter.routes.ts';
 import pastorMessagesRoutes from './routes/mot_du_pasteur.routes.ts';
 import donationsRoutes from './routes/donations.routes.js';
 import hierarchyMembersRoutes from './routes/hierarchyMembers.routes.ts';
+import dailyDevotionsRoutes from './routes/dailyDevotions.routes.ts';
 
 const dir = import.meta.dirname;
 const app = express();
@@ -76,6 +77,7 @@ app.use('/api/contacts', contactsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/mot_du_pasteur', pastorMessagesRoutes);
 app.use('/api/donations', donationsRoutes);
+app.use('/api/daily-devotions', dailyDevotionsRoutes);
 
 // ─── Frontend statique ───────────────────────────────────────────────────────
 if (fs.existsSync(indexHtmlPath)) {
@@ -147,6 +149,11 @@ app.listen(PORT, () => {
   console.log(`  POST   /api/donations/monetbil/notify`);
   console.log(`  GET    /api/donations        (admin)`);
   console.log(`  PATCH  /api/donations/:id/status (admin)`);
+  console.log(`  GET    /api/daily-devotions/current`);
+  console.log(`  GET    /api/daily-devotions  (admin)`);
+  console.log(`  POST   /api/daily-devotions  (admin)`);
+  console.log(`  PATCH  /api/daily-devotions/:id (admin)`);
+  console.log(`  DELETE /api/daily-devotions/:id (admin)`);
   console.log(`  GET    /api/files`);
   console.log(`  POST   /api/files/upload`);
   console.log(`  POST   /api/files/upload-multiple`);

@@ -86,6 +86,18 @@ export interface FileWithUploader extends FileRecord {
   uploader_username: string;
 }
 
+export interface DailyDevotion {
+  id: string;
+  scheduled_date: string;
+  verse_reference: string;
+  verse_text: string;
+  meditation_text: string;
+  prayer_text: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface JwtPayload {
   userId: string;
   email: string;

@@ -1,22 +1,11 @@
-# Construire la page @PriereDuJourSection.tsx
-# Faire en sorte que la section a propos dans la zone "membres" que seuls les membres de la hierarchie de l'eglise s'affichent et non les gens qui créent leur compte sur le site. Si le site affichait les gens qui créeaient un compte et qu'ilss étaient plus de 2000, les utilisateurs auront du mal à parcourir la page. voilà pourquoi je veux seulement que la hierarchie soit affichée. Les membres de la hierarchie doivent êtres ajoutés à partir de la page administrateur
+** Lis et ecris un prompt solide et efficace à l'endroit indiqué pour ces éléments :
+
+# Lier la section @PriereDuJourSection.tsx dans la section @AdminSection.tsx pour qu'elle soit administrable
+# 
 
 Tu travailles sur une application existante. Ta mission est d’implémenter les améliorations suivantes sans casser l’existant, sans dégrader la qualité du code et en respectant l’architecture déjà en place.
 
-Implémente les deux évolutions suivantes :
-
-1. Crée le composant `src/Frontend/components/PriereDuJourSection.tsx`.
-   - La section doit être visuellement cohérente avec les composants existants, responsive et compatible avec les thèmes clair et sombre.
-   - Elle doit présenter une prière du jour avec un titre, la date du jour, un court verset biblique, le texte de la prière et une action simple pour copier ou partager la prière.
-   - Intègre-la dans la navigation et dans `App.tsx` avec une route/page dédiée, sans modifier le comportement des pages existantes.
-   - Utilise les conventions TypeScript, les composants Lucide et les styles Tailwind déjà présents dans le projet. Ne crée pas de dépendance supplémentaire.
-
-2. Limite la zone « Membres » de la page À propos à la hiérarchie de l’église.
-   - Les comptes créés via l’inscription publique ne doivent jamais être exposés sur cette page.
-   - Les membres de la hiérarchie doivent être ajoutés et gérés depuis l’espace d’administration : nom, fonction ecclésiastique, biographie, coordonnées facultatives et photo.
-   - Prévois une distinction explicite et pérenne en base de données entre un compte utilisateur et un membre de la hiérarchie ; ne déduis pas cette information à partir du rôle technique `admin`/`user`.
-   - Adapte l’API, les types frontend et l’administration afin que la liste publique ne retourne que ces membres de la hiérarchie, avec pagination ou une limite sûre.
-   - Préserve les données et comportements existants, gère proprement les listes vides et les erreurs de chargement, et n’affiche pas d’adresse e-mail ou de numéro de téléphone sans que cela soit prévu dans la fiche publique.
+// ecrire le prompt ici //
 
 Après les modifications, vérifie `npm run lint` et `npm run build`, puis corrige les erreurs éventuelles.
 Consignes générales

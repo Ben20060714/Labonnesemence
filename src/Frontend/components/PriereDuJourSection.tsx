@@ -1,38 +1,50 @@
-import { useMemo, useState } from 'react';
-import { BookOpen, Check, Copy, Heart, Share2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { BookOpen, Check, Copy, Heart, Mic, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
-
-const PRIERES = [
-  {
-    verset: 'Psaume 46 : 2',
-    citation: 'Dieu est pour nous un refuge et un appui, un secours qui ne manque jamais dans la détresse.',
-    texte: 'Père céleste, merci pour ce jour nouveau. Conduis mes pas, affermis ma foi et remplis mon cœur de ta paix. Donne-moi la force d’aimer, de servir et de témoigner de ta grâce autour de moi. Au nom de Jésus, amen.',
-  },
-  {
-    verset: 'Proverbes 3 : 5-6',
-    citation: 'Confie-toi en l’Éternel de tout ton cœur, et ne t’appuie pas sur ta sagesse.',
-    texte: 'Seigneur, je remets cette journée entre tes mains. Éclaire mes décisions, garde ma famille et ouvre mon cœur à ta volonté. Que ta sagesse m’accompagne dans chaque rencontre. Au nom de Jésus, amen.',
-  },
-  {
-    verset: 'Philippiens 4 : 6-7',
-    citation: 'Ne vous inquiétez de rien ; mais en toute chose faites connaître vos besoins à Dieu.',
-    texte: 'Dieu de paix, je dépose devant toi mes préoccupations et mes projets. Remplace mon inquiétude par ta paix et aide-moi à garder confiance en ta fidélité. Au nom de Jésus, amen.',
-  },
-];
+import { api, DevotionDuJourBackend, FichierBackend, obtenirUrlFichier } from '../services/api';
 
 export default function PriereDuJourSection() {
   const [messageAction, definirMessageAction] = useState('');
-  const { date, priere } = useMemo(() => {
+  const [devotion, definirDevotion] = useState<DevotionDuJourBackend | null>(null);
+  const [chargementDevotion, definirChargementDevotion] = useState(true);
+  const [exhortationsVocales, definirExhortationsVocales] = useState<FichierBackend[]>([]);
+  const date = useMemo(() => {
     const maintenant = new Date();
-    const debutAnnee = new Date(maintenant.getFullYear(), 0, 0);
-    const index = Math.floor((maintenant.getTime() - debutAnnee.getTime()) / 86_400_000) % PRIERES.length;
-    return {
-      date: new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(maintenant),
-      priere: PRIERES[index],
-    };
+    return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(maintenant);
   }, []);
 
-  const contenuPartage = `Prière du jour — ${priere.verset}\n« ${priere.citation} »\n\n${priere.texte}`;
+  const contenuPartage = devotion
+    ? `Prière du jour — ${devotion.verse_reference}\n« ${devotion.verse_text} »\n\n${devotion.prayer_text}`
+    : 'Prière du jour';
+
+  useEffect(() => {
+    let composantActif = true;
+
+    api.obtenirDevotionDuJour()
+      .then((donnees) => {
+        if (composantActif) definirDevotion(donnees);
+      })
+      .catch((erreur) => console.error('Chargement de la prière du jour impossible:', erreur))
+      .finally(() => {
+        if (composantActif) definirChargementDevotion(false);
+      });
+
+    api.listerFichiersPublics('all')
+      .then((fichiers) => {
+        if (!composantActif) return;
+        definirExhortationsVocales(
+          fichiers.filter((fichier) =>
+            fichier.mimetype.startsWith('audio/') &&
+            fichier.categorie?.trim().toLowerCase() === 'exhortation vocale'
+          )
+        );
+      })
+      .catch((erreur) => console.error('Chargement des exhortations vocales impossible:', erreur));
+
+    return () => {
+      composantActif = false;
+    };
+  }, []);
 
   const copierPriere = async () => {
     try {
@@ -68,15 +80,59 @@ export default function PriereDuJourSection() {
           </div>
 
           <div className="mx-auto max-w-3xl space-y-6">
-            <blockquote className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-6 text-center dark:border-slate-700 dark:bg-slate-950/30">
-              <BookOpen className="mx-auto mb-3 w-5 h-5 text-[#af894d] dark:text-[#c29f63]" />
-              <p className="font-serif text-xl italic leading-relaxed text-slate-800 dark:text-slate-200">« {priere.citation} »</p>
-              <footer className="mt-3 text-xs font-bold uppercase tracking-widest text-[#af894d] dark:text-[#c29f63]">{priere.verset}</footer>
-            </blockquote>
+            {chargementDevotion && (
+              <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950/30 dark:text-slate-400">
+                Chargement de la prière du jour...
+              </div>
+            )}
 
-            <div className="rounded-2xl bg-slate-900 p-7 text-center text-slate-100 shadow-lg dark:bg-slate-950 sm:p-9">
-              <p className="font-serif text-lg leading-8 sm:text-xl">{priere.texte}</p>
-            </div>
+            {!chargementDevotion && devotion && (
+              <>
+                <blockquote className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-6 text-center dark:border-slate-700 dark:bg-slate-950/30">
+                  <BookOpen className="mx-auto mb-3 w-5 h-5 text-[#af894d] dark:text-[#c29f63]" />
+                  <p className="font-serif text-xl italic leading-relaxed text-slate-800 dark:text-slate-200">« {devotion.verse_text} »</p>
+                  <footer className="mt-3 text-xs font-bold uppercase tracking-widest text-[#af894d] dark:text-[#c29f63]">{devotion.verse_reference}</footer>
+                </blockquote>
+
+                <div className="rounded-2xl bg-slate-900 p-7 text-center text-slate-100 shadow-lg dark:bg-slate-950 sm:p-9">
+                  <p className="font-serif text-lg leading-8 sm:text-xl whitespace-pre-wrap">{devotion.prayer_text}</p>
+                </div>
+              </>
+            )}
+
+            {!chargementDevotion && !devotion && (
+              <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-8 text-center dark:border-slate-700 dark:bg-slate-950/30">
+                <BookOpen className="mx-auto mb-3 w-5 h-5 text-[#af894d] dark:text-[#c29f63]" />
+                <p className="text-sm text-slate-500 dark:text-slate-400">Aucune prière du jour n'est encore publiée.</p>
+              </div>
+            )}
+
+            {exhortationsVocales.length > 0 && (
+              <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/80 p-6 dark:border-slate-700 dark:bg-slate-950/30">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#af894d]/15 text-[#af894d] dark:text-[#c29f63]">
+                    <Mic className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">Exhortations du jour vocales</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Écoutez les messages audio partagés pour aujourd'hui.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {exhortationsVocales.map((exhortation) => (
+                    <article key={exhortation.id} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{exhortation.legend?.trim() || exhortation.original_name}</h3>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">{Math.round(exhortation.size / 1024)} Ko</span>
+                      </div>
+                      <audio controls preload="metadata" src={obtenirUrlFichier(exhortation.id)} className="w-full">
+                        Votre navigateur ne supporte pas la lecture audio.
+                      </audio>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

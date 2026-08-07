@@ -9,7 +9,7 @@ dist/
 .env*
 .env.example
 audio/
-tmp
+tmp/
 decoded_files_js.txt
 data/
 uploads/

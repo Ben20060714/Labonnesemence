@@ -66,6 +66,18 @@ export interface FichierBackend {
   created_at?: string;
 }
 
+export interface DevotionDuJourBackend {
+  id: string;
+  scheduled_date: string;
+  verse_reference: string;
+  verse_text: string;
+  meditation_text: string;
+  prayer_text: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface MessageContact {
   id: string;
   nom: string;
@@ -293,6 +305,33 @@ export const api = {
 
   async supprimerMessageContact(id: string): Promise<void> {
     await executerRequeteApi<null>(`/contacts/${id}`, { method: 'DELETE' }, true);
+  },
+
+  async obtenirDevotionDuJour(): Promise<DevotionDuJourBackend | null> {
+    return executerRequeteApi<DevotionDuJourBackend | null>('/daily-devotions/current');
+  },
+
+  async listerDevotions(): Promise<DevotionDuJourBackend[]> {
+    const donnees = await executerRequeteApi<ReponsePaginee<DevotionDuJourBackend>>('/daily-devotions?limit=100', {}, true);
+    return donnees.items;
+  },
+
+  async creerDevotion(devotion: Omit<DevotionDuJourBackend, 'id' | 'created_at' | 'updated_at'>): Promise<DevotionDuJourBackend> {
+    return executerRequeteApi<DevotionDuJourBackend>('/daily-devotions', {
+      method: 'POST',
+      body: JSON.stringify(devotion),
+    }, true);
+  },
+
+  async modifierDevotion(id: string, devotion: Partial<Omit<DevotionDuJourBackend, 'id' | 'created_at' | 'updated_at'>>): Promise<DevotionDuJourBackend> {
+    return executerRequeteApi<DevotionDuJourBackend>(`/daily-devotions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(devotion),
+    }, true);
+  },
+
+  async supprimerDevotion(id: string): Promise<void> {
+    await executerRequeteApi<null>(`/daily-devotions/${id}`, { method: 'DELETE' }, true);
   },
 
   async listerSermons(): Promise<Sermon[]> {
