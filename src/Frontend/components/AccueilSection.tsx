@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Gift, Heart, MapPin, Play, Users, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
-import { api, obtenirUrlFichier } from '../services/api';
+import { api, DevotionDuJourBackend, obtenirUrlFichier } from '../services/api';
 import { Evenement, Sermon } from '../types';
 
 import HeroPic from '../../../img/Hero_pic.jpg';
@@ -44,6 +44,7 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
   const [sermons, definirSermons] = useState<Sermon[]>([]);
   const [evenements, definirEvenements] = useState<Evenement[]>([]);
   const [photosAccueil, definirPhotosAccueil] = useState<PhotoAccueil[]>([]);
+  const [devotionDuJour, definirDevotionDuJour] = useState<DevotionDuJourBackend | null>(null);
   const [imageHero, definirImageHero] = useState<string>(HeroPic);
   const dernierSermon = sermons[0];
   const prochainEvenement = evenements[0];
@@ -54,13 +55,15 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
     Promise.all([
       api.listerSermons(),
       api.listerEvenements(),
+      api.obtenirDevotionDuJour().catch(() => null),
       api.listerFichiersPublics('gallery').catch(() => []),
       api.listerFichiersPublics('cover').catch(() => []),
     ])
-      .then(([sermonsApi, evenementsApi, fichiersGalerie, fichiersBase]) => {
+      .then(([sermonsApi, evenementsApi, devotionApi, fichiersGalerie, fichiersBase]) => {
         if (!composantActif) return;
         definirSermons(sermonsApi);
         definirEvenements(evenementsApi);
+        definirDevotionDuJour(devotionApi);
         definirPhotosAccueil(
           fichiersGalerie
             .filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery')
@@ -205,6 +208,72 @@ export default function AccueilSection({ redirigerVersPage }: AccueilSectionProp
           </div>
           )}
 
+        </div>
+      </section>
+
+      {/* Résumé de la prière du jour */}
+      <section id="resume-priere-du-jour-accueil" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 rounded-2xl border border-[#f4ebd9] bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="lg:col-span-4 flex flex-col justify-center space-y-4">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#af894d] dark:text-[#c29f63]">
+              Temps de recueillement
+            </span>
+            <h2 className="font-serif text-3xl font-bold text-slate-900 dark:text-slate-100">
+              Prière du jour
+            </h2>
+            <p className="text-sm text-slate-500 font-light dark:text-slate-400">
+              Un verset et une prière préparés pour nourrir votre journée.
+            </p>
+          </div>
+
+          <div className="lg:col-span-8 rounded-xl border border-[#f4ebd9]/80 bg-slate-50 p-6 sm:p-8 dark:border-slate-800 dark:bg-slate-950/40">
+            {devotionDuJour ? (
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#af894d]/15 text-[#af894d] dark:text-[#c29f63]">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-mono uppercase tracking-widest text-[#af894d] dark:text-[#c29f63]">
+                        {devotionDuJour.verse_reference}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {devotionDuJour.scheduled_date.slice(0, 10)}
+                      </p>
+                    </div>
+                  </div>
+                  <blockquote className="font-serif text-xl italic leading-relaxed text-slate-800 line-clamp-3 dark:text-slate-200">
+                    « {devotionDuJour.verse_text} »
+                  </blockquote>
+                  <p className="text-sm leading-6 text-slate-600 line-clamp-2 dark:text-slate-400">
+                    {devotionDuJour.prayer_text}
+                  </p>
+                </div>
+
+                <button
+                  id="bouton-voir-priere-du-jour-accueil"
+                  onClick={() => redirigerVersPage('priere-du-jour')}
+                  className="shrink-0 px-6 py-3 rounded text-xs font-bold uppercase tracking-wider bg-slate-900 text-white hover:bg-[#af894d] transition-all cursor-pointer dark:bg-slate-800 dark:hover:bg-[#af894d]"
+                >
+                  Lire la suite
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Aucune prière du jour n'est encore publiée.
+                </p>
+                <button
+                  id="bouton-vers-priere-du-jour-vide"
+                  onClick={() => redirigerVersPage('priere-du-jour')}
+                  className="px-6 py-3 rounded text-xs font-bold uppercase tracking-wider border border-[#af894d] text-[#af894d] hover:bg-[#af894d] hover:text-white transition-all cursor-pointer"
+                >
+                  Voir la page
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
