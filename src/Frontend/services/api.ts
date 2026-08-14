@@ -73,6 +73,10 @@ export interface DevotionDuJourBackend {
   verse_text: string;
   meditation_text: string;
   prayer_text: string;
+  audio_url?: string | null;
+  audio_title?: string | null;
+  audio_description?: string | null;
+  cover_image_url?: string | null;
   is_published: boolean;
   created_at: string;
   updated_at: string;

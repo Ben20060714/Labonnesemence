@@ -193,6 +193,10 @@ export async function initializeDatabase(): Promise<void> {
       verse_text TEXT NOT NULL,
       meditation_text TEXT NOT NULL DEFAULT '',
       prayer_text TEXT NOT NULL,
+      audio_url TEXT,
+      audio_title TEXT,
+      audio_description TEXT,
+      cover_image_url TEXT,
       is_published BOOLEAN NOT NULL DEFAULT true,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -242,6 +246,10 @@ export async function initializeDatabase(): Promise<void> {
   await ensureColumnExists('files', 'usage', "TEXT NOT NULL DEFAULT 'gallery'");
   await ensureColumnExists('files', 'categorie', 'TEXT');
   await ensureColumnExists('daily_devotions', 'meditation_text', "TEXT NOT NULL DEFAULT ''");
+  await ensureColumnExists('daily_devotions', 'audio_url', 'TEXT');
+  await ensureColumnExists('daily_devotions', 'audio_title', 'TEXT');
+  await ensureColumnExists('daily_devotions', 'audio_description', 'TEXT');
+  await ensureColumnExists('daily_devotions', 'cover_image_url', 'TEXT');
   await ensureColumnExists('pastor_messages', 'author', "TEXT NOT NULL DEFAULT ''");
   await ensureColumnExists('pastor_messages', 'auto_delete', 'BOOLEAN NOT NULL DEFAULT false');
   await ensureColumnExists('pastor_messages', 'delete_after_days', 'INTEGER');

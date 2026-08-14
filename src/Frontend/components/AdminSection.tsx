@@ -50,6 +50,10 @@ const devotionVide = (): FormulaireDevotion => ({
   verse_text: '',
   meditation_text: '',
   prayer_text: '',
+  audio_url: '',
+  audio_title: '',
+  audio_description: '',
+  cover_image_url: '',
   is_published: true,
 });
 
@@ -72,8 +76,7 @@ export default function AdminSection() {
   const [fichierImageMembre, definirFichierImageMembre] = useState<File | null>(null);
   const [fichierAudioSermon, definirFichierAudioSermon] = useState<File | null>(null);
   const [fichierExhortationVocale, definirFichierExhortationVocale] = useState<File | null>(null);
-  const [titreExhortationVocale, definirTitreExhortationVocale] = useState('');
-  const [descriptionExhortationVocale, definirDescriptionExhortationVocale] = useState('');
+  const [fichierImageDevotion, definirFichierImageDevotion] = useState<File | null>(null);
   const [legendeGalerie, definirLegendeGalerie] = useState('');
   const [categorieGalerie, definirCategorieGalerie] = useState('Galerie');
   const [usageGalerie, definirUsageGalerie] = useState<UsageFichier>('gallery');
@@ -139,6 +142,10 @@ export default function AdminSection() {
             verse_text: devotionDuJour.verse_text,
             meditation_text: devotionDuJour.meditation_text || '',
             prayer_text: devotionDuJour.prayer_text,
+            audio_url: devotionDuJour.audio_url || '',
+            audio_title: devotionDuJour.audio_title || '',
+            audio_description: devotionDuJour.audio_description || '',
+            cover_image_url: devotionDuJour.cover_image_url || '',
             is_published: devotionDuJour.is_published,
           });
         }
@@ -182,13 +189,21 @@ export default function AdminSection() {
       verse_text: devotion.verse_text,
       meditation_text: devotion.meditation_text || '',
       prayer_text: devotion.prayer_text,
+      audio_url: devotion.audio_url || '',
+      audio_title: devotion.audio_title || '',
+      audio_description: devotion.audio_description || '',
+      cover_image_url: devotion.cover_image_url || '',
       is_published: devotion.is_published,
     });
+    definirFichierExhortationVocale(null);
+    definirFichierImageDevotion(null);
   };
 
   const preparerNouvelleDevotion = () => {
     definirDevotionSelectionneeId(null);
     definirFormulaireDevotion(devotionVide());
+    definirFichierExhortationVocale(null);
+    definirFichierImageDevotion(null);
   };
 
   const enregistrerDevotion = async (e: FormEvent) => {
@@ -198,26 +213,60 @@ export default function AdminSection() {
       return;
     }
 
+    const fichiersTeleverses: FichierBackend[] = [];
+
     try {
+      let audioUrl = formulaireDevotion.audio_url || '';
+      let coverImageUrl = formulaireDevotion.cover_image_url || '';
+
+      if (fichierExhortationVocale) {
+        const fichierAudio = await api.envoyerFichier(fichierExhortationVocale, {
+          legend: [formulaireDevotion.audio_title, formulaireDevotion.audio_description].filter(Boolean).join(' - '),
+          usage: 'gallery',
+          categorie: 'Prière du jour - audio',
+        });
+        fichiersTeleverses.push(fichierAudio);
+        audioUrl = obtenirUrlFichier(fichierAudio.id);
+      }
+
+      if (fichierImageDevotion) {
+        const fichierImage = await api.envoyerFichier(fichierImageDevotion, {
+          usage: 'cover',
+          categorie: 'Prière du jour',
+        });
+        fichiersTeleverses.push(fichierImage);
+        coverImageUrl = obtenirUrlFichier(fichierImage.id);
+      }
+
       const donnees = {
         ...formulaireDevotion,
         verse_reference: formulaireDevotion.verse_reference.trim(),
         verse_text: formulaireDevotion.verse_text.trim(),
         meditation_text: formulaireDevotion.meditation_text.trim(),
         prayer_text: formulaireDevotion.prayer_text.trim(),
+        audio_url: audioUrl.trim(),
+        audio_title: (formulaireDevotion.audio_title || '').trim(),
+        audio_description: (formulaireDevotion.audio_description || '').trim(),
+        cover_image_url: coverImageUrl.trim(),
       };
       const devotion = devotionSelectionneeId
         ? await api.modifierDevotion(devotionSelectionneeId, donnees)
         : await api.creerDevotion(donnees);
 
+      if (fichiersTeleverses.length > 0) {
+        definirFichiers(prev => [...fichiersTeleverses, ...prev]);
+      }
       definirDevotions(prev => {
         const existe = prev.some(item => item.id === devotion.id);
         const liste = existe ? prev.map(item => item.id === devotion.id ? devotion : item) : [devotion, ...prev];
         return liste.sort((a, b) => b.scheduled_date.localeCompare(a.scheduled_date));
       });
       selectionnerDevotion(devotion);
+      definirFichierExhortationVocale(null);
+      definirFichierImageDevotion(null);
       afficherNotification(devotionSelectionneeId ? "Prière du jour mise à jour." : "Prière du jour publiée.");
     } catch (erreur) {
+      await Promise.all(fichiersTeleverses.map((fichier) => api.supprimerFichier(fichier.id).catch(() => undefined)));
       afficherNotification(erreur instanceof Error ? erreur.message : "Impossible d'enregistrer la prière du jour.");
     }
   };
@@ -377,28 +426,6 @@ export default function AdminSection() {
     }
   };
 
-  const envoyerExhortationVocale = async () => {
-    if (!fichierExhortationVocale) {
-      afficherNotification("Veuillez choisir un fichier audio pour l'exhortation.");
-      return;
-    }
-
-    try {
-      const fichier = await api.envoyerFichier(fichierExhortationVocale, {
-        legend: [titreExhortationVocale, descriptionExhortationVocale].filter(Boolean).join(' - '),
-        usage: 'gallery',
-        categorie: 'Exhortation vocale',
-      });
-      definirFichiers(prev => [fichier, ...prev]);
-      definirFichierExhortationVocale(null);
-      definirTitreExhortationVocale('');
-      definirDescriptionExhortationVocale('');
-      afficherNotification("Exhortation vocale publiée.");
-    } catch (erreur) {
-      afficherNotification(erreur instanceof Error ? erreur.message : "Publication de l'exhortation impossible.");
-    }
-  };
-
   const changerStatutDonation = async (id: string, status: StatutDonation) => {
     try {
       const donation = await api.mettreAJourStatutDonation(id, status);
@@ -415,11 +442,6 @@ export default function AdminSection() {
 
   const imagesGalerie = fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'gallery');
   const imagesBaseSite = fichiers.filter((fichier) => fichier.mimetype.startsWith('image/') && (fichier.usage || 'gallery') === 'cover');
-  const exhortationsVocales = fichiers.filter((fichier) =>
-    fichier.mimetype.startsWith('audio/') &&
-    fichier.categorie?.trim().toLowerCase() === 'exhortation vocale'
-  );
-
   return (
     <section id="admin-panel-screen" className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
@@ -829,6 +851,90 @@ export default function AdminSection() {
                     />
                   </div>
 
+                  <div className="rounded-lg border border-dashed border-slate-300 bg-white/50 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                    <h4 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Exhortation vocale</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Titre de l'exhortation</label>
+                        <input
+                          type="text"
+                          value={formulaireDevotion.audio_title || ''}
+                          onChange={(e) => definirFormulaireDevotion({ ...formulaireDevotion, audio_title: e.target.value })}
+                          placeholder="Titre de l'exhortation"
+                          className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Description courte</label>
+                        <input
+                          type="text"
+                          value={formulaireDevotion.audio_description || ''}
+                          onChange={(e) => definirFormulaireDevotion({ ...formulaireDevotion, audio_description: e.target.value })}
+                          placeholder="Description courte"
+                          className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Fichier audio</label>
+                      <input
+                        type="file"
+                        accept="audio/*"
+                        onChange={(e) => definirFichierExhortationVocale(e.target.files?.[0] || null)}
+                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                      />
+                      {(fichierExhortationVocale || formulaireDevotion.audio_url) && (
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-[10px] font-mono text-[#af894d] truncate">
+                            {fichierExhortationVocale ? fichierExhortationVocale.name : 'Audio déjà enregistré'}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              definirFichierExhortationVocale(null);
+                              definirFormulaireDevotion({
+                                ...formulaireDevotion,
+                                audio_url: '',
+                                audio_title: '',
+                                audio_description: '',
+                              });
+                            }}
+                            className="inline-flex items-center justify-center gap-2 self-start px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/30"
+                          >
+                            <X className="w-3 h-3" /> Retirer l'audio
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-dashed border-slate-300 bg-white/50 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                    <h4 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Image de couverture</h4>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => definirFichierImageDevotion(e.target.files?.[0] || null)}
+                      className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
+                    />
+                    {(fichierImageDevotion || formulaireDevotion.cover_image_url) && (
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-[10px] font-mono text-[#af894d] truncate">
+                          {fichierImageDevotion ? fichierImageDevotion.name : 'Image déjà enregistrée'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            definirFichierImageDevotion(null);
+                            definirFormulaireDevotion({ ...formulaireDevotion, cover_image_url: '' });
+                          }}
+                          className="inline-flex items-center justify-center gap-2 self-start px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/30"
+                        >
+                          <X className="w-3 h-3" /> Retirer l'image
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
                     <input
                       type="checkbox"
@@ -880,85 +986,6 @@ export default function AdminSection() {
                   </div>
                   {devotions.length === 0 && (
                     <p className="text-xs text-slate-500 text-center italic">Aucune prière du jour n'est encore programmée.</p>
-                  )}
-                </div>
-
-                <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-xl border border-dashed border-[#e7d4b0] space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Exhortation vocale</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={titreExhortationVocale}
-                        onChange={(e) => definirTitreExhortationVocale(e.target.value)}
-                        placeholder="Titre de l'exhortation"
-                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
-                      />
-                      <input
-                        type="text"
-                        value={descriptionExhortationVocale}
-                        onChange={(e) => definirDescriptionExhortationVocale(e.target.value)}
-                        placeholder="Description courte"
-                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
-                      />
-                    </div>
-                    <div className="space-y-3 rounded-lg border border-dashed border-slate-300 bg-white/50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        Fichier audio
-                      </label>
-                      <input
-                        type="file"
-                        accept="audio/*"
-                        onChange={(e) => definirFichierExhortationVocale(e.target.files?.[0] || null)}
-                        className="w-full px-3 py-2 text-sm rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-700"
-                      />
-                      {fichierExhortationVocale && (
-                        <p className="text-[10px] font-mono text-[#af894d] truncate">
-                          {fichierExhortationVocale.name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={envoyerExhortationVocale}
-                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#af894d] text-white text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#936f3c] transition-all cursor-pointer"
-                    >
-                      <Save className="w-4 h-4" /> Publier l'exhortation
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Exhortations vocales publiées</h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {exhortationsVocales.map((exhortation) => (
-                      <div key={exhortation.id} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between group hover:border-[#af894d] transition-all">
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-[#af894d] shrink-0">
-                            <Volume2 className="w-5 h-5" />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="font-bold text-sm truncate">{exhortation.legend?.trim() || exhortation.original_name}</h4>
-                            <p className="text-xs text-slate-500 font-mono">
-                              {Math.round(exhortation.size / 1024)} Ko
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <audio controls preload="metadata" src={obtenirUrlFichier(exhortation.id)} className="h-10 w-full sm:w-64">
-                            Lecture audio indisponible.
-                          </audio>
-                          <button onClick={() => supprimerItem('galerie', exhortation.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all cursor-pointer">
-                            <Trash2 className="w-4 h-4"/>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {exhortationsVocales.length === 0 && (
-                    <p className="text-xs text-slate-500 text-center italic">Aucune exhortation vocale n'est encore publiée.</p>
                   )}
                 </div>
               </motion.div>

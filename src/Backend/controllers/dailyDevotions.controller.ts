@@ -10,18 +10,35 @@ type FormulaireDevotion = {
   verse_text?: string;
   meditation_text?: string;
   prayer_text?: string;
+  audio_url?: string | null;
+  audio_title?: string | null;
+  audio_description?: string | null;
+  cover_image_url?: string | null;
   is_published?: boolean;
 };
 
 const selectionDevotion = `
   id, scheduled_date, verse_reference, verse_text, meditation_text,
-  prayer_text, is_published, created_at, updated_at
+  prayer_text, audio_url, audio_title, audio_description, cover_image_url,
+  is_published, created_at, updated_at
 `;
 
 function nettoyerDate(date?: string): string | null {
   if (!date?.trim()) return null;
   const valeur = date.trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(valeur) ? valeur : null;
+}
+
+function nettoyerChampTexte(valeur: string | null | undefined): string | null | undefined {
+  if (valeur === undefined) return undefined;
+  if (valeur === null) return null;
+  return valeur.trim();
+}
+
+function nettoyerChampNullable(valeur: string | null | undefined): string | null | undefined {
+  if (valeur === undefined) return undefined;
+  if (valeur === null) return null;
+  return valeur.trim() || null;
 }
 
 export async function getCurrentDevotion(_req: AuthRequest, res: Response): Promise<void> {
@@ -67,6 +84,10 @@ export async function createDevotion(req: AuthRequest, res: Response): Promise<v
   const verseText = body.verse_text?.trim();
   const meditationText = body.meditation_text?.trim();
   const prayerText = body.prayer_text?.trim();
+  const audioUrl = body.audio_url?.trim() || null;
+  const audioTitle = body.audio_title?.trim() || null;
+  const audioDescription = body.audio_description?.trim() || null;
+  const coverImageUrl = body.cover_image_url?.trim() || null;
 
   if (!scheduledDate || !verseReference || !verseText || !prayerText) {
     sendError(res, 'La date, la référence, le verset et la prière sont requis.');
@@ -77,10 +98,10 @@ export async function createDevotion(req: AuthRequest, res: Response): Promise<v
     const id = uuidv4();
     const devotion = await db.one<DailyDevotion>(
       `INSERT INTO daily_devotions
-        (id, scheduled_date, verse_reference, verse_text, meditation_text, prayer_text, is_published)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+        (id, scheduled_date, verse_reference, verse_text, meditation_text, prayer_text, audio_url, audio_title, audio_description, cover_image_url, is_published)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING ${selectionDevotion}`,
-      [id, scheduledDate, verseReference, verseText, meditationText || '', prayerText, body.is_published !== false]
+      [id, scheduledDate, verseReference, verseText, meditationText || '', prayerText, audioUrl, audioTitle, audioDescription, coverImageUrl, body.is_published !== false]
     );
 
     sendSuccess(res, devotion, 'Dévotion programmée.', 201);
@@ -93,6 +114,14 @@ export async function createDevotion(req: AuthRequest, res: Response): Promise<v
 export async function updateDevotion(req: AuthRequest, res: Response): Promise<void> {
   const body = req.body as Partial<FormulaireDevotion>;
   const scheduledDate = body.scheduled_date === undefined ? undefined : nettoyerDate(body.scheduled_date);
+  const verseReference = nettoyerChampTexte(body.verse_reference);
+  const verseText = nettoyerChampTexte(body.verse_text);
+  const meditationText = nettoyerChampTexte(body.meditation_text);
+  const prayerText = nettoyerChampTexte(body.prayer_text);
+  const audioUrl = nettoyerChampNullable(body.audio_url);
+  const audioTitle = nettoyerChampNullable(body.audio_title);
+  const audioDescription = nettoyerChampNullable(body.audio_description);
+  const coverImageUrl = nettoyerChampNullable(body.cover_image_url);
 
   if (body.scheduled_date !== undefined && !scheduledDate) {
     sendError(res, 'La date doit être au format AAAA-MM-JJ.');
@@ -102,21 +131,39 @@ export async function updateDevotion(req: AuthRequest, res: Response): Promise<v
   try {
     const devotion = await db.maybeOne<DailyDevotion>(
       `UPDATE daily_devotions
-       SET scheduled_date = COALESCE($1, scheduled_date),
-           verse_reference = COALESCE($2, verse_reference),
-           verse_text = COALESCE($3, verse_text),
-           meditation_text = COALESCE($4, meditation_text),
-           prayer_text = COALESCE($5, prayer_text),
-           is_published = COALESCE($6, is_published),
+       SET scheduled_date = CASE WHEN $1 THEN $2 ELSE scheduled_date END,
+           verse_reference = CASE WHEN $3 THEN $4 ELSE verse_reference END,
+           verse_text = CASE WHEN $5 THEN $6 ELSE verse_text END,
+           meditation_text = CASE WHEN $7 THEN $8 ELSE meditation_text END,
+           prayer_text = CASE WHEN $9 THEN $10 ELSE prayer_text END,
+           audio_url = CASE WHEN $11 THEN $12 ELSE audio_url END,
+           audio_title = CASE WHEN $13 THEN $14 ELSE audio_title END,
+           audio_description = CASE WHEN $15 THEN $16 ELSE audio_description END,
+           cover_image_url = CASE WHEN $17 THEN $18 ELSE cover_image_url END,
+           is_published = CASE WHEN $19 THEN $20 ELSE is_published END,
            updated_at = now()
-       WHERE id = $7
+       WHERE id = $21
        RETURNING ${selectionDevotion}`,
       [
+        body.scheduled_date !== undefined,
         scheduledDate ?? null,
-        body.verse_reference?.trim() || null,
-        body.verse_text?.trim() || null,
-        body.meditation_text?.trim() || null,
-        body.prayer_text?.trim() || null,
+        body.verse_reference !== undefined,
+        verseReference ?? null,
+        body.verse_text !== undefined,
+        verseText ?? null,
+        body.meditation_text !== undefined,
+        meditationText ?? '',
+        body.prayer_text !== undefined,
+        prayerText ?? null,
+        body.audio_url !== undefined,
+        audioUrl ?? null,
+        body.audio_title !== undefined,
+        audioTitle ?? null,
+        body.audio_description !== undefined,
+        audioDescription ?? null,
+        body.cover_image_url !== undefined,
+        coverImageUrl ?? null,
+        typeof body.is_published === 'boolean',
         typeof body.is_published === 'boolean' ? body.is_published : null,
         req.params.id,
       ]

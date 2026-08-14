@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Check, Copy, Heart, Mic, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { api, DevotionDuJourBackend, FichierBackend, obtenirUrlFichier } from '../services/api';
+import { api, DevotionDuJourBackend } from '../services/api';
 
 export default function PriereDuJourSection() {
   const [messageAction, definirMessageAction] = useState('');
   const [devotion, definirDevotion] = useState<DevotionDuJourBackend | null>(null);
   const [chargementDevotion, definirChargementDevotion] = useState(true);
-  const [exhortationsVocales, definirExhortationsVocales] = useState<FichierBackend[]>([]);
   const date = useMemo(() => {
     const maintenant = new Date();
     return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(maintenant);
@@ -28,18 +27,6 @@ export default function PriereDuJourSection() {
       .finally(() => {
         if (composantActif) definirChargementDevotion(false);
       });
-
-    api.listerFichiersPublics('all')
-      .then((fichiers) => {
-        if (!composantActif) return;
-        definirExhortationsVocales(
-          fichiers.filter((fichier) =>
-            fichier.mimetype.startsWith('audio/') &&
-            fichier.categorie?.trim().toLowerCase() === 'exhortation vocale'
-          )
-        );
-      })
-      .catch((erreur) => console.error('Chargement des exhortations vocales impossible:', erreur));
 
     return () => {
       composantActif = false;
@@ -88,6 +75,16 @@ export default function PriereDuJourSection() {
 
             {!chargementDevotion && devotion && (
               <>
+                {devotion.cover_image_url && (
+                  <div className="overflow-hidden rounded-2xl border border-[#e7d4b0]/80 bg-white/70 dark:border-slate-700 dark:bg-slate-950/30">
+                    <img
+                      src={devotion.cover_image_url}
+                      alt="Couverture de la prière du jour"
+                      className="h-64 w-full object-cover sm:h-80"
+                    />
+                  </div>
+                )}
+
                 <blockquote className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-6 text-center dark:border-slate-700 dark:bg-slate-950/30">
                   <BookOpen className="mx-auto mb-3 w-5 h-5 text-[#af894d] dark:text-[#c29f63]" />
                   <p className="font-serif text-xl italic leading-relaxed text-slate-800 dark:text-slate-200">« {devotion.verse_text} »</p>
@@ -97,6 +94,27 @@ export default function PriereDuJourSection() {
                 <div className="rounded-2xl bg-slate-900 p-7 text-center text-slate-100 shadow-lg dark:bg-slate-950 sm:p-9">
                   <p className="font-serif text-lg leading-8 sm:text-xl whitespace-pre-wrap">{devotion.prayer_text}</p>
                 </div>
+
+                {devotion.audio_url && (
+                  <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/80 p-6 dark:border-slate-700 dark:bg-slate-950/30">
+                    <div className="mb-5 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#af894d]/15 text-[#af894d] dark:text-[#c29f63]">
+                        <Mic className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h2 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">
+                          {devotion.audio_title?.trim() || 'Exhortation vocale'}
+                        </h2>
+                        {devotion.audio_description?.trim() && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{devotion.audio_description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <audio controls preload="metadata" src={devotion.audio_url} className="w-full">
+                      Votre navigateur ne supporte pas la lecture audio.
+                    </audio>
+                  </div>
+                )}
               </>
             )}
 
@@ -104,33 +122,6 @@ export default function PriereDuJourSection() {
               <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/70 p-8 text-center dark:border-slate-700 dark:bg-slate-950/30">
                 <BookOpen className="mx-auto mb-3 w-5 h-5 text-[#af894d] dark:text-[#c29f63]" />
                 <p className="text-sm text-slate-500 dark:text-slate-400">Aucune prière du jour n'est encore publiée.</p>
-              </div>
-            )}
-
-            {exhortationsVocales.length > 0 && (
-              <div className="rounded-2xl border border-[#e7d4b0]/80 bg-white/80 p-6 dark:border-slate-700 dark:bg-slate-950/30">
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#af894d]/15 text-[#af894d] dark:text-[#c29f63]">
-                    <Mic className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">Exhortations du jour vocales</h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Écoutez les messages audio partagés pour aujourd'hui.</p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {exhortationsVocales.map((exhortation) => (
-                    <article key={exhortation.id} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{exhortation.legend?.trim() || exhortation.original_name}</h3>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">{Math.round(exhortation.size / 1024)} Ko</span>
-                      </div>
-                      <audio controls preload="metadata" src={obtenirUrlFichier(exhortation.id)} className="w-full">
-                        Votre navigateur ne supporte pas la lecture audio.
-                      </audio>
-                    </article>
-                  ))}
-                </div>
               </div>
             )}
           </div>
